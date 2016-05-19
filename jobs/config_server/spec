@@ -1,0 +1,7 @@
+---
+name: config_server
+templates:
+  ctl.erb: bin/ctl
+
+packages:
+  - config_server

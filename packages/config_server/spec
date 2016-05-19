@@ -1,0 +1,7 @@
+---
+name: config_server
+
+dependencies:
+  - golang
+files:
+  - config_server/**/*.go

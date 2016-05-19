@@ -1,0 +1,14 @@
+# abort script on any command that exits with a non zero value
+set -e -x
+
+export GOROOT=$(readlink -nf /var/vcap/packages/golang)
+export GOPATH=$PWD
+export PATH=$GOROOT/bin:$PATH
+
+mkdir $BOSH_INSTALL_TARGET/bin
+
+echo `pwd`
+
+echo "`ls -r`"
+
+go build -o $BOSH_INSTALL_TARGET/bin/config-server config_server/main.go
