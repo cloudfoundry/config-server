@@ -5,3 +5,6 @@ templates:
 
 packages:
   - config_server
+
+properties:
+  config_server.port: { description: 'config server port number', default: 8080 }
