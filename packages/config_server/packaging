@@ -7,4 +7,11 @@ export PATH=$GOROOT/bin:$PATH
 
 mkdir $BOSH_INSTALL_TARGET/bin
 
-go build -o $BOSH_INSTALL_TARGET/bin/config-server config_server/main.go
+mkdir -p src
+mv config_server yaml src
+
+# Compile and install the yaml library
+go install yaml
+
+# Compile config-server
+go build -o $BOSH_INSTALL_TARGET/bin/config-server config_server

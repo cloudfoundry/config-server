@@ -5,3 +5,4 @@ dependencies:
   - golang
 files:
   - config_server/**/*.go
+  - yaml/**/*.go
