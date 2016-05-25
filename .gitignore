@@ -1,6 +1,9 @@
 .blobs
 .dev_builds
 .final_builds
+.DS_Store
 blobs
 dev_releases
 config
+bin
+pkg
