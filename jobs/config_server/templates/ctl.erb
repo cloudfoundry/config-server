@@ -2,17 +2,20 @@
 
 RUN_DIR=/var/vcap/sys/run/config_server
 LOG_DIR=/var/vcap/sys/log/config_server
+CONFIG_FILE=/var/vcap/jobs/config_server/config/config.yml
 PIDFILE=${RUN_DIR}/pid
+
+RUNAS=vcap
 
 case $1 in
 
   start)
     mkdir -p $RUN_DIR $LOG_DIR
-    chown -R vcap:vcap $RUN_DIR $LOG_DIR
+    chown -R $RUNAS:$RUNAS $RUN_DIR $LOG_DIR
 
     echo $$ > $PIDFILE
 
-    /var/vcap/packages/config_server/bin/config-server <%= p('config_server.port') %>\
+    /var/vcap/packages/config_server/bin/config-server $CONFIG_FILE\
       >>  $LOG_DIR/config_server.stdout.log \
       2>> $LOG_DIR/config_server.stderr.log
 
