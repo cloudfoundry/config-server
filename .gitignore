@@ -5,7 +5,7 @@
 .DS_Store
 blobs
 dev_releases
-config
+config/blobs.yml
 bin
 pkg
 *.coverprofile

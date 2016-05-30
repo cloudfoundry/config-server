@@ -1,0 +1,75 @@
+package config_test
+
+import (
+	. "config_server/config"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+	"io/ioutil"
+	"os"
+)
+
+var _ = Describe("ParseConfig", func() {
+
+	Context("Config file does not exist", func() {
+		It("should return an error", func() {
+			_, err := ParseConfig("non-existent-file.yml")
+			Expect(err).ToNot(BeNil())
+		})
+	})
+
+	Describe("Config file exists", func() {
+
+		var configFile *os.File
+
+		BeforeEach(func() {
+			configFile, _ = ioutil.TempFile(os.TempDir(), "server-config-")
+		})
+
+		AfterEach(func() {
+			os.Remove(configFile.Name())
+		})
+
+		Context("has invalid content", func() {
+			It("should return an error", func() {
+				configFile.WriteString("garbage")
+				_, err := ParseConfig(configFile.Name())
+				Expect(err).ToNot(BeNil())
+			})
+		})
+
+		Context("has valid content", func() {
+			It("should return ServerConfig", func() {
+				configFile.WriteString(`
+---
+port: 9000
+database:
+  adapter: postgres
+  user: uword
+  password: pword
+  host: http://www.yahoo.com
+  port: 4300
+  db_name: db
+  connection_options:
+    max_connections: 12
+    pool_timeout: 25
+`)
+				serverConfig, err := ParseConfig(configFile.Name())
+				Expect(err).To(BeNil())
+
+				Expect(serverConfig).ToNot(BeNil())
+				Expect(serverConfig.Port).To(Equal(9000))
+				Expect(serverConfig.Database).ToNot(BeNil())
+				Expect(serverConfig.Database.Adapter).To(Equal("postgres"))
+				Expect(serverConfig.Database.User).To(Equal("uword"))
+				Expect(serverConfig.Database.Password).To(Equal("pword"))
+				Expect(serverConfig.Database.Host).To(Equal("http://www.yahoo.com"))
+				Expect(serverConfig.Database.Port).To(Equal(4300))
+				Expect(serverConfig.Database.Name).To(Equal("db"))
+				Expect(serverConfig.Database.ConnectionOptions).ToNot(BeNil())
+				Expect(serverConfig.Database.ConnectionOptions.MaxConnections).To(Equal(12))
+				Expect(serverConfig.Database.ConnectionOptions.PoolTimeout).To(Equal(25))
+			})
+		})
+	})
+})
