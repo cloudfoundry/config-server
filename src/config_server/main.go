@@ -1,7 +1,9 @@
 package main
 
 import (
+	"config_server/config"
 	"config_server/server"
+	"config_server/store"
 	"fmt"
 	"os"
 )
@@ -12,10 +14,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	serverConfig, err := server.ParseConfig(os.Args[1])
+	serverConfig, err := config.ParseConfig(os.Args[1])
 	if err != nil {
 		panic("Unable to parse configuration file")
 	}
 
-	server.StartServer(serverConfig.Port)
+	server := server.NewServer(store.NewMemoryStore())
+	server.Start(serverConfig.Port)
 }
