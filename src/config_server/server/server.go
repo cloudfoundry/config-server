@@ -24,11 +24,11 @@ func (server ConfigServer) Start(port int) error {
 		return errors.New("DataStore can not be nil")
 	}
 
-	http.HandleFunc("/v1/config/", server.handleRequest)
+	http.HandleFunc("/v1/config/", server.HandleRequest)
 	return http.ListenAndServe(":"+strconv.Itoa(port), nil)
 }
 
-func (server ConfigServer) handleRequest(res http.ResponseWriter, req *http.Request) {
+func (server ConfigServer) HandleRequest(res http.ResponseWriter, req *http.Request) {
 	paths := strings.Split(req.URL.Path, "/")
 
 	if len(paths) != 4 { // We only accept /<version>/config/<key>
