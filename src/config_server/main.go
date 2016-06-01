@@ -9,16 +9,22 @@ import (
 )
 
 func main() {
+
 	if len(os.Args) != 2 {
 		fmt.Printf("Usage: %s <config-file>", os.Args[0])
 		os.Exit(1)
 	}
 
-	serverConfig, err := config.ParseConfig(os.Args[1])
+	config, err := config.ParseConfig(os.Args[1])
 	if err != nil {
-		panic("Unable to parse configuration file")
+		panic("Unable to parse configuration file\n" + err.Error())
 	}
 
-	server := server.NewServer(store.NewMemoryStore())
-	server.Start(serverConfig.Port)
+	store := store.CreateStore(config.Database)
+	server := server.NewServer(store)
+
+	err = server.Start(config.Port)
+	if err != nil {
+		panic("Unable to start server\n" + err.Error())
+	}
 }

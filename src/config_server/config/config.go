@@ -7,18 +7,20 @@ import (
 
 type ServerConfig struct {
 	Port int
-	Database struct {
-		Adapter string
-		User string
-		Password string
-		Host string
-		Port int
-		Name string `yaml:"db_name"`
-		ConnectionOptions struct {
-			MaxConnections int `yaml:"max_connections"`
-			PoolTimeout int	`yaml:"pool_timeout"`
-		} `yaml:"connection_options"`
-	}
+	Database DBConfig
+}
+
+type DBConfig struct {
+	Adapter string
+	User string
+	Password string
+	Host string
+	Port int
+	Name string `yaml:"db_name"`
+	ConnectionOptions struct {
+		MaxConnections int `yaml:"max_connections"`
+		PoolTimeout int	`yaml:"pool_timeout"`
+	} `yaml:"connection_options"`
 }
 
 func ParseConfig(filename string) (ServerConfig, error) {
