@@ -9,7 +9,18 @@ import (
 	"config_server/store"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"errors"
 )
+
+type BadMockStore struct {}
+
+func (store BadMockStore) Get(key string) (string, error) {
+	return "", errors.New("")
+}
+
+func (store BadMockStore) Put(key string, value string) (error) {
+	return errors.New("")
+}
 
 var _ = Describe("Server", func() {
 
@@ -38,44 +49,100 @@ var _ = Describe("Server", func() {
 			configServer = server.NewServer(store.NewMemoryStore())
 		})
 
-		It("should return 200 OK for PUT", func() {
-			req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("value=blabla"))
-			req.Header.Set("Content-Type", "application/x-www-form-urlencoded;")
-			recorder := httptest.NewRecorder()
-			configServer.HandleRequest(recorder, req)
+		Context("when URL path is invalid", func() {
 
-			Expect(recorder.Code).To(Equal(http.StatusOK))
+			It("should return 404 Not Found for invalid paths", func() {
+				invalidPaths := []string{"/v1/config/test/case", "/v1"}
+
+				for _, path := range invalidPaths {
+					req, _ := http.NewRequest("GET", path, nil)
+					recorder := httptest.NewRecorder()
+					configServer.HandleRequest(recorder, req)
+
+					Expect(recorder.Code).To(Equal(http.StatusNotFound))
+				}
+			})
+
+			It("should return 404 Not Found for other methods", func() {
+				invalidMethods := [...]string{"DELETE", "POST", "PATCH"}
+				http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("value=blabla"))
+
+				for _, method := range invalidMethods {
+					req, _ := http.NewRequest(method, "/v1/config/bla", nil)
+					recorder := httptest.NewRecorder()
+					configServer.HandleRequest(recorder, req)
+
+					Expect(recorder.Code).To(Equal(http.StatusNotFound))
+				}
+			})
+
+			It("should return 404 Not Found when key is not provided for fetch", func() {
+				req, _ := http.NewRequest("GET", "/v1/config/", nil)
+				getRecorder := httptest.NewRecorder()
+				configServer.HandleRequest(getRecorder, req)
+
+				Expect(getRecorder.Code).To(Equal(http.StatusNotFound))
+			})
+
+			It("should return 404 Not Found when key is not provided for update", func() {
+				req, _ := http.NewRequest("PUT", "/v1/config/", nil)
+				getRecorder := httptest.NewRecorder()
+				configServer.HandleRequest(getRecorder, req)
+
+				Expect(getRecorder.Code).To(Equal(http.StatusNotFound))
+			})
 		})
 
-		It("should return 404 when path is not found for PUT", func() {
-			req, _ := http.NewRequest("PUT", "/v1/bla", strings.NewReader("value=blabla"))
-			req.Header.Set("Content-Type", "application/x-www-form-urlencoded;")
-			recorder := httptest.NewRecorder()
-			configServer.HandleRequest(recorder, req)
+		Context("when URL path is valid", func() {
 
-			Expect(recorder.Code).To(Equal(http.StatusNotFound))
-		})
+			It("should return 200 OK when config key/value is updated", func() {
+				req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("value=blabla"))
+				req.Header.Set("Content-Type", "application/x-www-form-urlencoded;")
+				recorder := httptest.NewRecorder()
+				configServer.HandleRequest(recorder, req)
 
-		It("should return 404 when path is not found for GET", func() {
-			req, _ := http.NewRequest("GET", "/v1/bla", nil)
-			recorder := httptest.NewRecorder()
-			configServer.HandleRequest(recorder, req)
+				Expect(recorder.Code).To(Equal(http.StatusOK))
+			})
 
-			Expect(recorder.Code).To(Equal(http.StatusNotFound))
-		})
+			It("should return 200 OK when valid key is retrieved", func() {
+				putReq, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("value=blabla"))
+				putReq.Header.Set("Content-Type", "application/x-www-form-urlencoded;")
+				putRecorder := httptest.NewRecorder()
+				configServer.HandleRequest(putRecorder, putReq)
 
-		It("should return 200 OK for PUT when valid key is retrieved", func() {
-			putReq, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("value=blabla"))
-			putReq.Header.Set("Content-Type", "application/x-www-form-urlencoded;")
-			putRecorder := httptest.NewRecorder()
-			configServer.HandleRequest(putRecorder, putReq)
+				getReq, _ := http.NewRequest("GET", "/v1/config/bla/", nil)
+				getRecorder := httptest.NewRecorder()
+				configServer.HandleRequest(getRecorder, getReq)
 
-			getReq, _ := http.NewRequest("GET", "/v1/config/bla", nil)
-			getRecorder := httptest.NewRecorder()
-			configServer.HandleRequest(getRecorder, getReq)
+				Expect(getRecorder.Code).To(Equal(http.StatusOK))
+				Expect(getRecorder.Body.String()).To(Equal("{\"path\":\"bla\",\"value\":\"blabla\"}"))
+			})
 
-			Expect(getRecorder.Code).To(Equal(http.StatusOK))
-			Expect(getRecorder.Body.String()).To(Equal("{\"path\":\"bla\",\"value\":\"blabla\"}"))
+			It("should return 404 Not Found when key is not found", func() {
+				req, _ := http.NewRequest("GET", "/v1/config/test", nil)
+				getRecorder := httptest.NewRecorder()
+				configServer.HandleRequest(getRecorder, req)
+
+				Expect(getRecorder.Code).To(Equal(http.StatusNotFound))
+			})
+
+			It("should return 400 Bad Request when value is not provided for update", func() {
+				req, _ := http.NewRequest("PUT", "/v1/config/key", nil)
+				getRecorder := httptest.NewRecorder()
+				configServer.HandleRequest(getRecorder, req)
+
+				Expect(getRecorder.Code).To(Equal(http.StatusBadRequest))
+			})
+
+			It("should return 500 Internal Server Error if an error occurs", func() {
+				configServer = server.NewServer(BadMockStore{})
+
+				req, _ := http.NewRequest("GET", "/v1/config/key", nil)
+				getRecorder := httptest.NewRecorder()
+				configServer.HandleRequest(getRecorder, req)
+
+				Expect(getRecorder.Code).To(Equal(http.StatusInternalServerError))
+			})
 		})
 	})
 })

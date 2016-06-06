@@ -1,9 +1,8 @@
 package store
 
 import (
-	_ "github.com/lib/pq"
 	"config_server/config"
-	"errors"
+	"database/sql"
 )
 
 type DatabaseStore struct {
@@ -15,10 +14,6 @@ func NewDatabaseStore(config config.DBConfig) DatabaseStore {
 }
 
 func (store DatabaseStore) Put(key string, value string) error {
-
-	if &key == nil || &value == nil {
-		return errors.New("Key/Value cannot be nil")
-	}
 
 	db, err := DBConnection(store.config)
 	if err != nil {
@@ -42,18 +37,12 @@ func (store DatabaseStore) Get(key string) (string, error) {
 	}
 	defer db.Close()
 
-	rows, err := db.Query(SQLReplacer(store.config.Adapter, "SELECT value FROM config c  WHERE c.key = ?"), key)
-	if err != nil {
-		return value, err
-	}
-	defer rows.Close()
+	query := SQLReplacer(store.config.Adapter, "SELECT value FROM config c WHERE c.key = ?")
+	err = db.QueryRow(query, key).Scan(&value)
 
-	for rows.Next() {
-		err := rows.Scan(&value)
-		if err != nil {
-			return value, err
-		}
+	if err == sql.ErrNoRows {
+		return value, nil
 	}
 
-	return value, nil
+	return value, err
 }

@@ -35,5 +35,6 @@ properties:
   config_server.db.connection_options:
     description: Additional options for the database
     default:
-      max_connections: 32  #Maximum size of the connection pool
-      pool_timeout: 10     #Number of seconds to wait if a connection cannot be acquired before  raising an error
+      max_open_connections: 32  #Maximum number of open connections to the database
+      max_idle_connections: 10  #Maximum number of connections in the idle connection pool
+

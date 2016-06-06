@@ -1,18 +1,18 @@
 package store
 
 import (
-	"config_server/config"
+	. "config_server/config"
 )
 
-func CreateStore(config config.DBConfig) Store {
+func CreateStore(dbConfig DBConfig) Store {
 
 	var dataStore Store
 
-	if &config == nil {
+	if dbConfig == (DBConfig{}) {
 		dataStore = NewMemoryStore()
 	} else {
-		dataStore = NewDatabaseStore(config)
+		dataStore = NewDatabaseStore(dbConfig)
 	}
-	
+
 	return dataStore
 }

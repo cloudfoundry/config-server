@@ -51,8 +51,8 @@ database:
   port: 4300
   db_name: db
   connection_options:
-    max_connections: 12
-    pool_timeout: 25
+    max_open_connections: 12
+    max_idle_connections: 25
 `)
 				serverConfig, err := ParseConfig(configFile.Name())
 				Expect(err).To(BeNil())
@@ -67,8 +67,8 @@ database:
 				Expect(serverConfig.Database.Port).To(Equal(4300))
 				Expect(serverConfig.Database.Name).To(Equal("db"))
 				Expect(serverConfig.Database.ConnectionOptions).ToNot(BeNil())
-				Expect(serverConfig.Database.ConnectionOptions.MaxConnections).To(Equal(12))
-				Expect(serverConfig.Database.ConnectionOptions.PoolTimeout).To(Equal(25))
+				Expect(serverConfig.Database.ConnectionOptions.MaxOpenConnections).To(Equal(12))
+				Expect(serverConfig.Database.ConnectionOptions.MaxIdleConnections).To(Equal(25))
 			})
 		})
 	})

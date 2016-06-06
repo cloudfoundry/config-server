@@ -29,9 +29,9 @@ func (server ConfigServer) Start(port int) error {
 }
 
 func (server ConfigServer) HandleRequest(res http.ResponseWriter, req *http.Request) {
-	paths := strings.Split(req.URL.Path, "/")
 
-	if len(paths) != 4 { // We only accept /<version>/config/<key>
+	paths := strings.Split(strings.Trim(req.URL.Path, "/"), "/")
+	if len(paths) != 3 {
 		res.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -49,35 +49,44 @@ func (server ConfigServer) HandleRequest(res http.ResponseWriter, req *http.Requ
 }
 
 func (server ConfigServer) handleGet(key string, res http.ResponseWriter) {
+
 	value, err := server.store.Get(key)
 	if err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
-		io.WriteString(res, err.Error())
+		server.respond(res, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	if value == "" {
-		res.WriteHeader(http.StatusNotFound)
+		server.respond(res, http.StatusNotFound, "")
 		return
 	}
 
 	response, err := ConfigResponse{Path: key, Value: value}.Json()
 	if err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
-		io.WriteString(res, err.Error())
+		server.respond(res, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	res.WriteHeader(http.StatusOK)
-	io.WriteString(res, response)
+	server.respond(res, http.StatusOK, response)
 }
 
 func (server ConfigServer) handlePut(key string, value string, res http.ResponseWriter) {
-	err := server.store.Put(key, value)
-	if err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
-		io.WriteString(res, err.Error())
+
+	if value == "" {
+		server.respond(res, http.StatusBadRequest, "Value cannot be empty")
 		return
 	}
+
+	err := server.store.Put(key, value)
+	if err != nil {
+		server.respond(res, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	res.WriteHeader(http.StatusOK)
+}
+
+func (server ConfigServer) respond(res http.ResponseWriter, status int, message string) {
+	res.WriteHeader(status)
+	io.WriteString(res, message)
 }

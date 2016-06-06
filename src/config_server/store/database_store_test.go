@@ -1,10 +1,8 @@
 package store_test
 
 import (
-	. "config_server/store"
-
 	. "github.com/onsi/ginkgo"
-	//	. "github.com/onsi/gomega"
+	"config_server/config"
 )
 
 var _ = Describe("DatabaseStore", func() {
@@ -13,7 +11,7 @@ var _ = Describe("DatabaseStore", func() {
 		var store DatabaseStore
 
 		BeforeEach(func() {
-			store = NewDatabaseStore()
+			store = NewDatabaseStore(config.DBConfig{})
 		})
 
 		Context("calling put with valid data", func() {
