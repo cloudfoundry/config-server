@@ -29,7 +29,7 @@ var _ = Describe("DatabaseFactory", func() {
 
 		It("returns correct connection string for postgres", func() {
 			dbConfig := config.DBConfig {
-				Adapter: "Postgres",
+				Adapter: "postgres",
 				User: "bosh",
 				Password: "bosh-password",
 				Host: "host",
