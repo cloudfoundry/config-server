@@ -2,7 +2,6 @@ package store
 
 import (
 	"database/sql"
-	"fmt"
 )
 
 type rowsWrapper struct {
