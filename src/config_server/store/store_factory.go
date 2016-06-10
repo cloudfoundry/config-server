@@ -7,17 +7,22 @@ import (
 
 func CreateStore(dbConfig DBConfig) Store {
 
-	var dataStore Store
+	var store Store
 
 	if dbConfig == (DBConfig{}) {
-		dataStore = NewMemoryStore()
+		store = NewMemoryStore()
+
 	} else if (strings.EqualFold(dbConfig.Adapter, "postgres")) {
-		dataStore = NewPostgresStore(dbConfig)
+		dbProvider := NewConcreteDbProvider(NewSqlWrapper(), dbConfig)
+		store = NewPostgresStore(dbProvider)
+
 	} else if (strings.EqualFold(dbConfig.Adapter, "mysql")) {
-		dataStore = NewMysqlStore(dbConfig)
+		dbProvider := NewConcreteDbProvider(NewSqlWrapper(), dbConfig)
+		store = NewMysqlStore(dbProvider)
+
 	} else {
 		panic("Unsupported adapter")
 	}
 
-	return dataStore
+	return store
 }
