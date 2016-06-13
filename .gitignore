@@ -6,6 +6,7 @@
 blobs
 dev_releases
 config/blobs.yml
+config/private.yml
 bin
 pkg
 *.coverprofile

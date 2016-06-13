@@ -15,16 +15,17 @@ case $1 in
 
     echo $$ > $PIDFILE
 
-    /var/vcap/packages/config_server/bin/config-server $CONFIG_FILE\
+    exec chpst -u $RUNAS:$RUNAS /var/vcap/packages/config_server/bin/config-server $CONFIG_FILE\
       >>  $LOG_DIR/config_server.stdout.log \
       2>> $LOG_DIR/config_server.stderr.log
 
     ;;
 
   stop)
-    kill -9 `cat $PIDFILE`
-    rm -f $PIDFILE
-
+    if [ -f $PIDFILE ]; then
+      kill -9 `cat $PIDFILE` || true
+      rm -f $PIDFILE
+    fi
     ;;
 
   *)

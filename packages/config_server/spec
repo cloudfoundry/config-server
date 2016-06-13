@@ -5,4 +5,6 @@ dependencies:
   - golang
 files:
   - config_server/**/*.go
-  - yaml/**/*.go
+  - github.com/go-sql-driver/**/*
+  - github.com/lib/pq/**/*.go
+  - gopkg.in/yaml.v2/**/*.go

@@ -8,6 +8,7 @@ import (
 
 type ServerConfig struct {
 	Port int
+	Store string
 	Database DBConfig
 }
 

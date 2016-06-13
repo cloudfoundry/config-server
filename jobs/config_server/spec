@@ -8,31 +8,35 @@ packages:
   - config_server
 
 properties:
-  config_server.port: 
-  	description: 'config server port number'
-  	default: 8080
+  port:
+    description: 'config server port number'
+    default: 8080
+
+  store:
+    description: 'memory|db'
+    default: memory
 
   # Database
-  config_server.db.adapter:
+  db.adapter:
     description: The type of database used (mysql2|postgres|sqlite)
     default: postgres
-  config_server.db.user:
+  db.user:
     description: Username used for the config_server database
     default: config_server
-  config_server.db.password:
+  db.password:
     description: Password used for the config_server database
-  config_server.db.host:
+  db.host:
     description: |
       Address of the config_server database, for example, in the case of AWS RDS:
       rds-instance-name.coqxxxxxxxxx.us-east-1.rds.amazonaws.com
     default: 127.0.0.1
-  config_server.db.port:
+  db.port:
     description: Port of the config_server database (e.g, msyql2 adapter would generally use 3306)
     default: 5432
-  config_server.db.database:
+  db.database:
     description: Name of the config_server database
     default: config_server
-  config_server.db.connection_options:
+  db.connection_options:
     description: Additional options for the database
     default:
       max_open_connections: 32  #Maximum number of open connections to the database

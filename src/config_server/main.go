@@ -20,7 +20,7 @@ func main() {
 		panic("Unable to parse configuration file\n" + err.Error())
 	}
 
-	store := store.CreateStore(config.Database)
+	store := store.CreateStore(config)
 	server := server.NewServer(store)
 
 	err = server.Start(config.Port)

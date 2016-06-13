@@ -5,23 +5,27 @@ import (
 	"strings"
 )
 
-func CreateStore(dbConfig DBConfig) Store {
+func CreateStore(config ServerConfig) Store {
 
 	var store Store
 
-	if dbConfig == (DBConfig{}) {
-		store = NewMemoryStore()
+	if strings.EqualFold(config.Store, "database") {
+		dbConfig := config.Database
 
-	} else if (strings.EqualFold(dbConfig.Adapter, "postgres")) {
-		dbProvider := NewConcreteDbProvider(NewSqlWrapper(), dbConfig)
-		store = NewPostgresStore(dbProvider)
+		if (strings.EqualFold(dbConfig.Adapter, "postgres")) {
+			dbProvider := NewConcreteDbProvider(NewSqlWrapper(), dbConfig)
+			store = NewPostgresStore(dbProvider)
 
-	} else if (strings.EqualFold(dbConfig.Adapter, "mysql")) {
-		dbProvider := NewConcreteDbProvider(NewSqlWrapper(), dbConfig)
-		store = NewMysqlStore(dbProvider)
+		} else if (strings.EqualFold(dbConfig.Adapter, "mysql")) {
+			dbProvider := NewConcreteDbProvider(NewSqlWrapper(), dbConfig)
+			store = NewMysqlStore(dbProvider)
+
+		} else {
+			panic("Unsupported adapter")
+		}
 
 	} else {
-		panic("Unsupported adapter")
+		store = NewMemoryStore()
 	}
 
 	return store

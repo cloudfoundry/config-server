@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
-	"config_server/server"
 	"config_server/store"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -29,7 +28,7 @@ var _ = Describe("Server", func() {
 		var configServer ConfigServer
 
 		BeforeEach(func() {
-			configServer = server.NewServer(nil)
+			configServer = NewServer(nil)
 		})
 
 		Context("starting the server", func() {
@@ -46,7 +45,7 @@ var _ = Describe("Server", func() {
 		var configServer ConfigServer
 
 		BeforeEach(func() {
-			configServer = server.NewServer(store.NewMemoryStore())
+			configServer = NewServer(store.NewMemoryStore())
 		})
 
 		Context("when URL path is invalid", func() {
@@ -135,7 +134,7 @@ var _ = Describe("Server", func() {
 			})
 
 			It("should return 500 Internal Server Error if an error occurs", func() {
-				configServer = server.NewServer(BadMockStore{})
+				configServer = NewServer(BadMockStore{})
 
 				req, _ := http.NewRequest("GET", "/v1/config/key", nil)
 				getRecorder := httptest.NewRecorder()
