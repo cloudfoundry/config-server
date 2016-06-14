@@ -3,7 +3,6 @@ package server
 import (
 	"config_server/store"
 	"errors"
-	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -52,41 +51,44 @@ func (server ConfigServer) handleGet(key string, res http.ResponseWriter) {
 
 	value, err := server.store.Get(key)
 	if err != nil {
-		server.respond(res, http.StatusInternalServerError, err.Error())
+		respond(res, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	if value == "" {
-		server.respond(res, http.StatusNotFound, "")
+		respond(res, http.StatusNotFound, "")
 		return
 	}
 
 	response, err := ConfigResponse{Path: key, Value: value}.Json()
 	if err != nil {
-		server.respond(res, http.StatusInternalServerError, err.Error())
+		respond(res, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	server.respond(res, http.StatusOK, response)
+	respond(res, http.StatusOK, response)
 }
 
 func (server ConfigServer) handlePut(key string, value string, res http.ResponseWriter) {
 
 	if value == "" {
-		server.respond(res, http.StatusBadRequest, "Value cannot be empty")
+		respond(res, http.StatusBadRequest, "Value cannot be empty")
 		return
 	}
 
 	err := server.store.Put(key, value)
 	if err != nil {
-		server.respond(res, http.StatusInternalServerError, err.Error())
+		respond(res, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	res.WriteHeader(http.StatusOK)
 }
 
-func (server ConfigServer) respond(res http.ResponseWriter, status int, message string) {
+func respond(res http.ResponseWriter, status int, message string) {
 	res.WriteHeader(status)
-	io.WriteString(res, message)
+	_, err := res.Write([]byte(message))
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+	}
 }
