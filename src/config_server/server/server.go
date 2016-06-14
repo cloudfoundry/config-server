@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"encoding/json"
 )
 
 type ConfigServer struct {
@@ -41,7 +42,7 @@ func (server ConfigServer) HandleRequest(res http.ResponseWriter, req *http.Requ
 	case "GET":
 		server.handleGet(key, res)
 	case "PUT":
-		server.handlePut(key, req.FormValue("value"), res)
+		server.handlePut(key, req, res)
 	default:
 		res.WriteHeader(http.StatusNotFound)
 	}
@@ -69,14 +70,30 @@ func (server ConfigServer) handleGet(key string, res http.ResponseWriter) {
 	respond(res, http.StatusOK, response)
 }
 
-func (server ConfigServer) handlePut(key string, value string, res http.ResponseWriter) {
+func (server ConfigServer) handlePut(key string, req *http.Request, res http.ResponseWriter) {
 
-	if value == "" {
+	type RequestBody struct {
+		Value string
+	}
+	var requestBody RequestBody
+
+	if req.Body == nil {
 		respond(res, http.StatusBadRequest, "Value cannot be empty")
 		return
 	}
 
-	err := server.store.Put(key, value)
+	err := json.NewDecoder(req.Body).Decode(&requestBody)
+	if err != nil {
+		respond(res, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if requestBody.Value == "" {
+		respond(res, http.StatusBadRequest, "Value cannot be empty")
+		return
+	}
+
+	err = server.store.Put(key, requestBody.Value)
 	if err != nil {
 		respond(res, http.StatusInternalServerError, err.Error())
 		return

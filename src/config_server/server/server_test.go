@@ -95,8 +95,8 @@ var _ = Describe("Server", func() {
 		Context("when URL path is valid", func() {
 
 			It("should return 200 OK when config key/value is updated", func() {
-				req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("value=blabla"))
-				req.Header.Set("Content-Type", "application/x-www-form-urlencoded;")
+				req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":\"blabla\"}"))
+				req.Header.Set("Content-Type", "application/json")
 				recorder := httptest.NewRecorder()
 				configServer.HandleRequest(recorder, req)
 
@@ -104,8 +104,8 @@ var _ = Describe("Server", func() {
 			})
 
 			It("should return 200 OK when valid key is retrieved", func() {
-				putReq, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("value=blabla"))
-				putReq.Header.Set("Content-Type", "application/x-www-form-urlencoded;")
+				putReq, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":\"blabla\"}"))
+				putReq.Header.Set("Content-Type", "application/json")
 				putRecorder := httptest.NewRecorder()
 				configServer.HandleRequest(putRecorder, putReq)
 
