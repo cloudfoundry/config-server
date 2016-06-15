@@ -41,18 +41,21 @@ var _ = Describe("ParseConfig", func() {
 		Context("has valid content", func() {
 			It("should return ServerConfig", func() {
 				configFile.WriteString(`
----
-port: 9000
-database:
-  adapter: postgres
-  user: uword
-  password: pword
-  host: http://www.yahoo.com
-  port: 4300
-  db_name: db
-  connection_options:
-    max_open_connections: 12
-    max_idle_connections: 25
+{
+   "port":9000,
+   "database":{
+      "adapter":"postgres",
+      "user":"uword",
+      "password":"pword",
+      "host":"http://www.yahoo.com",
+      "port":4300,
+      "db_name":"db",
+      "connection_options":{
+         "max_open_connections":12,
+         "max_idle_connections":25
+      }
+   }
+}
 `)
 				serverConfig, err := ParseConfig(configFile.Name())
 				Expect(err).To(BeNil())
