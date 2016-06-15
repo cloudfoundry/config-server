@@ -2,8 +2,8 @@ package config
 
 import (
 	"io/ioutil"
-	"gopkg.in/yaml.v2"
 	"strings"
+	"encoding/json"
 )
 
 type ServerConfig struct {
@@ -13,8 +13,8 @@ type ServerConfig struct {
 }
 
 type DBConnectionConfig struct {
-	MaxOpenConnections int `yaml:"max_open_connections"`
-	MaxIdleConnections int `yaml:"max_idle_connections"`
+	MaxOpenConnections int `json:"max_open_connections"`
+	MaxIdleConnections int `json:"max_idle_connections"`
 }
 
 type DBConfig struct {
@@ -23,8 +23,8 @@ type DBConfig struct {
 	Password          string
 	Host              string
 	Port              int
-	Name              string `yaml:"db_name"`
-	ConnectionOptions DBConnectionConfig `yaml:"connection_options"`
+	Name              string `json:"db_name"`
+	ConnectionOptions DBConnectionConfig `json:"connection_options"`
 }
 
 func ParseConfig(filename string) (ServerConfig, error) {
@@ -36,7 +36,7 @@ func ParseConfig(filename string) (ServerConfig, error) {
 		return config, err
 	}
 
-	err = yaml.Unmarshal([]byte(data), &config)
+	err = json.Unmarshal([]byte(data), &config)
 	if err != nil {
 		return config, err
 	}

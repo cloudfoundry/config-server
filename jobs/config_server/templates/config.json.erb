@@ -1,0 +1,26 @@
+<%=
+
+  params = {
+    "port" => p('port'),
+    "store" => p('store'),
+  }
+
+  if p('store').casecmp('database') == 0
+    params["database"] = {
+      "adapter" => p('db.adapter'),
+      "user" => p('db.user'),
+      "password" => p('db.password'),
+      "host" => p('db.host'),
+      "port" => p('db.port'),
+      "db_name" => p('db.database'),
+      "connection_options" => {
+        "max_open_connections" => p('db.connection_options.max_open_connections'),
+        "max_idle_connections" => p('db.connection_options.max_idle_connections')
+      }
+    }
+  elsif p('store').casecmp('memory') != 0
+    raise "Store has to be of type memory or database"
+  end
+
+  JSON.dump(params)
+%>

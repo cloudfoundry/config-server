@@ -1,7 +1,7 @@
 ---
 name: config_server
 templates:
-  config.yml.erb: config/config.yml
+  config.json.erb: config/config.json
   ctl.erb: bin/ctl
 
 packages:
@@ -18,7 +18,7 @@ properties:
 
   # Database
   db.adapter:
-    description: The type of database used (mysql2|postgres|sqlite)
+    description: The type of database used (postgres|mysql)
     default: postgres
   db.user:
     description: Username used for the config_server database
@@ -31,7 +31,7 @@ properties:
       rds-instance-name.coqxxxxxxxxx.us-east-1.rds.amazonaws.com
     default: 127.0.0.1
   db.port:
-    description: Port of the config_server database (e.g, msyql2 adapter would generally use 3306)
+    description: Port of the config_server database (e.g, postgres adapter would generally use 5432)
     default: 5432
   db.database:
     description: Name of the config_server database
@@ -39,6 +39,6 @@ properties:
   db.connection_options:
     description: Additional options for the database
     default:
-      max_open_connections: 32  #Maximum number of open connections to the database
-      max_idle_connections: 10  #Maximum number of connections in the idle connection pool
+      max_open_connections: 32 #Maximum number of open connections to the database
+      max_idle_connections: 10 #Maximum number of connections in the idle connection pool
 
