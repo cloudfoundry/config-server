@@ -60,7 +60,7 @@ var _ = Describe("DbProviderConcrete", func() {
 		Expect(err).To(BeNil())
 		Expect(fakeSql.OpenCallCount()).To(Equal(1))
 
-		driverName, dataSourceName := fakeSql.OpenArgsForCall(0)
+		driverName, dataSourceName, _ := fakeSql.OpenArgsForCall(0)
 		Expect(driverName).To(Equal(dbConfig.Adapter))
 		Expect(dataSourceName).To(Equal("bosh:bosh-password@tcp(host:0)/dbconfig"))
 	})
@@ -80,7 +80,7 @@ var _ = Describe("DbProviderConcrete", func() {
 		Expect(err).To(BeNil())
 		Expect(fakeSql.OpenCallCount()).To(Equal(1))
 
-		driverName, dataSourceName := fakeSql.OpenArgsForCall(0)
+		driverName, dataSourceName, _ := fakeSql.OpenArgsForCall(0)
 		Expect(driverName).To(Equal(dbConfig.Adapter))
 		Expect(dataSourceName).To(Equal("user=bosh password=bosh-password dbname=dbconfig sslmode=disable"))
 	})

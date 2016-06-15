@@ -6,6 +6,7 @@ import (
 	"config_server/config"
 	"fmt"
 	"errors"
+	"github.com/BurntSushi/migration"
 )
 
 type concreteDbProvider struct {
@@ -26,7 +27,7 @@ func (p concreteDbProvider) Db() (IDb, error) {
 		return db, err
 	}
 
-	db, err = p.sql.Open(p.config.Adapter, connectionString)
+	db, err = p.sql.Open(p.config.Adapter, connectionString, Migrations)
 	if err != nil {
 		return db, err
 	}
@@ -54,4 +55,13 @@ func (p concreteDbProvider) connectionString(config config.DBConfig) (string, er
 	}
 
 	return connectionString, err
+}
+
+var Migrations = []migration.Migrator {
+	InitialSchema,
+}
+
+func InitialSchema(tx migration.LimitedTx) error {
+	_, err := tx.Exec("CREATE TABLE config (config_key VARCHAR(255) NOT NULL UNIQUE, config_value TEXT NOT NULL)")
+	return err
 }

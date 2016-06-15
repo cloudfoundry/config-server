@@ -6,5 +6,6 @@ dependencies:
 files:
   - config_server/**/*.go
   - github.com/go-sql-driver/**/*
-  - github.com/lib/pq/**/*.go
-  - gopkg.in/yaml.v2/**/*.go
+  - github.com/lib/pq/**/*
+  - github.com/BurntSushi/migration/**/*
+  - gopkg.in/yaml.v2/**/*

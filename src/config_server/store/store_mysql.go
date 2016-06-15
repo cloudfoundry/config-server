@@ -22,7 +22,7 @@ func (ms mysqlStore) Put(key string, value string) error {
 
 	_, err = db.Exec("INSERT INTO config VALUES(?,?)", key, value)
 	if err != nil {
-		_, err = db.Exec("UPDATE config SET config.value = ? WHERE config.key = ?", value, key)
+		_, err = db.Exec("UPDATE config SET config.config_value = ? WHERE config.config_key = ?", value, key)
 	}
 
 	return err
@@ -38,7 +38,7 @@ func (ms mysqlStore) Get(key string) (string, error) {
  	}
 	defer db.Close()
 
-	err = db.QueryRow("SELECT value FROM config c WHERE c.key = ?", key).Scan(&value)
+	err = db.QueryRow("SELECT config_value FROM config c WHERE c.config_key = ?", key).Scan(&value)
 	if err == sql.ErrNoRows {
 		return value, nil
 	}

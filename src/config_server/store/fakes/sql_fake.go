@@ -4,14 +4,17 @@ package fakes
 import (
 	"config_server/store"
 	"sync"
+
+	"github.com/BurntSushi/migration"
 )
 
 type FakeISql struct {
-	OpenStub        func(driverName, dataSourceName string) (store.IDb, error)
+	OpenStub        func(driverName, dataSourceName string, migrations []migration.Migrator) (store.IDb, error)
 	openMutex       sync.RWMutex
 	openArgsForCall []struct {
 		driverName     string
 		dataSourceName string
+		migrations     []migration.Migrator
 	}
 	openReturns struct {
 		result1 store.IDb
@@ -21,16 +24,22 @@ type FakeISql struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeISql) Open(driverName string, dataSourceName string) (store.IDb, error) {
+func (fake *FakeISql) Open(driverName string, dataSourceName string, migrations []migration.Migrator) (store.IDb, error) {
+	var migrationsCopy []migration.Migrator
+	if migrations != nil {
+		migrationsCopy = make([]migration.Migrator, len(migrations))
+		copy(migrationsCopy, migrations)
+	}
 	fake.openMutex.Lock()
 	fake.openArgsForCall = append(fake.openArgsForCall, struct {
 		driverName     string
 		dataSourceName string
-	}{driverName, dataSourceName})
-	fake.recordInvocation("Open", []interface{}{driverName, dataSourceName})
+		migrations     []migration.Migrator
+	}{driverName, dataSourceName, migrationsCopy})
+	fake.recordInvocation("Open", []interface{}{driverName, dataSourceName, migrationsCopy})
 	fake.openMutex.Unlock()
 	if fake.OpenStub != nil {
-		return fake.OpenStub(driverName, dataSourceName)
+		return fake.OpenStub(driverName, dataSourceName, migrations)
 	} else {
 		return fake.openReturns.result1, fake.openReturns.result2
 	}
@@ -42,10 +51,10 @@ func (fake *FakeISql) OpenCallCount() int {
 	return len(fake.openArgsForCall)
 }
 
-func (fake *FakeISql) OpenArgsForCall(i int) (string, string) {
+func (fake *FakeISql) OpenArgsForCall(i int) (string, string, []migration.Migrator) {
 	fake.openMutex.RLock()
 	defer fake.openMutex.RUnlock()
-	return fake.openArgsForCall[i].driverName, fake.openArgsForCall[i].dataSourceName
+	return fake.openArgsForCall[i].driverName, fake.openArgsForCall[i].dataSourceName, fake.openArgsForCall[i].migrations
 }
 
 func (fake *FakeISql) OpenReturns(result1 store.IDb, result2 error) {

@@ -22,7 +22,7 @@ func (ps postgresStore) Put(key string, value string) error {
 
 	_, err = db.Exec("INSERT INTO config VALUES($1, $2)", key, value)
 	if err != nil {
-		_, err = db.Exec("UPDATE config SET value=$1 WHERE key=$2", value, key)
+		_, err = db.Exec("UPDATE config SET config_value=$1 WHERE config_key=$2", value, key)
 	}
 
 	return err
@@ -38,7 +38,7 @@ func (ps postgresStore) Get(key string) (string, error) {
 	}
 	defer db.Close()
 
-	err = db.QueryRow("SELECT value FROM config WHERE key = $1", key).Scan(&value)
+	err = db.QueryRow("SELECT config_value FROM config WHERE config_key = $1", key).Scan(&value)
 	if err == sql.ErrNoRows {
 		return value, nil
 	}
