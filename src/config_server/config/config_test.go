@@ -43,6 +43,8 @@ var _ = Describe("ParseConfig", func() {
 				configFile.WriteString(`
 {
    "port":9000,
+   "certificate_file_path":"/path/to/cert",
+   "private_key_file_path":"/path/to/key",
    "database":{
       "adapter":"postgres",
       "user":"uword",
@@ -62,6 +64,8 @@ var _ = Describe("ParseConfig", func() {
 
 				Expect(serverConfig).ToNot(BeNil())
 				Expect(serverConfig.Port).To(Equal(9000))
+				Expect(serverConfig.CertificateFilePath).To(Equal("/path/to/cert"))
+				Expect(serverConfig.PrivateKeyFilePath).To(Equal("/path/to/key"))
 				Expect(serverConfig.Database).ToNot(BeNil())
 				Expect(serverConfig.Database.Adapter).To(Equal("postgres"))
 				Expect(serverConfig.Database.User).To(Equal("uword"))
@@ -72,6 +76,57 @@ var _ = Describe("ParseConfig", func() {
 				Expect(serverConfig.Database.ConnectionOptions).ToNot(BeNil())
 				Expect(serverConfig.Database.ConnectionOptions.MaxOpenConnections).To(Equal(12))
 				Expect(serverConfig.Database.ConnectionOptions.MaxIdleConnections).To(Equal(25))
+			})
+		})
+
+
+		Context("has missing keys", func() {
+			It("should error hen certificate_file_path is missing", func() {
+				configFile.WriteString(`
+{
+   "port":9000,
+   "private_key_file_path":"/path/to/key",
+   "database":{
+      "adapter":"postgres",
+      "user":"uword",
+      "password":"pword",
+      "host":"http://www.yahoo.com",
+      "port":4300,
+      "db_name":"db",
+      "connection_options":{
+         "max_open_connections":12,
+         "max_idle_connections":25
+      }
+   }
+}
+`)
+				_, err := ParseConfig(configFile.Name())
+				Expect(err).ToNot(BeNil())
+				Expect(err.Error()).To(Equal("Certificate file path and key file path should be defined"))
+			})
+
+			It("should error hen private_key_file_path is missing", func() {
+				configFile.WriteString(`
+{
+   "port":9000,
+   "certificate_file_path":"/path/to/cert",
+   "database":{
+      "adapter":"postgres",
+      "user":"uword",
+      "password":"pword",
+      "host":"http://www.yahoo.com",
+      "port":4300,
+      "db_name":"db",
+      "connection_options":{
+         "max_open_connections":12,
+         "max_idle_connections":25
+      }
+   }
+}
+`)
+				_, err := ParseConfig(configFile.Name())
+				Expect(err).ToNot(BeNil())
+				Expect(err.Error()).To(Equal("Certificate file path and key file path should be defined"))
 			})
 		})
 	})

@@ -33,7 +33,7 @@ var _ = Describe("Server", func() {
 
 		Context("starting the server", func() {
 			It("should return an error", func() {
-				err := configServer.Start(9000)
+				err := configServer.Start(9000, "/fake/cert/path", "/fake/key/path")
 				Expect(err).ToNot(BeNil())
 				Expect(err.Error()).To(Equal("DataStore can not be nil"))
 			})

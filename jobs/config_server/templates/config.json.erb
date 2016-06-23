@@ -2,7 +2,9 @@
 
   params = {
     "port" => p('port'),
-    "store" => p('store'),
+    "certificate_file_path" => '/var/vcap/jobs/config_server/config/cert',
+    "private_key_file_path" => '/var/vcap/jobs/config_server/config/key',
+    "store" => p('store')
   }
 
   if p('store').casecmp('database') == 0

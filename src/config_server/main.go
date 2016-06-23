@@ -23,7 +23,7 @@ func main() {
 	store := store.CreateStore(config)
 	server := server.NewServer(store)
 
-	err = server.Start(config.Port)
+	err = server.Start(config.Port, config.CertificateFilePath, config.PrivateKeyFilePath)
 	if err != nil {
 		panic("Unable to start server\n" + err.Error())
 	}

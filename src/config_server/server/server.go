@@ -19,13 +19,13 @@ func NewServer(store store.Store) ConfigServer {
 	}
 }
 
-func (server ConfigServer) Start(port int) error {
+func (server ConfigServer) Start(port int, certificateFilePath string, privateKeyFilePath string) error {
 	if server.store == nil {
 		return errors.New("DataStore can not be nil")
 	}
 
 	http.HandleFunc("/v1/config/", server.HandleRequest)
-	return http.ListenAndServe(":"+strconv.Itoa(port), nil)
+	return http.ListenAndServeTLS(":"+strconv.Itoa(port), certificateFilePath, privateKeyFilePath, nil)
 }
 
 func (server ConfigServer) HandleRequest(res http.ResponseWriter, req *http.Request) {

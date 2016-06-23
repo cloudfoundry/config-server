@@ -2,6 +2,8 @@
 name: config_server
 templates:
   config.json.erb: config/config.json
+  cert.erb: config/cert
+  key.erb: config/key
   ctl.erb: bin/ctl
 
 packages:
@@ -15,6 +17,12 @@ properties:
   store:
     description: 'memory|db'
     default: memory
+
+  # SSL
+  ssl.certification:
+    description: 'ssl certificate'
+  ssl.private_key:
+    description: 'ssl private key'
 
   # Database
   db.adapter:
