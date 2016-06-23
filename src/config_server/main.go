@@ -21,7 +21,9 @@ func main() {
 	}
 
 	store := store.CreateStore(config)
-	server := server.NewServer(store)
+	requestHandler := server.NewConcreteRequestHandler(store)
+
+	server := server.NewServer(requestHandler)
 
 	err = server.Start(config.Port, config.CertificateFilePath, config.PrivateKeyFilePath)
 	if err != nil {
