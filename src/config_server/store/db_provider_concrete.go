@@ -1,20 +1,20 @@
 package store
 
 import (
-	_ "github.com/lib/pq"
-	_ "github.com/go-sql-driver/mysql"
 	"config_server/config"
-	"fmt"
 	"errors"
+	"fmt"
 	"github.com/BurntSushi/migration"
+	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
 )
 
 type concreteDbProvider struct {
 	config config.DBConfig
-	sql ISql
+	sql    ISql
 }
 
-func NewConcreteDbProvider(sql ISql, config config.DBConfig) (DbProvider) {
+func NewConcreteDbProvider(sql ISql, config config.DBConfig) DbProvider {
 	return concreteDbProvider{config, sql}
 }
 
@@ -57,7 +57,7 @@ func (p concreteDbProvider) connectionString(config config.DBConfig) (string, er
 	return connectionString, err
 }
 
-var Migrations = []migration.Migrator {
+var Migrations = []migration.Migrator{
 	InitialSchema,
 }
 

@@ -9,7 +9,7 @@ type mysqlStore struct {
 }
 
 func NewMysqlStore(dbProvider DbProvider) Store {
-	return mysqlStore { dbProvider }
+	return mysqlStore{dbProvider}
 }
 
 func (ms mysqlStore) Put(key string, value string) error {
@@ -35,7 +35,7 @@ func (ms mysqlStore) Get(key string) (string, error) {
 	db, err := ms.dbProvider.Db()
 	if err != nil {
 		return value, err
- 	}
+	}
 	defer db.Close()
 
 	err = db.QueryRow("SELECT config_value FROM config c WHERE c.config_key = ?", key).Scan(&value)

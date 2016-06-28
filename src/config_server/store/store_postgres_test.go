@@ -3,11 +3,11 @@ package store_test
 import (
 	. "config_server/store"
 
+	"config_server/store/fakes"
+	"database/sql"
+	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"config_server/store/fakes"
-	"errors"
-	"database/sql"
 	"strings"
 )
 
@@ -15,7 +15,7 @@ var _ = Describe("StorePostgres", func() {
 
 	var (
 		fakeDbProvider *fakes.FakeDbProvider
-		mysqlStore Store
+		mysqlStore     Store
 	)
 
 	BeforeEach(func() {
@@ -27,7 +27,7 @@ var _ = Describe("StorePostgres", func() {
 
 		It("closes db connection on exit", func() {
 			fakeDb := &fakes.FakeIDb{}
-			fakeDb.QueryRowReturns(&fakes.FakeIRow{});
+			fakeDb.QueryRowReturns(&fakes.FakeIRow{})
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
 			mysqlStore.Get("Luke")
@@ -44,7 +44,7 @@ var _ = Describe("StorePostgres", func() {
 			}
 
 			fakeDb := &fakes.FakeIDb{}
-			fakeDb.QueryRowReturns(fakeRow);
+			fakeDb.QueryRowReturns(fakeRow)
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
 			value, err := mysqlStore.Get("Luke")
@@ -57,7 +57,7 @@ var _ = Describe("StorePostgres", func() {
 			fakeRow.ScanReturns(sql.ErrNoRows)
 
 			fakeDb := &fakes.FakeIDb{}
-			fakeDb.QueryRowReturns(fakeRow);
+			fakeDb.QueryRowReturns(fakeRow)
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
 			value, err := mysqlStore.Get("luke")
@@ -80,7 +80,7 @@ var _ = Describe("StorePostgres", func() {
 			fakeRow.ScanReturns(scanError)
 
 			fakeDb := &fakes.FakeIDb{}
-			fakeDb.QueryRowReturns(fakeRow);
+			fakeDb.QueryRowReturns(fakeRow)
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
 			_, err := mysqlStore.Get("luke")

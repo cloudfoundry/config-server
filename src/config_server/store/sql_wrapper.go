@@ -11,7 +11,7 @@ func NewSqlWrapper() sqlWrapper {
 	return sqlWrapper{}
 }
 
-func (w sqlWrapper)Open(driverName, dataSourceName string, migrations []migration.Migrator) (IDb, error) {
+func (w sqlWrapper) Open(driverName, dataSourceName string, migrations []migration.Migrator) (IDb, error) {
 	db, err := migration.Open(driverName, dataSourceName, migrations)
 	return NewDbWrapper(db), err
 }

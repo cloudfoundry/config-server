@@ -9,7 +9,7 @@ type dbWrapper struct {
 }
 
 func NewDbWrapper(db *sql.DB) dbWrapper {
-	return dbWrapper { db }
+	return dbWrapper{db}
 }
 
 func (w dbWrapper) Exec(query string, args ...interface{}) (sql.Result, error) {

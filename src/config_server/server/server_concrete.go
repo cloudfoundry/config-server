@@ -10,7 +10,7 @@ type configServerImpl struct {
 }
 
 func NewServer(requestHandler RequestHandler) ConfigServer {
-	return configServerImpl {
+	return configServerImpl{
 		requestHandler: requestHandler,
 	}
 }

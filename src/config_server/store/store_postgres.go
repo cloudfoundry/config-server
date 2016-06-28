@@ -9,7 +9,7 @@ type postgresStore struct {
 }
 
 func NewPostgresStore(dbProvider DbProvider) Store {
-	return postgresStore { dbProvider }
+	return postgresStore{dbProvider}
 }
 
 func (ps postgresStore) Put(key string, value string) error {

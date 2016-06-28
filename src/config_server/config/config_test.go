@@ -79,7 +79,6 @@ var _ = Describe("ParseConfig", func() {
 			})
 		})
 
-
 		Context("has missing keys", func() {
 			It("should error hen certificate_file_path is missing", func() {
 				configFile.WriteString(`

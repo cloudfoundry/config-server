@@ -3,22 +3,22 @@ package server_test
 import (
 	. "config_server/server"
 
+	"config_server/store"
+	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"net/http"
-	"strings"
 	"net/http/httptest"
-	"config_server/store"
-	"errors"
+	"strings"
 )
 
-type BadMockStore struct {}
+type BadMockStore struct{}
 
 func (store BadMockStore) Get(key string) (string, error) {
 	return "", errors.New("")
 }
 
-func (store BadMockStore) Put(key string, value string) (error) {
+func (store BadMockStore) Put(key string, value string) error {
 	return errors.New("")
 }
 

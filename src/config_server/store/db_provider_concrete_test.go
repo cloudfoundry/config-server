@@ -1,11 +1,11 @@
 package store_test
 
 import (
+	"config_server/config"
+	. "config_server/store"
+	"config_server/store/fakes"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "config_server/store"
-	"config_server/config"
-	"config_server/store/fakes"
 )
 
 var _ = Describe("DbProviderConcrete", func() {
@@ -21,14 +21,14 @@ var _ = Describe("DbProviderConcrete", func() {
 
 	It("configures max open/idle connections", func() {
 
-		dbConfig := config.DBConfig {
-			Adapter: "mysql",
-			User: "bosh",
+		dbConfig := config.DBConfig{
+			Adapter:  "mysql",
+			User:     "bosh",
 			Password: "bosh-password",
-			Host: "host",
-			Port: 0,
-			Name: "dbconfig",
-			ConnectionOptions: config.DBConnectionConfig {
+			Host:     "host",
+			Port:     0,
+			Name:     "dbconfig",
+			ConnectionOptions: config.DBConnectionConfig{
 				MaxOpenConnections: 12,
 				MaxIdleConnections: 6,
 			},
@@ -47,13 +47,13 @@ var _ = Describe("DbProviderConcrete", func() {
 
 	It("returns correct connection string for mysql", func() {
 
-		dbConfig := config.DBConfig {
-			Adapter: "mysql",
-			User: "bosh",
+		dbConfig := config.DBConfig{
+			Adapter:  "mysql",
+			User:     "bosh",
 			Password: "bosh-password",
-			Host: "host",
-			Port: 0,
-			Name: "dbconfig",
+			Host:     "host",
+			Port:     0,
+			Name:     "dbconfig",
 		}
 
 		_, err := NewConcreteDbProvider(fakeSql, dbConfig).Db()
@@ -67,13 +67,13 @@ var _ = Describe("DbProviderConcrete", func() {
 
 	It("returns correct connection string for postgres", func() {
 
-		dbConfig := config.DBConfig {
-			Adapter: "postgres",
-			User: "bosh",
+		dbConfig := config.DBConfig{
+			Adapter:  "postgres",
+			User:     "bosh",
 			Password: "bosh-password",
-			Host: "host",
-			Port: 0,
-			Name: "dbconfig",
+			Host:     "host",
+			Port:     0,
+			Name:     "dbconfig",
 		}
 
 		_, err := NewConcreteDbProvider(fakeSql, dbConfig).Db()
@@ -87,13 +87,13 @@ var _ = Describe("DbProviderConcrete", func() {
 
 	It("returns error for unsupported adapater", func() {
 
-		dbConfig := config.DBConfig {
-			Adapter: "mongo",
-			User: "bosh",
+		dbConfig := config.DBConfig{
+			Adapter:  "mongo",
+			User:     "bosh",
 			Password: "bosh-password",
-			Host: "host",
-			Port: 0,
-			Name: "dbconfig",
+			Host:     "host",
+			Port:     0,
+			Name:     "dbconfig",
 		}
 
 		_, err := NewConcreteDbProvider(fakeSql, dbConfig).Db()

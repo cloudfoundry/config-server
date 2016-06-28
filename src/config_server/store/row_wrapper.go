@@ -7,7 +7,7 @@ type rowWrapper struct {
 }
 
 func NewRowWrapper(row *sql.Row) rowWrapper {
-	return rowWrapper {row}
+	return rowWrapper{row}
 }
 
 func (w rowWrapper) Scan(dest ...interface{}) error {

@@ -1,10 +1,10 @@
 package config
 
 import (
-	"io/ioutil"
-	"strings"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
+	"strings"
 )
 
 type ServerConfig struct {
@@ -26,7 +26,7 @@ type DBConfig struct {
 	Password          string
 	Host              string
 	Port              int
-	Name              string `json:"db_name"`
+	Name              string             `json:"db_name"`
 	ConnectionOptions DBConnectionConfig `json:"connection_options"`
 }
 
@@ -44,7 +44,7 @@ func ParseConfig(filename string) (ServerConfig, error) {
 		return config, err
 	}
 
-	if (config.CertificateFilePath == "" || config.PrivateKeyFilePath == "") {
+	if config.CertificateFilePath == "" || config.PrivateKeyFilePath == "" {
 		return config, errors.New("Certificate file path and key file path should be defined")
 	}
 
@@ -52,5 +52,5 @@ func ParseConfig(filename string) (ServerConfig, error) {
 		config.Database.Adapter = strings.ToLower(config.Database.Adapter)
 	}
 
-	return config, nil;
+	return config, nil
 }

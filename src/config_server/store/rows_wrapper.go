@@ -9,7 +9,7 @@ type rowsWrapper struct {
 }
 
 func NewRowsWrapper(rows *sql.Rows) rowsWrapper {
-	return rowsWrapper {rows}
+	return rowsWrapper{rows}
 }
 
 func (w rowsWrapper) Next() bool {

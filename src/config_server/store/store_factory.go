@@ -12,11 +12,11 @@ func CreateStore(config ServerConfig) Store {
 	if strings.EqualFold(config.Store, "database") {
 		dbConfig := config.Database
 
-		if (strings.EqualFold(dbConfig.Adapter, "postgres")) {
+		if strings.EqualFold(dbConfig.Adapter, "postgres") {
 			dbProvider := NewConcreteDbProvider(NewSqlWrapper(), dbConfig)
 			store = NewPostgresStore(dbProvider)
 
-		} else if (strings.EqualFold(dbConfig.Adapter, "mysql")) {
+		} else if strings.EqualFold(dbConfig.Adapter, "mysql") {
 			dbProvider := NewConcreteDbProvider(NewSqlWrapper(), dbConfig)
 			store = NewMysqlStore(dbProvider)
 

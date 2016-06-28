@@ -17,14 +17,14 @@ var _ = Describe("MemoryStore", func() {
 		})
 
 		Context("calling put with valid data", func() {
-			It("should not return error", func() {
+			It("should not return error when adding a string type value", func() {
 				err := store.Put("key", "value")
 				Expect(err).To(BeNil())
 			})
 		})
 
 		Context("calling get with valid key", func() {
-			It("should return asoociated value", func() {
+			It("should return associated value", func() {
 				store.Put("key", "value")
 				returnedValue, err := store.Get("key")
 				Expect(err).To(BeNil())
