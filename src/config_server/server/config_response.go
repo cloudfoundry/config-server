@@ -1,10 +1,12 @@
 package server
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type ConfigResponse struct {
-	Path  string `json:"path"`
-	Value string `json:"value"`
+	Path  string      `json:"path"`
+	Value interface{} `json:"value"`
 }
 
 func (response ConfigResponse) Json() (string, error) {

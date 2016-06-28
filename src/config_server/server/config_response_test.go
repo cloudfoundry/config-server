@@ -20,7 +20,7 @@ var _ = Describe("Server/ConfigResponse", func() {
 		Context("without fields populated", func() {
 			It("should generate a json string with empty values", func() {
 				configResponse := server.ConfigResponse{}
-				Expect(configResponse.Json()).To(Equal("{\"path\":\"\",\"value\":\"\"}"))
+				Expect(configResponse.Json()).To(Equal("{\"path\":\"\",\"value\":null}"))
 			})
 		})
 	})

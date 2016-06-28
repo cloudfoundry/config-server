@@ -8,11 +8,12 @@ import (
 )
 
 type requestHandlerImpl struct {
-	store store.Store
+	store          store.Store
+	encoderDecoder store.EncoderDecoder
 }
 
-func NewConcreteRequestHandler(store store.Store) (RequestHandler) {
-	return requestHandlerImpl{store}
+func NewConcreteRequestHandler(datastore store.Store) RequestHandler {
+	return requestHandlerImpl{datastore, store.NewEncoderDecoder()}
 }
 
 func (handler requestHandlerImpl) HandleRequest(res http.ResponseWriter, req *http.Request) {
@@ -52,7 +53,14 @@ func (handler requestHandlerImpl) handleGet(key string, res http.ResponseWriter)
 		return
 	}
 
-	response, err := ConfigResponse{Path: key, Value: value}.Json()
+	decodedValue, encDecErr := handler.encoderDecoder.Decode(value)
+
+	if encDecErr != nil {
+		respondSmurf(res, http.StatusInternalServerError, encDecErr.Error())
+		return
+	}
+
+	response, err := ConfigResponse{Path: key, Value: decodedValue}.Json()
 	if err != nil {
 		respondSmurf(res, http.StatusInternalServerError, err.Error())
 		return
@@ -64,7 +72,7 @@ func (handler requestHandlerImpl) handleGet(key string, res http.ResponseWriter)
 func (handler requestHandlerImpl) handlePut(key string, req *http.Request, res http.ResponseWriter) {
 
 	type RequestBody struct {
-		Value string
+		Value interface{}
 	}
 	var requestBody RequestBody
 
@@ -79,12 +87,14 @@ func (handler requestHandlerImpl) handlePut(key string, req *http.Request, res h
 		return
 	}
 
-	if requestBody.Value == "" {
-		respondSmurf(res, http.StatusBadRequest, "Value cannot be empty")
+	encodedValue, encDecErr := handler.encoderDecoder.Encode(requestBody.Value)
+
+	if encDecErr != nil {
+		respondSmurf(res, http.StatusInternalServerError, encDecErr.Error())
 		return
 	}
 
-	err = handler.store.Put(key, requestBody.Value)
+	err = handler.store.Put(key, encodedValue)
 	if err != nil {
 		respondSmurf(res, http.StatusInternalServerError, err.Error())
 		return

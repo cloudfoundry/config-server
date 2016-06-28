@@ -143,5 +143,23 @@ var _ = Describe("RequestHandlerConcrete", func() {
 				Expect(getRecorder.Code).To(Equal(http.StatusInternalServerError))
 			})
 		})
+
+		It("should return 200 Status OK when an integer value is added", func() {
+			req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":1}"))
+			req.Header.Set("Content-Type", "application/json")
+			putRecorder := httptest.NewRecorder()
+			requestHandler.HandleRequest(putRecorder, req)
+
+			Expect(putRecorder.Code).To(Equal(http.StatusOK))
+		})
+
+		It("should return 200 Status OK when a string value is added", func() {
+			req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":\"str\"}"))
+			req.Header.Set("Content-Type", "application/json")
+			putRecorder := httptest.NewRecorder()
+			requestHandler.HandleRequest(putRecorder, req)
+
+			Expect(putRecorder.Code).To(Equal(http.StatusOK))
+		})
 	})
 })
