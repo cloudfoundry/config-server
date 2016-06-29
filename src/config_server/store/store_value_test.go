@@ -1,7 +1,7 @@
-package server_test
+package store_test
 
 import (
-	"config_server/server"
+	"config_server/store"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -12,14 +12,14 @@ var _ = Describe("Server/ConfigResponse", func() {
 
 		Context("with fields populated", func() {
 			It("should generate a json string", func() {
-				configResponse := server.ConfigResponse{Path: "key", Value: "result"}
+				configResponse := store.StoreValue{Path: "key", Value: "result"}
 				Expect(configResponse.Json()).To(Equal("{\"path\":\"key\",\"value\":\"result\"}"))
 			})
 		})
 
 		Context("without fields populated", func() {
 			It("should generate a json string with empty values", func() {
-				configResponse := server.ConfigResponse{}
+				configResponse := store.StoreValue{}
 				Expect(configResponse.Json()).To(Equal("{\"path\":\"\",\"value\":null}"))
 			})
 		})

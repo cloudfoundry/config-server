@@ -2,8 +2,7 @@ package server_test
 
 import (
 	. "config_server/server"
-
-	"config_server/store"
+	"config_server/store/fakes"
 	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -43,9 +42,11 @@ var _ = Describe("RequestHandlerConcrete", func() {
 	Describe("Given a server with store", func() {
 
 		var requestHandler RequestHandler
+		var mockStore *fakes.FakeStore
 
 		BeforeEach(func() {
-			requestHandler = NewConcreteRequestHandler(store.NewMemoryStore())
+			mockStore = &fakes.FakeStore{}
+			requestHandler = NewConcreteRequestHandler(mockStore)
 		})
 
 		Context("when URL path is invalid", func() {
@@ -104,10 +105,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 			})
 
 			It("should return 200 OK when valid key is retrieved", func() {
-				putReq, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":\"blabla\"}"))
-				putReq.Header.Set("Content-Type", "application/json")
-				putRecorder := httptest.NewRecorder()
-				requestHandler.HandleRequest(putRecorder, putReq)
+				mockStore.GetReturns("{\"path\":\"bla\",\"value\":\"blabla\"}", nil)
 
 				getReq, _ := http.NewRequest("GET", "/v1/config/bla/", nil)
 				getRecorder := httptest.NewRecorder()
@@ -160,6 +158,18 @@ var _ = Describe("RequestHandlerConcrete", func() {
 			requestHandler.HandleRequest(putRecorder, req)
 
 			Expect(putRecorder.Code).To(Equal(http.StatusOK))
+		})
+
+		It("should store values as JSON", func() {
+			req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":\"str\"}"))
+			req.Header.Set("Content-Type", "application/json")
+			putRecorder := httptest.NewRecorder()
+			requestHandler.HandleRequest(putRecorder, req)
+
+			key, value := mockStore.PutArgsForCall(0)
+
+			Expect(key).To(Equal("bla"))
+			Expect(value).To(Equal("{\"path\":\"bla\",\"value\":\"str\"}"))
 		})
 	})
 })

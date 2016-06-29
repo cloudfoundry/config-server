@@ -1,15 +1,15 @@
-package server
+package store
 
 import (
 	"encoding/json"
 )
 
-type ConfigResponse struct {
+type StoreValue struct {
 	Path  string      `json:"path"`
 	Value interface{} `json:"value"`
 }
 
-func (response ConfigResponse) Json() (string, error) {
+func (response StoreValue) Json() (string, error) {
 	bytes, err := json.Marshal(&response)
 	return string(bytes), err
 }

@@ -8,12 +8,11 @@ import (
 )
 
 type requestHandlerImpl struct {
-	store          store.Store
-	encoderDecoder store.EncoderDecoder
+	store store.Store
 }
 
 func NewConcreteRequestHandler(datastore store.Store) RequestHandler {
-	return requestHandlerImpl{datastore, store.NewEncoderDecoder()}
+	return requestHandlerImpl{datastore}
 }
 
 func (handler requestHandlerImpl) HandleRequest(res http.ResponseWriter, req *http.Request) {
@@ -53,20 +52,7 @@ func (handler requestHandlerImpl) handleGet(key string, res http.ResponseWriter)
 		return
 	}
 
-	decodedValue, encDecErr := handler.encoderDecoder.Decode(value)
-
-	if encDecErr != nil {
-		respondSmurf(res, http.StatusInternalServerError, encDecErr.Error())
-		return
-	}
-
-	response, err := ConfigResponse{Path: key, Value: decodedValue}.Json()
-	if err != nil {
-		respondSmurf(res, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	respondSmurf(res, http.StatusOK, response)
+	respondSmurf(res, http.StatusOK, value)
 }
 
 func (handler requestHandlerImpl) handlePut(key string, req *http.Request, res http.ResponseWriter) {
@@ -87,14 +73,14 @@ func (handler requestHandlerImpl) handlePut(key string, req *http.Request, res h
 		return
 	}
 
-	encodedValue, encDecErr := handler.encoderDecoder.Encode(requestBody.Value)
+	storeValue, err := store.StoreValue{Path: key, Value: requestBody.Value}.Json()
 
-	if encDecErr != nil {
-		respondSmurf(res, http.StatusInternalServerError, encDecErr.Error())
+	if err != nil {
+		respondSmurf(res, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	err = handler.store.Put(key, encodedValue)
+	err = handler.store.Put(key, storeValue)
 	if err != nil {
 		respondSmurf(res, http.StatusInternalServerError, err.Error())
 		return
