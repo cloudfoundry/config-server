@@ -1,0 +1,16 @@
+---
+jobs:
+  - name: test-unit
+    public: true
+    plan:
+      - { get: config-server, trigger: true }
+      - task: test-unit
+        file: config-server/ci/tasks/test-unit.yml
+
+resources:
+  - name: config-server
+    type: git
+    source:
+      uri: git@github.com:cloudfoundry/config-server.git
+      branch: master
+      private_key: {{concourse_github_private_key}}

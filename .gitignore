@@ -2,6 +2,7 @@
 .idea
 .dev_builds
 .final_builds
+.vagrant
 .DS_Store
 blobs
 dev_releases
