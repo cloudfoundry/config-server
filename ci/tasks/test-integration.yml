@@ -10,4 +10,4 @@ inputs:
 - name: config-server
 
 run:
-  path: config-server/ci/tasks/test-unit.sh
+  path: config-server/ci/tasks/test-integration.sh
