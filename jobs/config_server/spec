@@ -19,10 +19,10 @@ properties:
     default: memory
 
   # SSL
-  ssl.certification:
-    description: 'ssl certificate'
+  ssl.certificate:
+    description: ssl certificate
   ssl.private_key:
-    description: 'ssl private key'
+    description: ssl private key
 
   # Database
   db.adapter:
