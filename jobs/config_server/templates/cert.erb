@@ -1,1 +1,12 @@
-<%= p('ssl.certificate') %>
+<%=
+  cert = p('ssl.certificate', nil)
+  if cert.nil?
+    raise 'ssl.certificate must be set.'
+  end
+
+  if cert.index("\n").nil?
+    cert.gsub('\\n', "\n")
+  else
+    cert
+  end
+%>
