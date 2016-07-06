@@ -16,6 +16,6 @@ func NewServer(requestHandler RequestHandler) ConfigServer {
 }
 
 func (server configServerImpl) Start(port int, certificateFilePath string, privateKeyFilePath string) error {
-	http.HandleFunc("/v1/config/", server.requestHandler.HandleRequest)
+	http.HandleFunc("/v1/data/", server.requestHandler.HandleRequest)
 	return http.ListenAndServeTLS(":"+strconv.Itoa(port), certificateFilePath, privateKeyFilePath, nil)
 }
