@@ -1,12 +1,1 @@
-<%=
-  key = p('ssl.private_key', nil)
-  if key.nil?
-    raise 'ssl.private_key must be set.'
-  end
-
-  if key.index("\n").nil?
-    key.gsub('\\n', "\n")
-  else
-    key
-  end
-%>
+<%= p('ssl.private_key', nil) %>
