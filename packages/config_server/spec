@@ -8,3 +8,4 @@ files:
   - github.com/go-sql-driver/**/*
   - github.com/lib/pq/**/*
   - github.com/BurntSushi/migration/**/*
+  - github.com/dgrijalva/**/*

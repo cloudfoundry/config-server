@@ -3,7 +3,6 @@ package main
 import (
 	"config_server/config"
 	"config_server/server"
-	"config_server/store"
 	"fmt"
 	"os"
 )
@@ -20,12 +19,8 @@ func main() {
 		panic("Unable to parse configuration file\n" + err.Error())
 	}
 
-	store := store.CreateStore(config)
-	requestHandler := server.NewConcreteRequestHandler(store)
-
-	server := server.NewServer(requestHandler)
-
-	err = server.Start(config.Port, config.CertificateFilePath, config.PrivateKeyFilePath)
+	server := server.NewConfigServer(config)
+	err = server.Start()
 	if err != nil {
 		panic("Unable to start server\n" + err.Error())
 	}
