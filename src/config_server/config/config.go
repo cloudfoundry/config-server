@@ -11,7 +11,6 @@ type ServerConfig struct {
 	Port                int
 	CertificateFilePath string `json:"certificate_file_path"`
 	PrivateKeyFilePath  string `json:"private_key_file_path"`
-	JwtVerificationKeyPath  string `json:"jwt_verification_key_path"`
 	Store               string
 	Database            DBConfig
 }

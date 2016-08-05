@@ -1,6 +1,5 @@
 package server
 
 type ConfigServer interface {
-
-	Start() error
+	Start(int, string, string) error
 }
