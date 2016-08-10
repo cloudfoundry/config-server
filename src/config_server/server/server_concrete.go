@@ -5,6 +5,7 @@ import (
 	"strconv"
     "config_server/config"
     "config_server/store"
+    "config_server/types"
 )
 
 type configServer struct {
@@ -31,7 +32,7 @@ func (cs configServer) configureHandler() {
         panic("Unable to start server\n" + err.Error())
     }
 
-    requestHandler := NewRequestHandler(store.CreateStore(cs.config))
+    requestHandler := NewRequestHandler(store.CreateStore(cs.config), types.NewValueGeneratorConcrete())
     authenticationHandler := NewAuthenticationHandler(jwtTokenValidator, requestHandler)
 
     http.Handle("/v1/data/", authenticationHandler)

@@ -6,10 +6,13 @@ import (
     . "config_server/server/fakes"
 	. "github.com/onsi/ginkgo"
     . "github.com/onsi/gomega"
+    . "config_server/types/fakes"
     "errors"
     "net/http"
-	"net/http/httptest"
-	"strings"
+    "net/http/httptest"
+    "strings"
+
+    "config_server/types"
 )
 
 type BadMockStore struct{}
@@ -31,7 +34,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 				putReq, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":\"blabla\"}"))
 				putRecorder := httptest.NewRecorder()
 
-				requestHandler := NewRequestHandler(nil)
+				requestHandler := NewRequestHandler(nil, types.NewValueGeneratorConcrete())
 				requestHandler.ServeHTTP(putRecorder, putReq)
 
 				Expect(putRecorder.Code).To(Equal(http.StatusInternalServerError))
@@ -45,11 +48,13 @@ var _ = Describe("RequestHandlerConcrete", func() {
 		var requestHandler http.Handler
 		var mockTokenValidator *FakeTokenValidator
         var mockStore *FakeStore
+        var mockValueGeneratorFactory *FakeValueGeneratorFactory
 
 		BeforeEach(func() {
             mockTokenValidator = &FakeTokenValidator{}
 			mockStore = &FakeStore{}
-			requestHandler = NewRequestHandler(mockStore)
+            mockValueGeneratorFactory = &FakeValueGeneratorFactory{}
+			requestHandler = NewRequestHandler(mockStore, mockValueGeneratorFactory)
 		})
 
 		Context("when URL path is invalid", func() {
@@ -67,7 +72,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 			})
 
 			It("should return 404 Not Found for other methods", func() {
-				invalidMethods := [...]string{"DELETE", "POST", "PATCH"}
+				invalidMethods := [...]string{"DELETE", "PATCH"}
 				http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("value=blabla"))
 
 				for _, method := range invalidMethods {
@@ -104,7 +109,40 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 		Context("when URL path is valid", func() {
 
-            It("should return 200 OK when config key/value is updated", func() {
+            It("should store values as JSON", func() {
+                req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":\"str\"}"))
+                req.Header.Set("Authorization", "bearer fake-auth-header")
+
+                putRecorder := httptest.NewRecorder()
+                requestHandler.ServeHTTP(putRecorder, req)
+
+                key, value := mockStore.PutArgsForCall(0)
+
+                Expect(key).To(Equal("bla"))
+                Expect(value).To(Equal("{\"path\":\"bla\",\"value\":\"str\"}"))
+            })
+
+            It("should return 200 Status OK when an integer value is added", func() {
+                req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":1}"))
+                req.Header.Set("Authorization", "bearer fake-auth-header")
+
+                putRecorder := httptest.NewRecorder()
+                requestHandler.ServeHTTP(putRecorder, req)
+
+                Expect(putRecorder.Code).To(Equal(http.StatusOK))
+            })
+
+            It("should return 200 Status OK when a string value is added", func() {
+                req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":\"str\"}"))
+                req.Header.Set("Authorization", "bearer fake-auth-header")
+
+                putRecorder := httptest.NewRecorder()
+                requestHandler.ServeHTTP(putRecorder, req)
+
+                Expect(putRecorder.Code).To(Equal(http.StatusOK))
+            })
+
+            It("should return 200 OK when config value is updated", func() {
                 req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":\"blabla\"}"))
                 req.Header.Set("Authorization", "bearer fake-auth-header")
 
@@ -119,6 +157,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
                 getReq, _ := http.NewRequest("GET", "/v1/config/bla/", nil)
                 getReq.Header.Set("Authorization", "bearer fake-auth-header")
+
                 getRecorder := httptest.NewRecorder()
                 requestHandler.ServeHTTP(getRecorder, getReq)
 
@@ -145,39 +184,26 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
                 Expect(getRecorder.Code).To(Equal(http.StatusBadRequest))
             })
-		})
 
-		It("should return 200 Status OK when an integer value is added", func() {
-			req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":1}"))
-            req.Header.Set("Authorization", "bearer fake-auth-header")
+            It("should return generated secret", func() {
 
-			putRecorder := httptest.NewRecorder()
-			requestHandler.ServeHTTP(putRecorder, req)
+                generator := &FakeValueGenerator{}
+                generator.GenerateReturns("bXgsZD!aNukh$#sSRdBh", nil)
 
-			Expect(putRecorder.Code).To(Equal(http.StatusOK))
-		})
+                mockValueGeneratorFactory.GetGeneratorReturns(generator, nil)
 
-		It("should return 200 Status OK when a string value is added", func() {
-			req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":\"str\"}"))
-            req.Header.Set("Authorization", "bearer fake-auth-header")
+                postReq, _ := http.NewRequest("POST", "/v1/config/bla/", strings.NewReader("{\"type\":\"secret\",\"parameters\":{}}"))
+                postReq.Header.Set("Authorization", "bearer fake-auth-header")
 
-			putRecorder := httptest.NewRecorder()
-			requestHandler.ServeHTTP(putRecorder, req)
+                getRecorder := httptest.NewRecorder()
+                requestHandler.ServeHTTP(getRecorder, postReq)
 
-			Expect(putRecorder.Code).To(Equal(http.StatusOK))
-		})
+                Expect(getRecorder.Code).To(Equal(http.StatusOK))
 
-		It("should store values as JSON", func() {
-			req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":\"str\"}"))
-            req.Header.Set("Authorization", "bearer fake-auth-header")
-
-			putRecorder := httptest.NewRecorder()
-			requestHandler.ServeHTTP(putRecorder, req)
-
-			key, value := mockStore.PutArgsForCall(0)
-
-			Expect(key).To(Equal("bla"))
-			Expect(value).To(Equal("{\"path\":\"bla\",\"value\":\"str\"}"))
+                key, value := mockStore.PutArgsForCall(0)
+                Expect(key).To(Equal("bla"))
+                Expect(value).To(Equal("{\"path\":\"bla\",\"value\":\"bXgsZD!aNukh$#sSRdBh\"}"))
+            })
 		})
 	})
 })

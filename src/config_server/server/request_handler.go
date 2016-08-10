@@ -5,14 +5,16 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+    "config_server/types"
 )
 
 type requestHandler struct {
     store store.Store
+    valueGeneratorFactory types.ValueGeneratorFactory
 }
 
-func NewRequestHandler(store store.Store) http.Handler {
-    return requestHandler { store }
+func NewRequestHandler(store store.Store, valueGeneratorFactory types.ValueGeneratorFactory) http.Handler {
+    return requestHandler { store, valueGeneratorFactory }
 }
 
 func (handler requestHandler) ServeHTTP(resWriter http.ResponseWriter, req *http.Request) {
@@ -38,6 +40,8 @@ func (handler requestHandler) handleRequest(resWriter http.ResponseWriter, req *
 		handler.handleGet(key, resWriter)
 	case "PUT":
         handler.handlePut(key, req, resWriter)
+    case "POST":
+        handler.handlePost(key, req, resWriter)
 	default:
         http.Error(resWriter, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	}
@@ -77,7 +81,6 @@ func (handler requestHandler) handlePut(key string, req *http.Request, resWriter
 	}
 
 	storeValue, err := store.StoreValue{Path: key, Value: requestBody.Value}.Json()
-
 	if err != nil {
         http.Error(resWriter, err.Error(), http.StatusInternalServerError)
 		return
@@ -90,6 +93,57 @@ func (handler requestHandler) handlePut(key string, req *http.Request, resWriter
 	}
 
     resWriter.WriteHeader(http.StatusOK)
+}
+
+func (handler requestHandler) handlePost(key string, req *http.Request, resWriter http.ResponseWriter) {
+    type RequestBody struct {
+        Type string
+        Parameters interface{}
+    }
+    var requestBody RequestBody
+
+    if req.Body == nil {
+        http.Error(resWriter, "Body cannot be empty", http.StatusBadRequest)
+        return
+    }
+
+    err := json.NewDecoder(req.Body).Decode(&requestBody)
+    if err != nil {
+        http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    value, err := handler.store.Get(key)
+    if value != "" {
+        respond(resWriter, value, http.StatusOK)
+
+    } else {
+        generator, err := handler.valueGeneratorFactory.GetGenerator(requestBody.Type)
+        if err != nil {
+            http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+            return
+        }
+
+        value, err := generator.Generate(requestBody.Parameters)
+        if err != nil {
+            http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+            return
+        }
+
+        storeValue, err := store.StoreValue{Path: key, Value: value}.Json()
+        if err != nil {
+            http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+            return
+        }
+
+        err = handler.store.Put(key, storeValue)
+        if err != nil {
+            http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+            return
+        }
+
+        resWriter.WriteHeader(http.StatusOK)
+    }
 }
 
 func respond(res http.ResponseWriter, message string, status int) {
