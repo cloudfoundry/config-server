@@ -21,8 +21,8 @@ var _ = Describe("ValueGeneratorFactoryConcrete", func() {
 			Expect(err.Error()).To(Equal("Unsupported value type: bad_type"))
 		})
 
-        It("supports the secret type", func() {
-            generator, err := valueGeneratorFactory.GetGenerator("secret")
+        It("supports the password type", func() {
+            generator, err := valueGeneratorFactory.GetGenerator("password")
             Expect(err).ToNot(HaveOccurred())
             Expect(generator).ToNot(BeNil())
         })

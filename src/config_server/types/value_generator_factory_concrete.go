@@ -14,8 +14,8 @@ func NewValueGeneratorConcrete() valueGeneratorConcrete {
 
 func (valueGeneratorConcrete) GetGenerator(valueType string) (ValueGenerator, error) {
     switch valueType {
-    case "secret":
-        return NewSecretGenerator(), nil
+    case "password":
+        return NewPasswordGenerator(), nil
     default:
         return nil, errors.New(fmt.Sprintf("Unsupported value type: %s", valueType))
     }

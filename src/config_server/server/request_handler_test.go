@@ -185,24 +185,45 @@ var _ = Describe("RequestHandlerConcrete", func() {
                 Expect(getRecorder.Code).To(Equal(http.StatusBadRequest))
             })
 
-            It("should return generated secret", func() {
+            Context("Password generation", func() {
+                It("should return generated password", func() {
 
-                generator := &FakeValueGenerator{}
-                generator.GenerateReturns("bXgsZD!aNukh$#sSRdBh", nil)
+                    generator := &FakeValueGenerator{}
+                    generator.GenerateReturns("bXgsZD!aNukh$#sSRdBh", nil)
 
-                mockValueGeneratorFactory.GetGeneratorReturns(generator, nil)
+                    mockValueGeneratorFactory.GetGeneratorReturns(generator, nil)
 
-                postReq, _ := http.NewRequest("POST", "/v1/config/bla/", strings.NewReader("{\"type\":\"secret\",\"parameters\":{}}"))
-                postReq.Header.Set("Authorization", "bearer fake-auth-header")
+                    postReq, _ := http.NewRequest("POST", "/v1/config/bla/", strings.NewReader("{\"type\":\"password\",\"parameters\":{}}"))
+                    postReq.Header.Set("Authorization", "bearer fake-auth-header")
 
-                getRecorder := httptest.NewRecorder()
-                requestHandler.ServeHTTP(getRecorder, postReq)
+                    getRecorder := httptest.NewRecorder()
+                    requestHandler.ServeHTTP(getRecorder, postReq)
 
-                Expect(getRecorder.Code).To(Equal(http.StatusOK))
+                    Expect(getRecorder.Code).To(Equal(http.StatusOK))
 
-                key, value := mockStore.PutArgsForCall(0)
-                Expect(key).To(Equal("bla"))
-                Expect(value).To(Equal("{\"path\":\"bla\",\"value\":\"bXgsZD!aNukh$#sSRdBh\"}"))
+                    key, value := mockStore.PutArgsForCall(0)
+                    Expect(key).To(Equal("bla"))
+                    Expect(value).To(Equal("{\"path\":\"bla\",\"value\":\"bXgsZD!aNukh$#sSRdBh\"}"))
+                })
+
+                It("should not generate a password if one already exists", func() {
+                    mockStore.GetStub = func(key string) (string, error) {
+                        if key == "bla" {
+                            return "{\"path\":\"bla\",\"value\":\"value\"}", nil
+                        }
+                        return "", nil
+                    }
+
+                    postReq, _ := http.NewRequest("POST", "/v1/config/bla/", strings.NewReader("{\"type\":\"password\",\"parameters\":{}}"))
+                    postReq.Header.Set("Authorization", "bearer fake-auth-header")
+
+                    getRecorder := httptest.NewRecorder()
+                    requestHandler.ServeHTTP(getRecorder, postReq)
+
+                    Expect(getRecorder.Code).To(Equal(http.StatusOK))
+                    Expect(getRecorder.Body.String()).To(Equal("{\"path\":\"bla\",\"value\":\"value\"}"))
+                    Expect(mockValueGeneratorFactory.GetGeneratorCallCount()).To(Equal(0))
+                })
             })
 		})
 	})

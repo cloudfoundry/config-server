@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
     "config_server/types"
+    "errors"
 )
 
 type requestHandler struct {
@@ -69,47 +70,30 @@ func (handler requestHandler) handlePut(key string, req *http.Request, resWriter
 	}
 	var requestBody RequestBody
 
-	if req.Body == nil {
-        http.Error(resWriter, "Value cannot be empty", http.StatusBadRequest)
-		return
-	}
+    err := handler.readRequestBody(req, resWriter, &requestBody)
+    if err != nil {
+        return
+    }
 
-	err := json.NewDecoder(req.Body).Decode(&requestBody)
-	if err != nil {
+    err = handler.saveToStore(key, requestBody.Value)
+    if err != nil {
         http.Error(resWriter, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	storeValue, err := store.StoreValue{Path: key, Value: requestBody.Value}.Json()
-	if err != nil {
-        http.Error(resWriter, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	err = handler.store.Put(key, storeValue)
-	if err != nil {
-        http.Error(resWriter, err.Error(), http.StatusInternalServerError)
-		return
-	}
+        return
+    }
 
     resWriter.WriteHeader(http.StatusOK)
 }
 
 func (handler requestHandler) handlePost(key string, req *http.Request, resWriter http.ResponseWriter) {
+
     type RequestBody struct {
         Type string
         Parameters interface{}
     }
     var requestBody RequestBody
 
-    if req.Body == nil {
-        http.Error(resWriter, "Body cannot be empty", http.StatusBadRequest)
-        return
-    }
-
-    err := json.NewDecoder(req.Body).Decode(&requestBody)
+    err := handler.readRequestBody(req, resWriter, &requestBody)
     if err != nil {
-        http.Error(resWriter, err.Error(), http.StatusInternalServerError)
         return
     }
 
@@ -130,13 +114,7 @@ func (handler requestHandler) handlePost(key string, req *http.Request, resWrite
             return
         }
 
-        storeValue, err := store.StoreValue{Path: key, Value: value}.Json()
-        if err != nil {
-            http.Error(resWriter, err.Error(), http.StatusInternalServerError)
-            return
-        }
-
-        err = handler.store.Put(key, storeValue)
+        err = handler.saveToStore(key, value)
         if err != nil {
             http.Error(resWriter, err.Error(), http.StatusInternalServerError)
             return
@@ -144,6 +122,39 @@ func (handler requestHandler) handlePost(key string, req *http.Request, resWrite
 
         resWriter.WriteHeader(http.StatusOK)
     }
+}
+
+func (handler requestHandler) readRequestBody(req *http.Request, resWriter http.ResponseWriter, value interface{}) error {
+
+    var err error
+
+    if req.Body == nil {
+        err = errors.New("Value cannot be empty")
+        http.Error(resWriter, err.Error(), http.StatusBadRequest)
+
+    } else {
+        err = json.NewDecoder(req.Body).Decode(value)
+        if err != nil {
+            http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+        }
+    }
+
+    return err
+}
+
+func (handler requestHandler) saveToStore(key string, value interface {}) error {
+
+    storeValue, err := store.StoreValue{Path: key, Value: value}.Json()
+    if err != nil {
+        return err
+    }
+
+    err = handler.store.Put(key, storeValue)
+    if err != nil {
+        return err
+    }
+
+    return nil
 }
 
 func respond(res http.ResponseWriter, message string, status int) {
