@@ -37,7 +37,7 @@ var _ = Describe("PasswordGenerator", func() {
                 for i := 0; i < 20; i++ { // arbitrary number
                     password, err := generator.Generate(nil)
                     Expect(err).ToNot(HaveOccurred())
-                    Expect(password).To(MatchRegexp("^[A-Za-z0-9!@#$%^&*()\\-_=\\+,\\.?/:;\\{\\}\\[\\]`~]{20}$"))
+                    Expect(password).To(MatchRegexp("^[a-z0-9]{20}$"))
                 }
             })
         })

@@ -8,7 +8,7 @@ import (
 type passwordGenerator struct {
 }
 
-var letterRunes = []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+,.?/:;{}[]`~")
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyz0123456789")
 const DefaultPasswordLength = 20
 
 func NewPasswordGenerator() ValueGenerator {
