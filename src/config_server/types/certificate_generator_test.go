@@ -94,7 +94,7 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
 
         Context("Generate", func() {
             It("generates a certificate", func() {
-                certString, err := generator.Generate(map[string]interface{}{"CommonName": "test"})
+                certString, err := generator.Generate(map[string]interface{}{"common_name": "test"})
                 Expect(err).To(BeNil())
 
                 certificate, err := getCert(generator, certString.(string))
@@ -105,7 +105,7 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
 
             It("sets common name and alternative name as passed in", func() {
                 altNames := []string{"alt1", "alt2"}
-                certString, _ := generator.Generate(map[string]interface{}{"CommonName": "test", "AlternativeNames": altNames})
+                certString, _ := generator.Generate(map[string]interface{}{"common_name": "test", "alternative_names": altNames})
                 certificate, _ := getCert(generator, certString.(string))
 
                 Expect(certificate.DNSNames).Should(ContainElement("test"))
@@ -114,7 +114,7 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
             })
 
             It("should set expiry for the cert in 1 year", func() {
-                certString, _ := generator.Generate(map[string]interface{}{"CommonName": "test"})
+                certString, _ := generator.Generate(map[string]interface{}{"common_name": "test"})
                 certificate, _ := getCert(generator, certString.(string))
 
                 oneYearFromToday := time.Now().UTC().Add(365*24*time.Hour)
@@ -123,7 +123,7 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
             })
 
             It("should be signed by the parent CA", func() {
-                certString, err := generator.Generate(map[string]interface{}{"CommonName": "test"})
+                certString, err := generator.Generate(map[string]interface{}{"common_name": "test"})
 
                 roots := x509.NewCertPool()
                 success := roots.AppendCertsFromPEM([]byte(mockCertValue))
@@ -145,7 +145,7 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
             })
 
             It("is not a CA", func() {
-                certString, _ := generator.Generate(map[string]interface{}{"CommonName": "test"})
+                certString, _ := generator.Generate(map[string]interface{}{"common_name": "test"})
                 certificate, _ := getCert(generator, certString.(string))
 
                 Expect(certificate.IsCA).To(BeFalse())
