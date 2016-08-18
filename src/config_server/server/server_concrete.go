@@ -31,9 +31,8 @@ func (cs configServer) configureHandler() {
     if err != nil {
         panic("Unable to start server\n" + err.Error())
     }
-
-    requestHandler := NewRequestHandler(store.CreateStore(cs.config), types.NewValueGeneratorConcrete())
-    authenticationHandler := NewAuthenticationHandler(jwtTokenValidator, requestHandler)
+    requestHandler := NewRequestHandler(store.CreateStore(cs.config), types.NewValueGeneratorConcrete(cs.config))
+    authenticationHandler := NewAuthenticationHandler(jwtTokenValidator, requestHandler, cs.config.Debug)
 
     http.Handle("/v1/data/", authenticationHandler)
 }

@@ -14,6 +14,7 @@ type ServerConfig struct {
 	JwtVerificationKeyPath  string `json:"jwt_verification_key_path"`
 	Store               string
 	Database            DBConfig
+	Debug 				bool
 }
 
 type DBConnectionConfig struct {
@@ -33,7 +34,7 @@ type DBConfig struct {
 
 func ParseConfig(filename string) (ServerConfig, error) {
 
-	config := ServerConfig{}
+	config := ServerConfig{Debug: false}
 
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -52,6 +53,5 @@ func ParseConfig(filename string) (ServerConfig, error) {
 	if (&config.Database != nil) && (&config.Database.Adapter != nil) {
 		config.Database.Adapter = strings.ToLower(config.Database.Adapter)
 	}
-
 	return config, nil
 }

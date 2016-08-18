@@ -13,6 +13,7 @@ import (
     "strings"
 
     "config_server/types"
+    "config_server/config"
 )
 
 type BadMockStore struct{}
@@ -34,7 +35,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 				putReq, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":\"blabla\"}"))
 				putRecorder := httptest.NewRecorder()
 
-				requestHandler := NewRequestHandler(nil, types.NewValueGeneratorConcrete())
+				requestHandler := NewRequestHandler(nil, types.NewValueGeneratorConcrete(config.ServerConfig{}))
 				requestHandler.ServeHTTP(putRecorder, putReq)
 
 				Expect(putRecorder.Code).To(Equal(http.StatusInternalServerError))

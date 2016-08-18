@@ -9,10 +9,11 @@ import (
 type authenticationHandler struct {
     tokenValidator TokenValidator
     nextHandler http.Handler
+    debug bool
 }
 
-func NewAuthenticationHandler(tokenValidator TokenValidator, nextHandler http.Handler) http.Handler {
-    return authenticationHandler { tokenValidator, nextHandler }
+func NewAuthenticationHandler(tokenValidator TokenValidator, nextHandler http.Handler, debug bool) http.Handler {
+    return authenticationHandler { tokenValidator, nextHandler, debug }
 }
 
 func (handler authenticationHandler) ServeHTTP(resWriter http.ResponseWriter, req *http.Request) {
@@ -25,6 +26,10 @@ func (handler authenticationHandler) ServeHTTP(resWriter http.ResponseWriter, re
 }
 
 func (handler authenticationHandler) authenticate(req *http.Request) error {
+
+    if handler.debug {
+        return nil
+    }
     authHeader := req.Header.Get("Authorization")
     if len(authHeader) == 0 {
         return errors.New("Missing Token")

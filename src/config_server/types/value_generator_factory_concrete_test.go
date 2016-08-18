@@ -5,6 +5,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"config_server/config"
 )
 
 var _ = Describe("ValueGeneratorFactoryConcrete", func() {
@@ -12,7 +13,8 @@ var _ = Describe("ValueGeneratorFactoryConcrete", func() {
 
 	Context("GetGenerator", func() {
 		BeforeEach(func () {
-			valueGeneratorFactory = NewValueGeneratorConcrete()
+
+			valueGeneratorFactory = NewValueGeneratorConcrete(config.ServerConfig{})
 		})
 
 		It("throws an error for unsupported value types", func() {
@@ -26,5 +28,11 @@ var _ = Describe("ValueGeneratorFactoryConcrete", func() {
             Expect(err).ToNot(HaveOccurred())
             Expect(generator).ToNot(BeNil())
         })
+
+		It("supports the certificate type", func() {
+			generator, err := valueGeneratorFactory.GetGenerator("certificate")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(generator).ToNot(BeNil())
+		})
 	})
 })
