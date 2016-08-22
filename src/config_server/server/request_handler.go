@@ -81,7 +81,7 @@ func (handler requestHandler) handlePut(key string, req *http.Request, resWriter
         return
     }
 
-    resWriter.WriteHeader(http.StatusOK)
+    resWriter.WriteHeader(http.StatusNoContent)
 }
 
 func (handler requestHandler) handlePost(key string, req *http.Request, resWriter http.ResponseWriter) {
@@ -120,7 +120,12 @@ func (handler requestHandler) handlePost(key string, req *http.Request, resWrite
             return
         }
 
-        resWriter.WriteHeader(http.StatusOK)
+        value, err = handler.store.Get(key)
+        if err != nil {
+            http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+        }
+
+        respond(resWriter, value.(string), http.StatusCreated)
     }
 }
 

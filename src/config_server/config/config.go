@@ -14,7 +14,7 @@ type ServerConfig struct {
 	JwtVerificationKeyPath  string `json:"jwt_verification_key_path"`
 	Store               string
 	Database            DBConfig
-	Debug 				bool
+	Debug 				bool `json:"debug"`
 }
 
 type DBConnectionConfig struct {

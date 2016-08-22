@@ -14,6 +14,8 @@ import (
 
     "config_server/types"
     "config_server/config"
+    "config_server/store"
+    "encoding/json"
 )
 
 type BadMockStore struct{}
@@ -123,34 +125,34 @@ var _ = Describe("RequestHandlerConcrete", func() {
                 Expect(value).To(Equal("{\"path\":\"bla\",\"value\":\"str\"}"))
             })
 
-            It("should return 200 Status OK when an integer value is added", func() {
+            It("should return 204 Status No Content when an integer value is added", func() {
                 req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":1}"))
                 req.Header.Set("Authorization", "bearer fake-auth-header")
 
                 putRecorder := httptest.NewRecorder()
                 requestHandler.ServeHTTP(putRecorder, req)
 
-                Expect(putRecorder.Code).To(Equal(http.StatusOK))
+                Expect(putRecorder.Code).To(Equal(http.StatusNoContent))
             })
 
-            It("should return 200 Status OK when a string value is added", func() {
+            It("should return 204 Status No Content when a string value is added", func() {
                 req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":\"str\"}"))
                 req.Header.Set("Authorization", "bearer fake-auth-header")
 
                 putRecorder := httptest.NewRecorder()
                 requestHandler.ServeHTTP(putRecorder, req)
 
-                Expect(putRecorder.Code).To(Equal(http.StatusOK))
+                Expect(putRecorder.Code).To(Equal(http.StatusNoContent))
             })
 
-            It("should return 200 OK when config value is updated", func() {
+            It("should return 204 Status No Content when config value is updated", func() {
                 req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":\"blabla\"}"))
                 req.Header.Set("Authorization", "bearer fake-auth-header")
 
                 recorder := httptest.NewRecorder()
                 requestHandler.ServeHTTP(recorder, req)
 
-                Expect(recorder.Code).To(Equal(http.StatusOK))
+                Expect(recorder.Code).To(Equal(http.StatusNoContent))
             })
 
             It("should return 200 OK when valid key is retrieved", func() {
@@ -188,11 +190,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
             Context("Password generation", func() {
                 It("should return generated password", func() {
-
-                    generator := &FakeValueGenerator{}
-                    generator.GenerateReturns("bXgsZD!aNukh$#sSRdBh", nil)
-
-                    mockValueGeneratorFactory.GetGeneratorReturns(generator, nil)
+                    requestHandler = NewRequestHandler(store.NewMemoryStore(), types.NewValueGeneratorConcrete(config.ServerConfig{}))
 
                     postReq, _ := http.NewRequest("POST", "/v1/config/bla/", strings.NewReader("{\"type\":\"password\",\"parameters\":{}}"))
                     postReq.Header.Set("Authorization", "bearer fake-auth-header")
@@ -200,11 +198,13 @@ var _ = Describe("RequestHandlerConcrete", func() {
                     getRecorder := httptest.NewRecorder()
                     requestHandler.ServeHTTP(getRecorder, postReq)
 
-                    Expect(getRecorder.Code).To(Equal(http.StatusOK))
+                    Expect(getRecorder.Code).To(Equal(http.StatusCreated))
 
-                    key, value := mockStore.PutArgsForCall(0)
-                    Expect(key).To(Equal("bla"))
-                    Expect(value).To(Equal("{\"path\":\"bla\",\"value\":\"bXgsZD!aNukh$#sSRdBh\"}"))
+                    var data map[string]string
+                    json.Unmarshal(getRecorder.Body.Bytes(), &data)
+
+                    Expect(data["path"]).To(Equal("bla"))
+                    Expect(data["value"]).Should(MatchRegexp("[a-z0-9]{20}"))
                 })
 
                 It("should not generate a password if one already exists", func() {

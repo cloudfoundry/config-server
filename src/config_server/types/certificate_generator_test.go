@@ -104,7 +104,7 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
             })
 
             It("sets common name and alternative name as passed in", func() {
-                altNames := []string{"alt1", "alt2"}
+                altNames := []interface{}{"alt1", "alt2"}
                 certString, _ := generator.Generate(map[string]interface{}{"common_name": "test", "alternative_names": altNames})
                 certificate, _ := getCert(generator, certString.(string))
 

@@ -31,7 +31,9 @@ func (cfg certificateGenerator) Generate(parameters interface{}) (interface{}, e
     alternativeNames := []string{}
 
     if params["alternative_names"] != nil {
-        alternativeNames = params["alternative_names"].([]string)
+        for _, altName := range params["alternative_names"].([]interface{}) {
+            alternativeNames = append(alternativeNames, altName.(string))
+        }
     }
 
     cParams := CertParams{CommonName: commonName, AlternativeName: alternativeNames}
