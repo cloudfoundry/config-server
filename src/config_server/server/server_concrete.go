@@ -32,7 +32,7 @@ func (cs configServer) configureHandler() {
         panic("Unable to start server\n" + err.Error())
     }
     requestHandler := NewRequestHandler(store.CreateStore(cs.config), types.NewValueGeneratorConcrete(cs.config))
-    authenticationHandler := NewAuthenticationHandler(jwtTokenValidator, requestHandler, cs.config.Debug)
+    authenticationHandler := NewAuthenticationHandler(jwtTokenValidator, requestHandler)
 
     http.Handle("/v1/data/", authenticationHandler)
 }

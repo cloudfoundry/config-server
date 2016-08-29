@@ -20,7 +20,7 @@ var _ = Describe("AuthenticationHandler", func() {
 	BeforeEach(func() {
 		mockTokenValidator = &FakeTokenValidator{}
 		mockNextHandler = &FakeHandler{}
-		authHandler = NewAuthenticationHandler(mockTokenValidator, mockNextHandler, false)
+		authHandler = NewAuthenticationHandler(mockTokenValidator, mockNextHandler)
 	})
 
     It("should forward request to next handler if token is valid", func() {

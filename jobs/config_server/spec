@@ -22,6 +22,12 @@ properties:
   jwt.verification_key:
     description: 'Public key used by the Config server to verify tokens without contacting the UAA'
 
+# CERT GENERATION
+  ca.certificate:
+    description: "CA to issue new certificates"
+  ca.private_key:
+    description: "key to create new certificate"
+
 # SSL
   ssl.certificate:
     description: 'SSL certificate'
