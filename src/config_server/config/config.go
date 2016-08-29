@@ -8,13 +8,14 @@ import (
 )
 
 type ServerConfig struct {
-	Port                int
-	CertificateFilePath string `json:"certificate_file_path"`
-	PrivateKeyFilePath  string `json:"private_key_file_path"`
-	JwtVerificationKeyPath  string `json:"jwt_verification_key_path"`
-	Store               string
-	Database            DBConfig
-	Debug 				bool `json:"debug"`
+	Port                   int
+	CertificateFilePath    string `json:"certificate_file_path"`
+	PrivateKeyFilePath     string `json:"private_key_file_path"`
+	JwtVerificationKeyPath string `json:"jwt_verification_key_path"`
+	CACertificatePath      string `json:"ca_certificate_file_path"`
+	CAPrivateKey           string `json:"ca_private_key_file_path"`
+	Store                  string
+	Database               DBConfig
 }
 
 type DBConnectionConfig struct {
@@ -34,7 +35,7 @@ type DBConfig struct {
 
 func ParseConfig(filename string) (ServerConfig, error) {
 
-	config := ServerConfig{Debug: false}
+	config := ServerConfig{}
 
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
