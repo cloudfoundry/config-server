@@ -49,7 +49,7 @@ func (cfg certificateGenerator) Generate(parameters interface{}) (interface{}, e
 }
 
 func (cfg certificateGenerator) GenerateCert(cParams CertParams) (string, error) {
-	rootCA, rootCAKey, err := cfg.loader.LoadCerts(cfg.config.CACertificateFilePath, cfg.config.CAPrivateKeyFilePath)
+	rootCA, rootCAKey, err := cfg.loader.LoadCerts(cfg.config.CACertificatePath, cfg.config.CAPrivateKey)
 
 	if err != nil {
 		return "", err

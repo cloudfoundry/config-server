@@ -1,13 +1,11 @@
 ---
 name: config_server
 templates:
-  ctl.erb: bin/ctl
   config.json.erb: config/config.json
   cert.erb: config/cert
   key.erb: config/key
   jwt_verification_key.erb: config/jwt_verification_key
-  ca_certificate.erb: config/ca_certificate
-  ca_private_key.erb: config/ca_private_key
+  ctl.erb: bin/ctl
 
 packages:
   - config_server
