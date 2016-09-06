@@ -19,9 +19,9 @@ type certificateGenerator struct {
 }
 
 type CertResponse struct {
-	Certificate string
-	PrivateKey  string
-	CA          string
+	Certificate string `json:"certificate"`
+	PrivateKey  string `json:"private_key"`
+	CA          string `json:"ca"`
 }
 
 type CertParams struct {
