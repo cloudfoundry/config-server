@@ -6,7 +6,6 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
-	"encoding/json"
 	"encoding/pem"
 	"log"
 	"math/big"
@@ -45,14 +44,16 @@ func (cfg certificateGenerator) Generate(parameters interface{}) (interface{}, e
 	}
 
 	cParams := CertParams{CommonName: commonName, AlternativeName: alternativeNames}
-	return cfg.GenerateCert(cParams)
+	return cfg.generateCert(cParams)
 }
 
-func (cfg certificateGenerator) GenerateCert(cParams CertParams) (string, error) {
+func (cfg certificateGenerator) generateCert(cParams CertParams) (CertResponse, error) {
 	rootCA, rootCAKey, err := cfg.loader.LoadCerts(cfg.config.CACertificateFilePath, cfg.config.CAPrivateKeyFilePath)
 
+	var certResponse CertResponse
+
 	if err != nil {
-		return "", err
+		return certResponse, err
 	}
 
 	now := time.Now()
@@ -62,12 +63,12 @@ func (cfg certificateGenerator) GenerateCert(cParams CertParams) (string, error)
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
 	if err != nil {
 		log.Printf("failed to generate serial number:\n %s", err)
-		return "", err
+		return certResponse, err
 	}
 
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
-		return "", err
+		return certResponse, err
 	}
 
 	template := x509.Certificate{
@@ -93,19 +94,18 @@ func (cfg certificateGenerator) GenerateCert(cParams CertParams) (string, error)
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, rootCA, &privateKey.PublicKey, rootCAKey)
 	if err != nil {
 		log.Printf("Failed to create certificate:\n%s", err)
-		return "", err
+		return certResponse, err
 	}
 
     encodedCert := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
     encodedPrivatekey := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(privateKey)})
     encodedRootCACert := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: rootCA.Raw})
 
-	certResp := CertResponse{
+	certResponse = CertResponse {
 		Certificate: string(encodedCert),
 		PrivateKey:  string(encodedPrivatekey),
 		CA:          string(encodedRootCACert),
 	}
 
-	tempResp, err := json.Marshal(certResp)
-	return string(tempResp), nil
+	return certResponse, nil
 }

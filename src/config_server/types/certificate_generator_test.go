@@ -10,7 +10,6 @@ import (
     "crypto/x509"
     "encoding/pem"
     "time"
-    "encoding/json"
     "strings"
 )
 
@@ -22,13 +21,10 @@ func getCert(generator ValueGenerator, certString string) (*x509.Certificate, er
 }
 
 func getCertResp(generator ValueGenerator, certParams map[string]interface{}) CertResponse {
-    certString, err := generator.Generate(certParams)
+    certResp, err := generator.Generate(certParams)
     Expect(err).To(BeNil())
 
-    certResp := CertResponse{}
-    json.Unmarshal([]byte(certString.(string)), &certResp)
-
-    return certResp
+    return certResp.(CertResponse)
 }
 
 
