@@ -46,11 +46,13 @@ var _ = Describe("RequestHandlerConcrete", func() {
 		var mockTokenValidator *FakeTokenValidator
         var mockStore *FakeStore
         var mockValueGeneratorFactory *FakeValueGeneratorFactory
+        var mockValueGenerator *FakeValueGenerator
 
 		BeforeEach(func() {
             mockTokenValidator = &FakeTokenValidator{}
 			mockStore = &FakeStore{}
             mockValueGeneratorFactory = &FakeValueGeneratorFactory{}
+            mockValueGenerator = &FakeValueGenerator{}
 			requestHandler, _ = NewRequestHandler(mockStore, mockValueGeneratorFactory)
 		})
 
@@ -210,6 +212,56 @@ var _ = Describe("RequestHandlerConcrete", func() {
                     }
 
                     postReq, _ := http.NewRequest("POST", "/v1/config/bla/", strings.NewReader("{\"type\":\"password\",\"parameters\":{}}"))
+                    postReq.Header.Set("Authorization", "bearer fake-auth-header")
+
+                    getRecorder := httptest.NewRecorder()
+                    requestHandler.ServeHTTP(getRecorder, postReq)
+
+                    Expect(getRecorder.Code).To(Equal(http.StatusOK))
+                    Expect(getRecorder.Body.String()).To(Equal("{\"path\":\"bla\",\"value\":\"value\"}"))
+                    Expect(mockValueGeneratorFactory.GetGeneratorCallCount()).To(Equal(0))
+                })
+            })
+
+            Context("Certificate generation", func() {
+                It("should return generated certificate, its private key and root certificate used to sign the generated certificate", func() {
+                    requestHandler, _ = NewRequestHandler(store.NewMemoryStore(), mockValueGeneratorFactory)
+                    mockValueGeneratorFactory.GetGeneratorReturns(mockValueGenerator, nil)
+
+                    mockValueGenerator.GenerateReturns(types.CertResponse{
+                        Certificate: "fake-certificate",
+                        PrivateKey: "fake-private-key",
+                        CA: "fake-ca",
+                    }, nil)
+
+                    postReq, _ := http.NewRequest("POST", "/v1/config/bla/", strings.NewReader("{\"type\":\"certificate\",\"parameters\":{\"common_name\": \"asdf\", \"alternative_names\":[\"nam1\", \"name2\"]}}"))
+                    postReq.Header.Set("Authorization", "bearer fake-auth-header")
+
+                    getRecorder := httptest.NewRecorder()
+                    requestHandler.ServeHTTP(getRecorder, postReq)
+
+                    Expect(getRecorder.Code).To(Equal(http.StatusCreated))
+
+                    var data map[string]interface{}
+                    json.Unmarshal(getRecorder.Body.Bytes(), &data)
+
+                    Expect(data["path"]).To(Equal("bla"))
+
+                    value := data["value"].(map[string]interface{})
+                    Expect(value["certificate"]).To(Equal("fake-certificate"))
+                    Expect(value["private_key"]).To(Equal("fake-private-key"))
+                    Expect(value["ca"]).To(Equal("fake-ca"))
+                })
+
+                It("should not generate certificates if one already exists", func() {
+                    mockStore.GetStub = func(key string) (string, error) {
+                        if key == "bla" {
+                            return "{\"path\":\"bla\",\"value\":\"value\"}", nil
+                        }
+                        return "", nil
+                    }
+
+                    postReq, _ := http.NewRequest("POST", "/v1/config/bla/", strings.NewReader("{\"type\":\"certificate\",\"parameters\":{}}"))
                     postReq.Header.Set("Authorization", "bearer fake-auth-header")
 
                     getRecorder := httptest.NewRecorder()
