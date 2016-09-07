@@ -22,17 +22,57 @@ Following public API will be used by the Director to contact config server:
 
 Values could be any valid JSON object.
 
-### Sample Request/Responses:
-#### POST
-- Request:
-```curl -k -X POST https://localhost:8080/v1/data/b -d '{"type":"certificate", "parameters": {"common_name": "asdf", "alternative_names":["nam1", "name2"]}}'```
-- Response (Status 201 if first time generation): 
-```
-{"path":"b","value":"-----BEGIN CERTIFICATE-----\certttttt\n-----END CERTIFICATE-----\n"}
-```
-Doing the same request again will have the same response, but with a status of 200.
+## Sample Request/Responses:
+### POST
 
-#### PUT
+#### Generate Certificate
+
+- Request:
+
+```
+curl -k -X POST https://localhost:8080/v1/data/b -d '{"type":"certificate", "parameters": {"common_name": "asdf", "alternative_names":["nam1", "name2"]}}'
+```
+
+- Response:
+
+Status **201** for first time generation.
+Status **200** for subsequent requests.
+
+```
+{
+ "path":"b",
+ "value": {
+   "ca" : "---- Root CA Certificate ----",
+   "certificate": "---- Generated Certificate. Signed by rootCA ----",
+   "private_key": "---- Private key for the Generated certificate ----"
+  }
+}
+```
+
+
+
+#### Generate Password
+
+- Request
+
+```
+curl -k -X POST https://localhost:8080/v1/data/passwd -d '{"type":"password"}'
+```
+
+- Response:
+
+Status **201** for first time generation.
+Status **200** for subsequent requests.
+
+```
+{
+  "path": "passwd",
+  "value":"49cek4ow75ev5zw4t3v3"
+}
+```
+
+
+### PUT
 - Request:
 ```curl -k -X PUT https://localhost:8080/v1/data/b -d '{"value":"blah"}'```
 
@@ -40,15 +80,15 @@ Doing the same request again will have the same response, but with a status of 2
   - Status 204
   - No Body
 
-#### GET
+### GET
 - Request (existing key):
-```curl -kv -X GET https://localhost:8080/v1/data/b````
+```curl -kv -X GET https://localhost:8080/v1/data/b```
 
 - Response:
 ```{"path":"b","value":"blah"}```
 
 - Request (key does not exist):
-```curl -kv -X GET https://localhost:8080/v1/data/derp````
+```curl -kv -X GET https://localhost:8080/v1/data/derp```
 
 - Response:
   - Status: 404 Not Found
