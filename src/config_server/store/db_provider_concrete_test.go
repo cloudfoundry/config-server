@@ -98,7 +98,7 @@ var _ = Describe("DbProviderConcrete", func() {
 
 		_, err := NewConcreteDbProvider(fakeSql, dbConfig).Db()
 		Expect(err).ToNot(BeNil())
-		Expect(err.Error()).To(Equal("Unsupported adapter: mongo"))
+		Expect(err.Error()).To(Equal("Failed to generate DB connection string: Unsupported adapter: mongo"))
 		Expect(fakeSql.OpenCallCount()).To(Equal(0))
 	})
 })

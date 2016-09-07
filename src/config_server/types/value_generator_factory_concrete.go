@@ -1,9 +1,8 @@
 package types
 
 import (
-    "errors"
-    "fmt"
     "config_server/config"
+    "github.com/cloudfoundry/bosh-utils/errors"
 )
 
 type valueGeneratorConcrete struct {
@@ -22,6 +21,6 @@ func (vgc valueGeneratorConcrete) GetGenerator(valueType string) (ValueGenerator
         x509Loader := NewX509Loader()
         return NewCertificateGenerator(vgc.config, x509Loader), nil
     default:
-        return nil, errors.New(fmt.Sprintf("Unsupported value type: %s", valueType))
+        return nil, errors.Errorf("Unsupported value type: %s", valueType)
     }
 }

@@ -34,14 +34,8 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 		Context("creating the requestHandler", func() {
 			It("should return an error", func() {
-				putReq, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":\"blabla\"}"))
-				putRecorder := httptest.NewRecorder()
-
-				requestHandler := NewRequestHandler(nil, types.NewValueGeneratorConcrete(config.ServerConfig{}))
-				requestHandler.ServeHTTP(putRecorder, putReq)
-
-				Expect(putRecorder.Code).To(Equal(http.StatusInternalServerError))
-                Expect(putRecorder.Body.String()).To(Equal("DB Store is nil\n"))
+				_, err := NewRequestHandler(nil, types.NewValueGeneratorConcrete(config.ServerConfig{}))
+				Expect(err.Error()).To(Equal("DB Store must be set"))
 			})
 		})
 	})
@@ -57,7 +51,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
             mockTokenValidator = &FakeTokenValidator{}
 			mockStore = &FakeStore{}
             mockValueGeneratorFactory = &FakeValueGeneratorFactory{}
-			requestHandler = NewRequestHandler(mockStore, mockValueGeneratorFactory)
+			requestHandler, _ = NewRequestHandler(mockStore, mockValueGeneratorFactory)
 		})
 
 		Context("when URL path is invalid", func() {
@@ -190,7 +184,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
             Context("Password generation", func() {
                 It("should return generated password", func() {
-                    requestHandler = NewRequestHandler(store.NewMemoryStore(), types.NewValueGeneratorConcrete(config.ServerConfig{}))
+                    requestHandler, _ = NewRequestHandler(store.NewMemoryStore(), types.NewValueGeneratorConcrete(config.ServerConfig{}))
 
                     postReq, _ := http.NewRequest("POST", "/v1/config/bla/", strings.NewReader("{\"type\":\"password\",\"parameters\":{}}"))
                     postReq.Header.Set("Authorization", "bearer fake-auth-header")

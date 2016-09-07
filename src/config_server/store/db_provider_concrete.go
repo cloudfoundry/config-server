@@ -2,11 +2,11 @@ package store
 
 import (
 	"config_server/config"
-	"errors"
 	"fmt"
 	"github.com/BurntSushi/migration"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
+	"github.com/cloudfoundry/bosh-utils/errors"
 )
 
 type concreteDbProvider struct {
@@ -24,18 +24,18 @@ func (p concreteDbProvider) Db() (IDb, error) {
 
 	connectionString, err := p.connectionString(p.config)
 	if err != nil {
-		return db, err
+		return db, errors.WrapError(err, "Failed to generate DB connection string")
 	}
 
 	db, err = p.sql.Open(p.config.Adapter, connectionString, Migrations)
 	if err != nil {
-		return db, err
+		return db, errors.WrapError(err, "Failed to open connection to DB")
 	}
 
 	db.SetMaxOpenConns(p.config.ConnectionOptions.MaxOpenConnections)
 	db.SetMaxIdleConns(p.config.ConnectionOptions.MaxIdleConnections)
 
-	return db, err
+	return db, nil
 }
 
 func (p concreteDbProvider) connectionString(config config.DBConfig) (string, error) {
@@ -51,7 +51,7 @@ func (p concreteDbProvider) connectionString(config config.DBConfig) (string, er
 		connectionString = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s",
 			config.User, config.Password, config.Host, config.Port, config.Name)
 	default:
-		err = errors.New(fmt.Sprintf("Unsupported adapter: %s", config.Adapter))
+		err = errors.Errorf("Unsupported adapter: %s", config.Adapter)
 	}
 
 	return connectionString, err

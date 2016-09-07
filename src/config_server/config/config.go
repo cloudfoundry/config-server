@@ -2,9 +2,10 @@ package config
 
 import (
 	"encoding/json"
-	"errors"
 	"io/ioutil"
 	"strings"
+
+	"github.com/cloudfoundry/bosh-utils/errors"
 )
 
 type ServerConfig struct {
@@ -34,29 +35,33 @@ type DBConfig struct {
 }
 
 func ParseConfig(filename string) (ServerConfig, error) {
-
 	config := ServerConfig{}
 
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
+		err := errors.WrapError(err, "Failed to read config file")
 		return config, err
 	}
 
 	err = json.Unmarshal([]byte(data), &config)
 	if err != nil {
+		err := errors.WrapError(err, "Failed to parse config file")
 		return config, err
 	}
 
 	if config.CertificateFilePath == "" || config.PrivateKeyFilePath == "" {
-		return config, errors.New("Certificate file path and key file path should be defined")
+		err := errors.Error("Certificate file path and key file path should be defined")
+		return config, err
 	}
 
 	if config.CACertificateFilePath == "" || config.CAPrivateKeyFilePath == "" {
-		return config, errors.New("Certificate file path and key file path should be defined")
+		err := errors.Error("CA Certificate file path and key file path should be defined")
+		return config, err
 	}
 
 	if (&config.Database != nil) && (&config.Database.Adapter != nil) {
 		config.Database.Adapter = strings.ToLower(config.Database.Adapter)
 	}
+
 	return config, nil
 }

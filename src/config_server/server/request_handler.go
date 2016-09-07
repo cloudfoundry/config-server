@@ -2,11 +2,12 @@ package server
 
 import (
 	"config_server/store"
+	"config_server/types"
 	"encoding/json"
 	"net/http"
 	"strings"
-    "config_server/types"
-    "errors"
+
+	"github.com/cloudfoundry/bosh-utils/errors"
 )
 
 type requestHandler struct {
@@ -14,20 +15,14 @@ type requestHandler struct {
     valueGeneratorFactory types.ValueGeneratorFactory
 }
 
-func NewRequestHandler(store store.Store, valueGeneratorFactory types.ValueGeneratorFactory) http.Handler {
-    return requestHandler { store, valueGeneratorFactory }
+func NewRequestHandler(store store.Store, valueGeneratorFactory types.ValueGeneratorFactory) (http.Handler, error) {
+	if store == nil {
+		return nil, errors.Error("DB Store must be set")
+	}
+    return requestHandler { store, valueGeneratorFactory }, nil
 }
 
 func (handler requestHandler) ServeHTTP(resWriter http.ResponseWriter, req *http.Request) {
-    if handler.store == nil {
-        http.Error(resWriter, "DB Store is nil", http.StatusInternalServerError)
-    } else {
-        handler.handleRequest(resWriter, req)
-    }
-}
-
-func (handler requestHandler) handleRequest(resWriter http.ResponseWriter, req *http.Request) {
-
 	paths := strings.Split(strings.Trim(req.URL.Path, "/"), "/")
 	if len(paths) != 3 {
         http.Error(resWriter, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -104,7 +99,7 @@ func (handler requestHandler) handlePost(key string, req *http.Request, resWrite
     } else {
         generator, err := handler.valueGeneratorFactory.GetGenerator(requestBody.Type)
         if err != nil {
-            http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+            http.Error(resWriter, "Unable to create generator", http.StatusInternalServerError)
             return
         }
 
@@ -130,13 +125,11 @@ func (handler requestHandler) handlePost(key string, req *http.Request, resWrite
 }
 
 func (handler requestHandler) readRequestBody(req *http.Request, resWriter http.ResponseWriter, value interface{}) error {
-
     var err error
 
     if req.Body == nil {
-        err = errors.New("Value cannot be empty")
+        err = errors.Error("Value cannot be empty")
         http.Error(resWriter, err.Error(), http.StatusBadRequest)
-
     } else {
         err = json.NewDecoder(req.Body).Decode(value)
         if err != nil {

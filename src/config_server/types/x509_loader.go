@@ -1,46 +1,70 @@
 package types
 
 import (
-    "crypto/x509"
-    "crypto/rsa"
-    "io/ioutil"
-    "log"
-    "encoding/pem"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
+	"io/ioutil"
+	"log"
+
+	"github.com/cloudfoundry/bosh-utils/errors"
 )
 
-type x509Loader struct {}
+type x509Loader struct{}
 
 func NewX509Loader() CertsLoader {
-    return x509Loader{}
+	return x509Loader{}
 }
 
 func (l x509Loader) LoadCerts(certFilePath, keyFilePath string) (*x509.Certificate, *rsa.PrivateKey, error) {
-    cf, e := ioutil.ReadFile(certFilePath)
-    if e != nil {
-        log.Printf("Failed to load parent certificate file\n %v", e.Error())
-        return nil, nil, e
-    }
+	crt, err := l.parseCertificate(certFilePath)
+	if err != nil {
+		return nil, nil, err
+	}
 
-    kf, e := ioutil.ReadFile(keyFilePath)
-    if e != nil {
-        log.Printf("Failed to load parent key file:\n%v", e.Error())
-        return nil, nil, e
-    }
+	key, err := l.parsePrivateKey(keyFilePath)
+	if err != nil {
+		return nil, nil, err
+	}
 
-    cpb, _ := pem.Decode(cf)
-    kpb, _ := pem.Decode(kf)
-    crt, e := x509.ParseCertificate(cpb.Bytes)
+	return crt, key, nil
+}
 
-    if e != nil {
-        log.Printf("Failed to parse parent certificate:\n%v", e.Error())
-        return nil, nil, e
-    }
+func (x509Loader) parseCertificate(certFilePath string) (*x509.Certificate, error) {
+	cf, e := ioutil.ReadFile(certFilePath)
+	if e != nil {
+		err := errors.Error("Failed to load certificate file")
+		log.Printf(err.Error())
+		return nil, err
+	}
 
-    key, e := x509.ParsePKCS1PrivateKey(kpb.Bytes)
-    if e != nil {
-        log.Printf("Failed to parse parent key:\n%v", e.Error())
-        return nil, nil, e
-    }
+	cpb, _ := pem.Decode(cf)
+	crt, e := x509.ParseCertificate(cpb.Bytes)
 
-    return crt, key, nil
+	if e != nil {
+		err := errors.WrapError(e, "Failed to parse certificate")
+		log.Printf(err.Error())
+		return nil, err
+	}
+
+	return crt, nil
+}
+
+func (x509Loader) parsePrivateKey(keyFilePath string) (*rsa.PrivateKey, error) {
+	kf, e := ioutil.ReadFile(keyFilePath)
+	if e != nil {
+		err := errors.Error("Failed to load private key file")
+		log.Printf(err.Error())
+		return nil, err
+	}
+
+	kpb, _ := pem.Decode(kf)
+
+	key, e := x509.ParsePKCS1PrivateKey(kpb.Bytes)
+	if e != nil {
+		err := errors.WrapError(e, "Failed to parse private key")
+		log.Printf(err.Error())
+		return nil, err
+	}
+	return key, nil
 }

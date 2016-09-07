@@ -7,9 +7,9 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
-	"log"
 	"math/big"
 	"time"
+	"github.com/cloudfoundry/bosh-utils/errors"
 )
 
 type certificateGenerator struct {
@@ -48,28 +48,26 @@ func (cfg certificateGenerator) Generate(parameters interface{}) (interface{}, e
 }
 
 func (cfg certificateGenerator) generateCert(cParams CertParams) (CertResponse, error) {
-	rootCA, rootCAKey, err := cfg.loader.LoadCerts(cfg.config.CACertificateFilePath, cfg.config.CAPrivateKeyFilePath)
-
 	var certResponse CertResponse
 
+	rootCA, rootCAKey, err := cfg.loader.LoadCerts(cfg.config.CACertificateFilePath, cfg.config.CAPrivateKeyFilePath)
 	if err != nil {
-		return certResponse, err
+		return certResponse, errors.WrapError(err, "Loading certificates")
 	}
-
-	now := time.Now()
-	notAfter := now.Add(365 * 24 * time.Hour)
 
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
 	if err != nil {
-		log.Printf("failed to generate serial number:\n %s", err)
-		return certResponse, err
+		return certResponse, errors.WrapError(err, "Generating Serial Number")
 	}
 
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
-		return certResponse, err
+		return certResponse, errors.WrapError(err, "Generating Key")
 	}
+
+	now := time.Now()
+	notAfter := now.Add(365 * 24 * time.Hour)
 
 	template := x509.Certificate{
 		SerialNumber: serialNumber,
@@ -93,8 +91,7 @@ func (cfg certificateGenerator) generateCert(cParams CertParams) (CertResponse, 
 
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, rootCA, &privateKey.PublicKey, rootCAKey)
 	if err != nil {
-		log.Printf("Failed to create certificate:\n%s", err)
-		return certResponse, err
+		return certResponse, errors.WrapError(err, "Generating Certificate")
 	}
 
     encodedCert := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: derBytes})

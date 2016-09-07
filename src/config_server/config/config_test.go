@@ -156,7 +156,7 @@ var _ = Describe("ParseConfig", func() {
 `)
 				_, err := ParseConfig(configFile.Name())
 				Expect(err).ToNot(BeNil())
-				Expect(err.Error()).To(Equal("Certificate file path and key file path should be defined"))
+				Expect(err.Error()).To(Equal("CA Certificate file path and key file path should be defined"))
 			})
 
 			It("should error when ca_private_key_file_path is missing", func() {
@@ -183,7 +183,7 @@ var _ = Describe("ParseConfig", func() {
 `)
 				_, err := ParseConfig(configFile.Name())
 				Expect(err).ToNot(BeNil())
-				Expect(err.Error()).To(Equal("Certificate file path and key file path should be defined"))
+				Expect(err.Error()).To(Equal("CA Certificate file path and key file path should be defined"))
 			})
 		})
 	})
