@@ -11,21 +11,21 @@ import (
 )
 
 type requestHandler struct {
-    store store.Store
-    valueGeneratorFactory types.ValueGeneratorFactory
+	store                 store.Store
+	valueGeneratorFactory types.ValueGeneratorFactory
 }
 
 func NewRequestHandler(store store.Store, valueGeneratorFactory types.ValueGeneratorFactory) (http.Handler, error) {
 	if store == nil {
 		return nil, errors.Error("DB Store must be set")
 	}
-    return requestHandler { store, valueGeneratorFactory }, nil
+	return requestHandler{store, valueGeneratorFactory}, nil
 }
 
 func (handler requestHandler) ServeHTTP(resWriter http.ResponseWriter, req *http.Request) {
 	paths := strings.Split(strings.Trim(req.URL.Path, "/"), "/")
 	if len(paths) != 3 {
-        http.Error(resWriter, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		http.Error(resWriter, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
 
@@ -35,11 +35,11 @@ func (handler requestHandler) ServeHTTP(resWriter http.ResponseWriter, req *http
 	case "GET":
 		handler.handleGet(key, resWriter)
 	case "PUT":
-        handler.handlePut(key, req, resWriter)
-    case "POST":
-        handler.handlePost(key, req, resWriter)
+		handler.handlePut(key, req, resWriter)
+	case "POST":
+		handler.handlePost(key, req, resWriter)
 	default:
-        http.Error(resWriter, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		http.Error(resWriter, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	}
 }
 
@@ -47,15 +47,15 @@ func (handler requestHandler) handleGet(key string, resWriter http.ResponseWrite
 
 	value, err := handler.store.Get(key)
 	if err != nil {
-        http.Error(resWriter, err.Error(), http.StatusNotFound)
+		http.Error(resWriter, err.Error(), http.StatusNotFound)
 		return
 	}
 
 	if value == "" {
-        http.Error(resWriter, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		http.Error(resWriter, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	} else {
-        respond(resWriter, value, http.StatusOK)
-    }
+		respond(resWriter, value, http.StatusOK)
+	}
 }
 
 func (handler requestHandler) handlePut(key string, req *http.Request, resWriter http.ResponseWriter) {
@@ -65,94 +65,94 @@ func (handler requestHandler) handlePut(key string, req *http.Request, resWriter
 	}
 	var requestBody RequestBody
 
-    err := handler.readRequestBody(req, resWriter, &requestBody)
-    if err != nil {
-        return
-    }
+	err := handler.readRequestBody(req, resWriter, &requestBody)
+	if err != nil {
+		return
+	}
 
-    err = handler.saveToStore(key, requestBody.Value)
-    if err != nil {
-        http.Error(resWriter, err.Error(), http.StatusInternalServerError)
-        return
-    }
+	err = handler.saveToStore(key, requestBody.Value)
+	if err != nil {
+		http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-    resWriter.WriteHeader(http.StatusNoContent)
+	resWriter.WriteHeader(http.StatusNoContent)
 }
 
 func (handler requestHandler) handlePost(key string, req *http.Request, resWriter http.ResponseWriter) {
 
-    type RequestBody struct {
-        Type string
-        Parameters interface{}
-    }
-    var requestBody RequestBody
+	type RequestBody struct {
+		Type       string
+		Parameters interface{}
+	}
+	var requestBody RequestBody
 
-    err := handler.readRequestBody(req, resWriter, &requestBody)
-    if err != nil {
-        return
-    }
+	err := handler.readRequestBody(req, resWriter, &requestBody)
+	if err != nil {
+		return
+	}
 
-    value, err := handler.store.Get(key)
-    if value != "" {
-        respond(resWriter, value, http.StatusOK)
+	value, err := handler.store.Get(key)
+	if value != "" {
+		respond(resWriter, value, http.StatusOK)
 
-    } else {
-        generator, err := handler.valueGeneratorFactory.GetGenerator(requestBody.Type)
-        if err != nil {
-            http.Error(resWriter, "Unable to create generator", http.StatusInternalServerError)
-            return
-        }
+	} else {
+		generator, err := handler.valueGeneratorFactory.GetGenerator(requestBody.Type)
+		if err != nil {
+			http.Error(resWriter, "Unable to create generator", http.StatusInternalServerError)
+			return
+		}
 
-        value, err := generator.Generate(requestBody.Parameters)
-        if err != nil {
-            http.Error(resWriter, err.Error(), http.StatusInternalServerError)
-            return
-        }
+		value, err := generator.Generate(requestBody.Parameters)
+		if err != nil {
+			http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-        err = handler.saveToStore(key, value)
-        if err != nil {
-            http.Error(resWriter, err.Error(), http.StatusInternalServerError)
-            return
-        }
+		err = handler.saveToStore(key, value)
+		if err != nil {
+			http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-        value, err = handler.store.Get(key)
-        if err != nil {
-            http.Error(resWriter, err.Error(), http.StatusInternalServerError)
-        }
+		value, err = handler.store.Get(key)
+		if err != nil {
+			http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+		}
 
-        respond(resWriter, value.(string), http.StatusCreated)
-    }
+		respond(resWriter, value.(string), http.StatusCreated)
+	}
 }
 
 func (handler requestHandler) readRequestBody(req *http.Request, resWriter http.ResponseWriter, value interface{}) error {
-    var err error
+	var err error
 
-    if req.Body == nil {
-        err = errors.Error("Value cannot be empty")
-        http.Error(resWriter, err.Error(), http.StatusBadRequest)
-    } else {
-        err = json.NewDecoder(req.Body).Decode(value)
-        if err != nil {
-            http.Error(resWriter, err.Error(), http.StatusInternalServerError)
-        }
-    }
+	if req.Body == nil {
+		err = errors.Error("Value cannot be empty")
+		http.Error(resWriter, err.Error(), http.StatusBadRequest)
+	} else {
+		err = json.NewDecoder(req.Body).Decode(value)
+		if err != nil {
+			http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+		}
+	}
 
-    return err
+	return err
 }
 
-func (handler requestHandler) saveToStore(key string, value interface {}) error {
+func (handler requestHandler) saveToStore(key string, value interface{}) error {
 
-    storeValue, err := store.StoreValue{Path: key, Value: value}.Json()
-    if err != nil {
-        return err
-    }
+	storeValue, err := store.StoreValue{Path: key, Value: value}.Json()
+	if err != nil {
+		return err
+	}
 
-    err = handler.store.Put(key, storeValue)
-    if err != nil {
-        return err
-    }
+	err = handler.store.Put(key, storeValue)
+	if err != nil {
+		return err
+	}
 
-    return nil
+	return nil
 }
 
 func respond(res http.ResponseWriter, message string, status int) {

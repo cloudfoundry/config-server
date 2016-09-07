@@ -12,7 +12,7 @@ var dbDriver string
 // LimitedTx specifies the behavior of a transaction *without* commit and
 // rollback functions. Values with this type are given to client functions.
 // In particular, the migration routines in this package
-// handle transaction commits and rollbacks. Therefore the functions provided 
+// handle transaction commits and rollbacks. Therefore the functions provided
 // by the client should not use them.
 type LimitedTx interface {
 	Exec(query string, args ...interface{}) (sql.Result, error)

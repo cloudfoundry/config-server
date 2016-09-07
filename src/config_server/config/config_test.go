@@ -3,10 +3,11 @@ package config_test
 import (
 	. "config_server/config"
 
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	"io/ioutil"
 	"os"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("ParseConfig", func() {

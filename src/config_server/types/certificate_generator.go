@@ -9,6 +9,7 @@ import (
 	"encoding/pem"
 	"math/big"
 	"time"
+
 	"github.com/cloudfoundry/bosh-utils/errors"
 )
 
@@ -94,11 +95,11 @@ func (cfg certificateGenerator) generateCert(cParams CertParams) (CertResponse, 
 		return certResponse, errors.WrapError(err, "Generating Certificate")
 	}
 
-    encodedCert := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
-    encodedPrivatekey := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(privateKey)})
-    encodedRootCACert := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: rootCA.Raw})
+	encodedCert := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
+	encodedPrivatekey := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(privateKey)})
+	encodedRootCACert := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: rootCA.Raw})
 
-	certResponse = CertResponse {
+	certResponse = CertResponse{
 		Certificate: string(encodedCert),
 		PrivateKey:  string(encodedPrivatekey),
 		CA:          string(encodedRootCACert),

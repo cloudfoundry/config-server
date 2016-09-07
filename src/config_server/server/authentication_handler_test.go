@@ -2,13 +2,14 @@ package server_test
 
 import (
 	"net/http"
-	"strings"
 	"net/http/httptest"
+	"strings"
 
 	. "config_server/server"
+	. "config_server/server/fakes"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "config_server/server/fakes"
 )
 
 var _ = Describe("AuthenticationHandler", func() {
@@ -23,21 +24,21 @@ var _ = Describe("AuthenticationHandler", func() {
 		authHandler = NewAuthenticationHandler(mockTokenValidator, mockNextHandler)
 	})
 
-    It("should forward request to next handler if token is valid", func() {
-        mockTokenValidator.ValidateReturns(nil)
+	It("should forward request to next handler if token is valid", func() {
+		mockTokenValidator.ValidateReturns(nil)
 
-        req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":\"blabla\"}"))
-        req.Header.Set("Authorization", "bearer fake-auth-header")
+		req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":\"blabla\"}"))
+		req.Header.Set("Authorization", "bearer fake-auth-header")
 
-        recorder := httptest.NewRecorder()
-        authHandler.ServeHTTP(recorder, req)
+		recorder := httptest.NewRecorder()
+		authHandler.ServeHTTP(recorder, req)
 
-        Expect(mockNextHandler.ServeHTTPCallCount()).To(Equal(1))
+		Expect(mockNextHandler.ServeHTTPCallCount()).To(Equal(1))
 
-        capturedResWriter, capturedReq := mockNextHandler.ServeHTTPArgsForCall(0)
-        Expect(capturedResWriter).To(Equal(recorder))
-        Expect(capturedReq).To(Equal(req))
-    })
+		capturedResWriter, capturedReq := mockNextHandler.ServeHTTPArgsForCall(0)
+		Expect(capturedResWriter).To(Equal(recorder))
+		Expect(capturedReq).To(Equal(req))
+	})
 
 	It("should return 401 Unauthorized if token is missing from request header", func() {
 		req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":\"blabla\"}"))

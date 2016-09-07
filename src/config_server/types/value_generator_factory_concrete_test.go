@@ -3,16 +3,17 @@ package types_test
 import (
 	. "config_server/types"
 
+	"config_server/config"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"config_server/config"
 )
 
 var _ = Describe("ValueGeneratorFactoryConcrete", func() {
 	var valueGeneratorFactory ValueGeneratorFactory
 
 	Context("GetGenerator", func() {
-		BeforeEach(func () {
+		BeforeEach(func() {
 
 			valueGeneratorFactory = NewValueGeneratorConcrete(config.ServerConfig{})
 		})
@@ -23,11 +24,11 @@ var _ = Describe("ValueGeneratorFactoryConcrete", func() {
 			Expect(err.Error()).To(Equal("Unsupported value type: bad_type"))
 		})
 
-        It("supports the password type", func() {
-            generator, err := valueGeneratorFactory.GetGenerator("password")
-            Expect(err).ToNot(HaveOccurred())
-            Expect(generator).ToNot(BeNil())
-        })
+		It("supports the password type", func() {
+			generator, err := valueGeneratorFactory.GetGenerator("password")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(generator).ToNot(BeNil())
+		})
 
 		It("supports the certificate type", func() {
 			generator, err := valueGeneratorFactory.GetGenerator("certificate")

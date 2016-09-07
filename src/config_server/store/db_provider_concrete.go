@@ -3,10 +3,11 @@ package store
 import (
 	"config_server/config"
 	"fmt"
+
 	"github.com/BurntSushi/migration"
+	"github.com/cloudfoundry/bosh-utils/errors"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
-	"github.com/cloudfoundry/bosh-utils/errors"
 )
 
 type concreteDbProvider struct {

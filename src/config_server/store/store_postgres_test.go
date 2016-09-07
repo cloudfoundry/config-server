@@ -6,9 +6,10 @@ import (
 	"config_server/store/fakes"
 	"database/sql"
 	"errors"
+	"strings"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"strings"
 )
 
 var _ = Describe("StorePostgres", func() {

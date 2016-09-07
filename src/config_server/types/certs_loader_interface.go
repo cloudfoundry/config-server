@@ -1,10 +1,10 @@
 package types
 
 import (
-    "crypto/x509"
-    "crypto/rsa"
+	"crypto/rsa"
+	"crypto/x509"
 )
 
 type CertsLoader interface {
-    LoadCerts(certFile, keyFile string) (*x509.Certificate, *rsa.PrivateKey, error)
+	LoadCerts(certFile, keyFile string) (*x509.Certificate, *rsa.PrivateKey, error)
 }

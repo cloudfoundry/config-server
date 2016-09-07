@@ -1,42 +1,42 @@
 package types_test
 
 import (
-    . "config_server/types"
+	. "config_server/types"
 
-    . "github.com/onsi/ginkgo"
-    . "github.com/onsi/gomega"
-    "config_server/config"
-    "config_server/types/fakes"
-    "crypto/x509"
-    "encoding/pem"
-    "time"
-    "strings"
+	"config_server/config"
+	"config_server/types/fakes"
+	"crypto/x509"
+	"encoding/pem"
+	"strings"
+	"time"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
 func getCert(generator ValueGenerator, certString string) (*x509.Certificate, error) {
-    block, _ := pem.Decode([]byte(certString))
-    crt, err := x509.ParseCertificate(block.Bytes)
+	block, _ := pem.Decode([]byte(certString))
+	crt, err := x509.ParseCertificate(block.Bytes)
 
-    return crt, err
+	return crt, err
 }
 
 func getCertResp(generator ValueGenerator, certParams map[string]interface{}) CertResponse {
-    certResp, err := generator.Generate(certParams)
-    Expect(err).To(BeNil())
+	certResp, err := generator.Generate(certParams)
+	Expect(err).To(BeNil())
 
-    return certResp.(CertResponse)
+	return certResp.(CertResponse)
 }
-
 
 var _ = Describe("CertificateGenerator", func() {
 
-    Describe("certificateGenerator", func() {
-        var (
-            fakeLoader *fakes.FakeCertsLoader
-            generator ValueGenerator
-        )
+	Describe("certificateGenerator", func() {
+		var (
+			fakeLoader *fakes.FakeCertsLoader
+			generator  ValueGenerator
+		)
 
-        mockCertValue := `-----BEGIN CERTIFICATE-----
+		mockCertValue := `-----BEGIN CERTIFICATE-----
 MIIDtzCCAp+gAwIBAgIJAMiFskqEjVfoMA0GCSqGSIb3DQEBBQUAMEUxCzAJBgNV
 BAYTAkFVMRMwEQYDVQQIEwpTb21lLVN0YXRlMSEwHwYDVQQKExhJbnRlcm5ldCBX
 aWRnaXRzIFB0eSBMdGQwIBcNMTYwODE4MTUzNzE5WhgPMjI5MDA2MDIxNTM3MTla
@@ -59,7 +59,7 @@ tEZ5+1W5gwhBaWc9orhRJ+PAqaDsMdoJtS5Q6K7XhujinNbJsC9duFsVVfDeWBk/
 s3OzXXaX6jGwhORFMqjszMKank/52HGOQKe/NbDR4YiUakj5bHtCkRuYEg==
 -----END CERTIFICATE-----`
 
-        mockKeyValue := `-----BEGIN RSA PRIVATE KEY-----
+		mockKeyValue := `-----BEGIN RSA PRIVATE KEY-----
 MIIEowIBAAKCAQEAyKW8WU/3qBzZySMorc86Br/YisPcBBa0UwWeCPy/U7u8zvtk
 6IDZyyWif3RgIN8eKSIzMAsSHxCt9P0ekc5CVz2gjXyNpvCXZuBFSlaFypqcQYm4
 xE1KTMAaFOe63N534j0WVxHuKzSZRTraTBEOtpzdd4sU63QuGgQbUJ+wZnXhLMVB
@@ -87,111 +87,111 @@ r7AxAoGBAOMTpMVT/zC6pskArQ9W9nHd3mgh5xxEQ7MQdIuZxZ7ILCUEW++J7eBP
 JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
 -----END RSA PRIVATE KEY-----`
 
-        BeforeEach(func() {
-            config := config.ServerConfig{CertificateFilePath:"blah",
-                PrivateKeyFilePath: "blah"}
-            fakeLoader = new(fakes.FakeCertsLoader)
-            generator = NewCertificateGenerator(config, fakeLoader)
+		BeforeEach(func() {
+			config := config.ServerConfig{CertificateFilePath: "blah",
+				PrivateKeyFilePath: "blah"}
+			fakeLoader = new(fakes.FakeCertsLoader)
+			generator = NewCertificateGenerator(config, fakeLoader)
 
-            cpb, _ := pem.Decode([]byte(mockCertValue))
-            kpb, _ := pem.Decode([]byte(mockKeyValue))
-            crt, _ := x509.ParseCertificate(cpb.Bytes)
-            key, _ := x509.ParsePKCS1PrivateKey(kpb.Bytes)
+			cpb, _ := pem.Decode([]byte(mockCertValue))
+			kpb, _ := pem.Decode([]byte(mockKeyValue))
+			crt, _ := x509.ParseCertificate(cpb.Bytes)
+			key, _ := x509.ParsePKCS1PrivateKey(kpb.Bytes)
 
-            fakeLoader.LoadCertsReturns(crt, key, nil)
-        })
+			fakeLoader.LoadCertsReturns(crt, key, nil)
+		})
 
-        Context("Generate", func() {
-            Context("Certificate", func() {
-                It("generates a certificate", func() {
-                    certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
-                    certificate, err := getCert(generator, certResp.Certificate)
+		Context("Generate", func() {
+			Context("Certificate", func() {
+				It("generates a certificate", func() {
+					certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
+					certificate, err := getCert(generator, certResp.Certificate)
 
-                    Expect(err).To(BeNil())
-                    Expect(certificate).ToNot(BeNil())
-                })
+					Expect(err).To(BeNil())
+					Expect(certificate).ToNot(BeNil())
+				})
 
-                It("sets common name and alternative name as passed in", func() {
-                    altNames := []interface{}{"alt1", "alt2"}
-                    certResp := getCertResp(generator, map[string]interface{}{"common_name": "test",
-                        "alternative_names": altNames})
-                    certificate, _ := getCert(generator, certResp.Certificate)
+				It("sets common name and alternative name as passed in", func() {
+					altNames := []interface{}{"alt1", "alt2"}
+					certResp := getCertResp(generator, map[string]interface{}{"common_name": "test",
+						"alternative_names": altNames})
+					certificate, _ := getCert(generator, certResp.Certificate)
 
-                    Expect(certificate.DNSNames).Should(ContainElement("test"))
-                    Expect(certificate.DNSNames).Should(ContainElement("alt1"))
-                    Expect(certificate.DNSNames).Should(ContainElement("alt2"))
-                })
+					Expect(certificate.DNSNames).Should(ContainElement("test"))
+					Expect(certificate.DNSNames).Should(ContainElement("alt1"))
+					Expect(certificate.DNSNames).Should(ContainElement("alt2"))
+				})
 
-                It("should set expiry for the cert in 1 year", func() {
-                    certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
-                    certificate, _ := getCert(generator, certResp.Certificate)
+				It("should set expiry for the cert in 1 year", func() {
+					certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
+					certificate, _ := getCert(generator, certResp.Certificate)
 
-                    oneYearFromToday := time.Now().UTC().Add(365*24*time.Hour)
+					oneYearFromToday := time.Now().UTC().Add(365 * 24 * time.Hour)
 
-                    Expect(certificate.NotAfter).Should(BeTemporally("~", oneYearFromToday, 5*time.Second))
-                })
+					Expect(certificate.NotAfter).Should(BeTemporally("~", oneYearFromToday, 5*time.Second))
+				})
 
-                It("should be signed by the parent CA", func() {
-                    certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
-                    certString := certResp.Certificate
+				It("should be signed by the parent CA", func() {
+					certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
+					certString := certResp.Certificate
 
-                    roots := x509.NewCertPool()
-                    success := roots.AppendCertsFromPEM([]byte(mockCertValue))
-                    Expect(success).To(BeTrue())
+					roots := x509.NewCertPool()
+					success := roots.AppendCertsFromPEM([]byte(mockCertValue))
+					Expect(success).To(BeTrue())
 
-                    block, _ := pem.Decode([]byte(certString))
-                    Expect(block).ToNot(BeNil())
+					block, _ := pem.Decode([]byte(certString))
+					Expect(block).ToNot(BeNil())
 
-                    cert, err := x509.ParseCertificate(block.Bytes)
-                    Expect(err).To(BeNil())
+					cert, err := x509.ParseCertificate(block.Bytes)
+					Expect(err).To(BeNil())
 
-                    opts := x509.VerifyOptions{
-                        Roots:   roots,
-                    }
+					opts := x509.VerifyOptions{
+						Roots: roots,
+					}
 
-                    _, err = cert.Verify(opts)
+					_, err = cert.Verify(opts)
 
-                    Expect(err).To(BeNil())
-                })
+					Expect(err).To(BeNil())
+				})
 
-                It("is not a CA", func() {
-                    certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
-                    certificate, _ := getCert(generator, certResp.Certificate)
+				It("is not a CA", func() {
+					certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
+					certificate, _ := getCert(generator, certResp.Certificate)
 
-                    Expect(certificate.IsCA).To(BeFalse())
-                })
-            })
+					Expect(certificate.IsCA).To(BeFalse())
+				})
+			})
 
-            Context("Private Key", func() {
-                It("generates a private key", func(){
-                    certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
+			Context("Private Key", func() {
+				It("generates a private key", func() {
+					certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
 
-                    Expect(certResp.PrivateKey).NotTo(BeEmpty())
-                })
+					Expect(certResp.PrivateKey).NotTo(BeEmpty())
+				})
 
-                It("should have the public keys of the private key and certificate match", func() {
-                    certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
-                    certificate, _ := getCert(generator, certResp.Certificate)
+				It("should have the public keys of the private key and certificate match", func() {
+					certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
+					certificate, _ := getCert(generator, certResp.Certificate)
 
-                    block, _ := pem.Decode([]byte(certResp.PrivateKey))
-                    key, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
+					block, _ := pem.Decode([]byte(certResp.PrivateKey))
+					key, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
 
-                    Expect(certificate.PublicKey).To(Equal(&key.PublicKey))
-                })
-            })
+					Expect(certificate.PublicKey).To(Equal(&key.PublicKey))
+				})
+			})
 
-            Context("Root CA", func() {
-                It("returns a Root CA", func() {
-                    certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
+			Context("Root CA", func() {
+				It("returns a Root CA", func() {
+					certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
 
-                    Expect(certResp.CA).NotTo(BeEmpty())
-                })
+					Expect(certResp.CA).NotTo(BeEmpty())
+				})
 
-                It("is the same RootCA as passed in through job spec", func() {
-                    certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
-                    Expect(strings.Trim(certResp.CA, "\n")).To(Equal(strings.Trim(mockCertValue, "\n")))
-                })
-            })
-        })
-    })
+				It("is the same RootCA as passed in through job spec", func() {
+					certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
+					Expect(strings.Trim(certResp.CA, "\n")).To(Equal(strings.Trim(mockCertValue, "\n")))
+				})
+			})
+		})
+	})
 })
