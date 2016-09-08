@@ -2,15 +2,17 @@ package main
 
 import (
 	"config_server/config"
+	"config_server/log"
 	"config_server/server"
 	"fmt"
 	"os"
 )
 
 func main() {
+	defer log.Logger.HandlePanic("Main")
 
 	if len(os.Args) != 2 {
-		fmt.Printf("Usage: %s <config-file>\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Usage: %s <config-file>\n", os.Args[0])
 		os.Exit(1)
 	}
 

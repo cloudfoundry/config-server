@@ -39,24 +39,20 @@ func ParseConfig(filename string) (ServerConfig, error) {
 
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
-		err := errors.WrapError(err, "Failed to read config file")
-		return config, err
+		return config, errors.WrapError(err, "Failed to read config file")
 	}
 
 	err = json.Unmarshal([]byte(data), &config)
 	if err != nil {
-		err := errors.WrapError(err, "Failed to parse config file")
-		return config, err
+		return config, errors.WrapError(err, "Failed to parse config file")
 	}
 
 	if config.CertificateFilePath == "" || config.PrivateKeyFilePath == "" {
-		err := errors.Error("Certificate file path and key file path should be defined")
-		return config, err
+		return config, errors.Error("Certificate file path and key file path should be defined")
 	}
 
 	if config.CACertificateFilePath == "" || config.CAPrivateKeyFilePath == "" {
-		err := errors.Error("CA Certificate file path and key file path should be defined")
-		return config, err
+		return config, errors.Error("CA Certificate file path and key file path should be defined")
 	}
 
 	if (&config.Database != nil) && (&config.Database.Adapter != nil) {

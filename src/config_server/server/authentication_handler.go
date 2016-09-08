@@ -13,7 +13,10 @@ type authenticationHandler struct {
 }
 
 func NewAuthenticationHandler(tokenValidator TokenValidator, nextHandler http.Handler) http.Handler {
-	return authenticationHandler{tokenValidator, nextHandler}
+	return authenticationHandler{
+		tokenValidator: tokenValidator,
+		nextHandler:    nextHandler,
+	}
 }
 
 func (handler authenticationHandler) ServeHTTP(resWriter http.ResponseWriter, req *http.Request) {

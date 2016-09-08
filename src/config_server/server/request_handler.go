@@ -17,9 +17,12 @@ type requestHandler struct {
 
 func NewRequestHandler(store store.Store, valueGeneratorFactory types.ValueGeneratorFactory) (http.Handler, error) {
 	if store == nil {
-		return nil, errors.Error("DB Store must be set")
+		return nil, errors.Error("Data store must be set")
 	}
-	return requestHandler{store, valueGeneratorFactory}, nil
+	return requestHandler{
+		store: store,
+		valueGeneratorFactory: valueGeneratorFactory,
+	}, nil
 }
 
 func (handler requestHandler) ServeHTTP(resWriter http.ResponseWriter, req *http.Request) {

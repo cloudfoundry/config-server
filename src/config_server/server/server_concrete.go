@@ -15,7 +15,7 @@ type configServer struct {
 }
 
 func NewConfigServer(config config.ServerConfig) ConfigServer {
-	return configServer{config}
+	return configServer{config: config}
 }
 
 func (cs configServer) Start() error {
@@ -29,12 +29,17 @@ func (cs configServer) Start() error {
 }
 
 func (cs configServer) configureHandler() error {
-
 	jwtTokenValidator, err := NewJwtTokenValidator(cs.config.JwtVerificationKeyPath)
 	if err != nil {
 		return errors.WrapError(err, "Failed to create JWT token validator")
 	}
-	requestHandler, err := NewRequestHandler(store.CreateStore(cs.config), types.NewValueGeneratorConcrete(cs.config))
+
+	store, err := store.CreateStore(cs.config)
+	if err != nil {
+		return errors.WrapError(err, "Failed to create data store")
+	}
+
+	requestHandler, err := NewRequestHandler(store, types.NewValueGeneratorConcrete(cs.config))
 	if err != nil {
 		return errors.WrapError(err, "Failed to create Request Handler")
 	}

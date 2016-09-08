@@ -36,7 +36,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 		Context("creating the requestHandler", func() {
 			It("should return an error", func() {
 				_, err := NewRequestHandler(nil, types.NewValueGeneratorConcrete(config.ServerConfig{}))
-				Expect(err.Error()).To(Equal("DB Store must be set"))
+				Expect(err.Error()).To(Equal("Data store must be set"))
 			})
 		})
 	})

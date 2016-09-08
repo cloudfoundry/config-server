@@ -3,10 +3,11 @@ package store
 import (
 	. "config_server/config"
 	"strings"
+
+	"github.com/cloudfoundry/bosh-utils/errors"
 )
 
-func CreateStore(config ServerConfig) Store {
-
+func CreateStore(config ServerConfig) (Store, error) {
 	var store Store
 
 	if strings.EqualFold(config.Store, "database") {
@@ -21,12 +22,11 @@ func CreateStore(config ServerConfig) Store {
 			store = NewMysqlStore(dbProvider)
 
 		} else {
-			panic("Unsupported adapter")
+			return nil, errors.Errorf("Unsupported adapter '%s'", dbConfig.Adapter)
 		}
-
 	} else {
 		store = NewMemoryStore()
 	}
 
-	return store
+	return store, nil
 }
