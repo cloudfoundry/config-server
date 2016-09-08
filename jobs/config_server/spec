@@ -18,7 +18,7 @@ properties:
     default: 8080
 
   store:
-    description: 'memory|db'
+    description: 'memory|database'
     default: memory
 
   jwt.verification_key:
