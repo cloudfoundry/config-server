@@ -45,3 +45,25 @@ func (ms mysqlStore) Get(key string) (string, error) {
 
 	return value, err
 }
+
+func (ms mysqlStore) Delete(key string) (bool, error) {
+
+	db, err := ms.dbProvider.Db()
+	if err != nil {
+		return false, err
+	}
+	defer db.Close()
+
+	result, err := db.Exec("DELETE FROM config WHERE config_key = ?", key)
+    if (err != nil) || (result == nil) {
+        return false, err
+    }
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	deleted := rows > 0
+	return deleted, err
+}

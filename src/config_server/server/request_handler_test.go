@@ -72,7 +72,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 			})
 
 			It("should return 404 Not Found for other methods", func() {
-				invalidMethods := [...]string{"DELETE", "PATCH"}
+				invalidMethods := [...]string{"PATCH"}
 				http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("value=blabla"))
 
 				for _, method := range invalidMethods {
@@ -271,6 +271,50 @@ var _ = Describe("RequestHandlerConcrete", func() {
 					Expect(getRecorder.Code).To(Equal(http.StatusOK))
 					Expect(getRecorder.Body.String()).To(Equal("{\"path\":\"bla\",\"value\":\"value\"}"))
 					Expect(mockValueGeneratorFactory.GetGeneratorCallCount()).To(Equal(0))
+				})
+			})
+
+			Context("Delete", func() {
+				Context("Key exists", func() {
+
+					BeforeEach(func() {
+						mockStore.DeleteReturns(true, nil)
+					})
+
+					It("should delete value", func() {
+						req, _ := http.NewRequest("DELETE", "/v1/config/bla", nil)
+						req.Header.Set("Authorization", "bearer fake-auth-header")
+
+						putRecorder := httptest.NewRecorder()
+						requestHandler.ServeHTTP(putRecorder, req)
+
+						Expect(mockStore.DeleteCallCount()).To(Equal(1))
+						Expect(mockStore.DeleteArgsForCall(0)).To(Equal("bla"))
+					})
+
+                    It("should return 204 Status No Content", func() {
+                        req, _ := http.NewRequest("DELETE", "/v1/config/bla", nil)
+                        req.Header.Set("Authorization", "bearer fake-auth-header")
+
+                        putRecorder := httptest.NewRecorder()
+                        requestHandler.ServeHTTP(putRecorder, req)
+
+                        Expect(putRecorder.Code).To(Equal(http.StatusNoContent))
+                    })
+				})
+
+				Context("Key does not exist", func() {
+					It("should return 404 Status Not Found", func() {
+						req, _ := http.NewRequest("DELETE", "/v1/config/bla", nil)
+						req.Header.Set("Authorization", "bearer fake-auth-header")
+
+						putRecorder := httptest.NewRecorder()
+						requestHandler.ServeHTTP(putRecorder, req)
+
+						Expect(putRecorder.Code).To(Equal(http.StatusNotFound))
+						Expect(mockStore.DeleteCallCount()).To(Equal(1))
+						Expect(mockStore.DeleteArgsForCall(0)).To(Equal("bla"))
+					})
 				})
 			})
 		})

@@ -41,6 +41,8 @@ func (handler requestHandler) ServeHTTP(resWriter http.ResponseWriter, req *http
 		handler.handlePut(key, req, resWriter)
 	case "POST":
 		handler.handlePost(key, req, resWriter)
+	case "DELETE":
+		handler.handleDelete(key, req, resWriter)
 	default:
 		http.Error(resWriter, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	}
@@ -124,6 +126,20 @@ func (handler requestHandler) handlePost(key string, req *http.Request, resWrite
 		}
 
 		respond(resWriter, value.(string), http.StatusCreated)
+	}
+}
+
+func (handler requestHandler) handleDelete(key string, req *http.Request, resWriter http.ResponseWriter) {
+	deleted, err := handler.store.Delete(key)
+
+    if err == nil {
+		if deleted {
+			respond(resWriter, "", http.StatusNoContent)
+		} else {
+			respond(resWriter, "", http.StatusNotFound)
+		}
+	} else {
+		http.Error(resWriter, err.Error(), http.StatusInternalServerError)
 	}
 }
 

@@ -25,6 +25,15 @@ type FakeStore struct {
 		result1 string
 		result2 error
 	}
+	DeleteStub        func(key string) (bool, error)
+	deleteMutex       sync.RWMutex
+	deleteArgsForCall []struct {
+		key string
+	}
+	deleteReturns struct {
+		result1 bool
+		result2 error
+	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
@@ -97,6 +106,40 @@ func (fake *FakeStore) GetReturns(result1 string, result2 error) {
 	}{result1, result2}
 }
 
+func (fake *FakeStore) Delete(key string) (bool, error) {
+	fake.deleteMutex.Lock()
+	fake.deleteArgsForCall = append(fake.deleteArgsForCall, struct {
+		key string
+	}{key})
+	fake.recordInvocation("Delete", []interface{}{key})
+	fake.deleteMutex.Unlock()
+	if fake.DeleteStub != nil {
+		return fake.DeleteStub(key)
+	} else {
+		return fake.deleteReturns.result1, fake.deleteReturns.result2
+	}
+}
+
+func (fake *FakeStore) DeleteCallCount() int {
+	fake.deleteMutex.RLock()
+	defer fake.deleteMutex.RUnlock()
+	return len(fake.deleteArgsForCall)
+}
+
+func (fake *FakeStore) DeleteArgsForCall(i int) string {
+	fake.deleteMutex.RLock()
+	defer fake.deleteMutex.RUnlock()
+	return fake.deleteArgsForCall[i].key
+}
+
+func (fake *FakeStore) DeleteReturns(result1 bool, result2 error) {
+	fake.DeleteStub = nil
+	fake.deleteReturns = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeStore) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
@@ -104,6 +147,8 @@ func (fake *FakeStore) Invocations() map[string][][]interface{} {
 	defer fake.putMutex.RUnlock()
 	fake.getMutex.RLock()
 	defer fake.getMutex.RUnlock()
+	fake.deleteMutex.RLock()
+	defer fake.deleteMutex.RUnlock()
 	return fake.invocations
 }
 
