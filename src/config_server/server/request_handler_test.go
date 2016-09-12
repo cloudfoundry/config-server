@@ -58,52 +58,47 @@ var _ = Describe("RequestHandlerConcrete", func() {
 		})
 
 		Context("when URL path is invalid", func() {
-
-			It("should return 404 Not Found for invalid paths", func() {
+			It("should return 400 Bad Request", func() {
 				invalidPaths := []string{"/v1/data/test/case", "/v1"}
+				validMethods := []string {"GET", "PUT", "POST", "DELETE"}
 
-				for _, path := range invalidPaths {
-					req, _ := http.NewRequest("GET", path, nil)
-					recorder := httptest.NewRecorder()
-					requestHandler.ServeHTTP(recorder, req)
+				for _, method := range validMethods {
+					for _, path := range invalidPaths {
+						req, _ := http.NewRequest(method, path, nil)
+						recorder := httptest.NewRecorder()
+						requestHandler.ServeHTTP(recorder, req)
 
-					Expect(recorder.Code).To(Equal(http.StatusNotFound))
+						Expect(recorder.Code).To(Equal(http.StatusBadRequest))
+					}
 				}
 			})
 
-			It("should return 404 Not Found for other methods", func() {
-				invalidMethods := [...]string{"PATCH"}
+			Context("when key path parameter is missing", func() {
+				It("should return 400 Bad Request", func() {
+					validMethods := []string {"GET", "PUT", "POST", "DELETE"}
+					for _, method := range validMethods {
+						req, _ := http.NewRequest(method, "/v1/data/", nil)
+						getRecorder := httptest.NewRecorder()
+						requestHandler.ServeHTTP(getRecorder, req)
+
+						Expect(getRecorder.Code).To(Equal(http.StatusBadRequest))
+					}
+				})
+			})
+		})
+
+		Context("when http method is not supported", func() {
+			It("should return 405 Method Not Allowed", func() {
+				invalidMethods := []string{"PATCH"}
 				http.NewRequest("PUT", "/v1/data/bla", strings.NewReader("value=blabla"))
 
 				for _, method := range invalidMethods {
 					req, _ := http.NewRequest(method, "/v1/data/bla", nil)
-					req.Header.Set("Authorization", "bearer fake-auth-header")
-
 					recorder := httptest.NewRecorder()
 					requestHandler.ServeHTTP(recorder, req)
 
-					Expect(recorder.Code).To(Equal(http.StatusNotFound))
+					Expect(recorder.Code).To(Equal(http.StatusMethodNotAllowed))
 				}
-			})
-
-			It("should return 404 Not Found when key is not provided for fetch", func() {
-				req, _ := http.NewRequest("GET", "/v1/data/", nil)
-				req.Header.Set("Authorization", "bearer fake-auth-header")
-
-				getRecorder := httptest.NewRecorder()
-				requestHandler.ServeHTTP(getRecorder, req)
-
-				Expect(getRecorder.Code).To(Equal(http.StatusNotFound))
-			})
-
-			It("should return 404 Not Found when key is not provided for update", func() {
-				req, _ := http.NewRequest("PUT", "/v1/data/", nil)
-				req.Header.Set("Authorization", "bearer fake-auth-header")
-
-				getRecorder := httptest.NewRecorder()
-				requestHandler.ServeHTTP(getRecorder, req)
-
-				Expect(getRecorder.Code).To(Equal(http.StatusNotFound))
 			})
 		})
 

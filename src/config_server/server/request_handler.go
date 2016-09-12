@@ -28,7 +28,7 @@ func NewRequestHandler(store store.Store, valueGeneratorFactory types.ValueGener
 func (handler requestHandler) ServeHTTP(resWriter http.ResponseWriter, req *http.Request) {
 	paths := strings.Split(strings.Trim(req.URL.Path, "/"), "/")
 	if len(paths) != 3 {
-		http.Error(resWriter, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		http.Error(resWriter, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
@@ -44,7 +44,7 @@ func (handler requestHandler) ServeHTTP(resWriter http.ResponseWriter, req *http
 	case "DELETE":
 		handler.handleDelete(key, req, resWriter)
 	default:
-		http.Error(resWriter, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		http.Error(resWriter, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 	}
 }
 
