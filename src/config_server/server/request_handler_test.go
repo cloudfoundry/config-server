@@ -60,7 +60,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 		Context("when URL path is invalid", func() {
 
 			It("should return 404 Not Found for invalid paths", func() {
-				invalidPaths := []string{"/v1/config/test/case", "/v1"}
+				invalidPaths := []string{"/v1/data/test/case", "/v1"}
 
 				for _, path := range invalidPaths {
 					req, _ := http.NewRequest("GET", path, nil)
@@ -73,10 +73,10 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 			It("should return 404 Not Found for other methods", func() {
 				invalidMethods := [...]string{"PATCH"}
-				http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("value=blabla"))
+				http.NewRequest("PUT", "/v1/data/bla", strings.NewReader("value=blabla"))
 
 				for _, method := range invalidMethods {
-					req, _ := http.NewRequest(method, "/v1/config/bla", nil)
+					req, _ := http.NewRequest(method, "/v1/data/bla", nil)
 					req.Header.Set("Authorization", "bearer fake-auth-header")
 
 					recorder := httptest.NewRecorder()
@@ -87,7 +87,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 			})
 
 			It("should return 404 Not Found when key is not provided for fetch", func() {
-				req, _ := http.NewRequest("GET", "/v1/config/", nil)
+				req, _ := http.NewRequest("GET", "/v1/data/", nil)
 				req.Header.Set("Authorization", "bearer fake-auth-header")
 
 				getRecorder := httptest.NewRecorder()
@@ -97,7 +97,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 			})
 
 			It("should return 404 Not Found when key is not provided for update", func() {
-				req, _ := http.NewRequest("PUT", "/v1/config/", nil)
+				req, _ := http.NewRequest("PUT", "/v1/data/", nil)
 				req.Header.Set("Authorization", "bearer fake-auth-header")
 
 				getRecorder := httptest.NewRecorder()
@@ -110,7 +110,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 		Context("when URL path is valid", func() {
 
 			It("should store values as JSON", func() {
-				req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":\"str\"}"))
+				req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader("{\"value\":\"str\"}"))
 				req.Header.Set("Authorization", "bearer fake-auth-header")
 
 				putRecorder := httptest.NewRecorder()
@@ -123,7 +123,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 			})
 
 			It("should return 204 Status No Content when an integer value is added", func() {
-				req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":1}"))
+				req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader("{\"value\":1}"))
 				req.Header.Set("Authorization", "bearer fake-auth-header")
 
 				putRecorder := httptest.NewRecorder()
@@ -133,7 +133,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 			})
 
 			It("should return 204 Status No Content when a string value is added", func() {
-				req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":\"str\"}"))
+				req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader("{\"value\":\"str\"}"))
 				req.Header.Set("Authorization", "bearer fake-auth-header")
 
 				putRecorder := httptest.NewRecorder()
@@ -143,7 +143,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 			})
 
 			It("should return 204 Status No Content when config value is updated", func() {
-				req, _ := http.NewRequest("PUT", "/v1/config/bla", strings.NewReader("{\"value\":\"blabla\"}"))
+				req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader("{\"value\":\"blabla\"}"))
 				req.Header.Set("Authorization", "bearer fake-auth-header")
 
 				recorder := httptest.NewRecorder()
@@ -155,7 +155,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 			It("should return 200 OK when valid key is retrieved", func() {
 				mockStore.GetReturns("{\"path\":\"bla\",\"value\":\"blabla\"}", nil)
 
-				getReq, _ := http.NewRequest("GET", "/v1/config/bla/", nil)
+				getReq, _ := http.NewRequest("GET", "/v1/data/bla/", nil)
 				getReq.Header.Set("Authorization", "bearer fake-auth-header")
 
 				getRecorder := httptest.NewRecorder()
@@ -166,7 +166,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 			})
 
 			It("should return 404 Not Found when key is not found", func() {
-				req, _ := http.NewRequest("GET", "/v1/config/test", nil)
+				req, _ := http.NewRequest("GET", "/v1/data/test", nil)
 				req.Header.Set("Authorization", "bearer fake-auth-header")
 
 				getRecorder := httptest.NewRecorder()
@@ -176,7 +176,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 			})
 
 			It("should return 400 Bad Request when value is not provided for update", func() {
-				req, _ := http.NewRequest("PUT", "/v1/config/key", nil)
+				req, _ := http.NewRequest("PUT", "/v1/data/key", nil)
 				req.Header.Set("Authorization", "bearer fake-auth-header")
 
 				getRecorder := httptest.NewRecorder()
@@ -189,7 +189,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 				It("should return generated password", func() {
 					requestHandler, _ = NewRequestHandler(store.NewMemoryStore(), types.NewValueGeneratorConcrete(config.ServerConfig{}))
 
-					postReq, _ := http.NewRequest("POST", "/v1/config/bla/", strings.NewReader("{\"type\":\"password\",\"parameters\":{}}"))
+					postReq, _ := http.NewRequest("POST", "/v1/data/bla/", strings.NewReader("{\"type\":\"password\",\"parameters\":{}}"))
 					postReq.Header.Set("Authorization", "bearer fake-auth-header")
 
 					getRecorder := httptest.NewRecorder()
@@ -212,7 +212,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 						return "", nil
 					}
 
-					postReq, _ := http.NewRequest("POST", "/v1/config/bla/", strings.NewReader("{\"type\":\"password\",\"parameters\":{}}"))
+					postReq, _ := http.NewRequest("POST", "/v1/data/bla/", strings.NewReader("{\"type\":\"password\",\"parameters\":{}}"))
 					postReq.Header.Set("Authorization", "bearer fake-auth-header")
 
 					getRecorder := httptest.NewRecorder()
@@ -235,7 +235,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 						CA:          "fake-ca",
 					}, nil)
 
-					postReq, _ := http.NewRequest("POST", "/v1/config/bla/", strings.NewReader("{\"type\":\"certificate\",\"parameters\":{\"common_name\": \"asdf\", \"alternative_names\":[\"nam1\", \"name2\"]}}"))
+					postReq, _ := http.NewRequest("POST", "/v1/data/bla/", strings.NewReader("{\"type\":\"certificate\",\"parameters\":{\"common_name\": \"asdf\", \"alternative_names\":[\"nam1\", \"name2\"]}}"))
 					postReq.Header.Set("Authorization", "bearer fake-auth-header")
 
 					getRecorder := httptest.NewRecorder()
@@ -262,7 +262,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 						return "", nil
 					}
 
-					postReq, _ := http.NewRequest("POST", "/v1/config/bla/", strings.NewReader("{\"type\":\"certificate\",\"parameters\":{}}"))
+					postReq, _ := http.NewRequest("POST", "/v1/data/bla/", strings.NewReader("{\"type\":\"certificate\",\"parameters\":{}}"))
 					postReq.Header.Set("Authorization", "bearer fake-auth-header")
 
 					getRecorder := httptest.NewRecorder()
@@ -282,7 +282,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 					})
 
 					It("should delete value", func() {
-						req, _ := http.NewRequest("DELETE", "/v1/config/bla", nil)
+						req, _ := http.NewRequest("DELETE", "/v1/data/bla", nil)
 						req.Header.Set("Authorization", "bearer fake-auth-header")
 
 						putRecorder := httptest.NewRecorder()
@@ -293,7 +293,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 					})
 
                     It("should return 204 Status No Content", func() {
-                        req, _ := http.NewRequest("DELETE", "/v1/config/bla", nil)
+                        req, _ := http.NewRequest("DELETE", "/v1/data/bla", nil)
                         req.Header.Set("Authorization", "bearer fake-auth-header")
 
                         putRecorder := httptest.NewRecorder()
@@ -305,7 +305,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 				Context("Key does not exist", func() {
 					It("should return 404 Status Not Found", func() {
-						req, _ := http.NewRequest("DELETE", "/v1/config/bla", nil)
+						req, _ := http.NewRequest("DELETE", "/v1/data/bla", nil)
 						req.Header.Set("Authorization", "bearer fake-auth-header")
 
 						putRecorder := httptest.NewRecorder()
