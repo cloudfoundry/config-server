@@ -60,7 +60,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 		Context("when URL path is invalid", func() {
 			It("should return 400 Bad Request", func() {
 				invalidPaths := []string{"/v1/data/test/case", "/v1"}
-				validMethods := []string {"GET", "PUT", "POST", "DELETE"}
+				validMethods := []string{"GET", "PUT", "POST", "DELETE"}
 
 				for _, method := range validMethods {
 					for _, path := range invalidPaths {
@@ -75,7 +75,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 			Context("when key path parameter is missing", func() {
 				It("should return 400 Bad Request", func() {
-					validMethods := []string {"GET", "PUT", "POST", "DELETE"}
+					validMethods := []string{"GET", "PUT", "POST", "DELETE"}
 					for _, method := range validMethods {
 						req, _ := http.NewRequest(method, "/v1/data/", nil)
 						getRecorder := httptest.NewRecorder()
