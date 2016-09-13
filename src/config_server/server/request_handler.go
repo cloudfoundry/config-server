@@ -52,7 +52,7 @@ func (handler requestHandler) handleGet(key string, resWriter http.ResponseWrite
 
 	value, err := handler.store.Get(key)
 	if err != nil {
-		http.Error(resWriter, err.Error(), http.StatusNotFound)
+		http.Error(resWriter, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -152,7 +152,7 @@ func (handler requestHandler) readRequestBody(req *http.Request, resWriter http.
 	} else {
 		err = json.NewDecoder(req.Body).Decode(value)
 		if err != nil {
-			http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+			http.Error(resWriter, err.Error(), http.StatusBadRequest)
 		}
 	}
 
