@@ -85,10 +85,32 @@ var _ = Describe("RequestHandlerConcrete", func() {
 					}
 				})
 			})
+
+			Context("when key format is invalid", func() {
+				It("should return 400 Bad Request", func() {
+					inValidUrlPaths := []string{
+						"/v1/data/key//path//",
+						"/v1/data/key/{/*",
+						"/v1/data/key/@?/",
+					}
+
+					validMethods := []string{"GET", "PUT", "POST", "DELETE"}
+
+					for _, method := range validMethods {
+						for _, path := range inValidUrlPaths {
+							req, _ := http.NewRequest(method, path, nil)
+							recorder := httptest.NewRecorder()
+							requestHandler.ServeHTTP(recorder, req)
+
+							Expect(recorder.Code).To(Equal(http.StatusBadRequest))
+							Expect(recorder.Body).To(ContainSubstring("Key must consist of alphanumeric, underscores, dashes, and forward slashes"))
+						}
+					}
+				})
+			})
 		})
 
 		Context("when URL path is valid", func() {
-
 			Context("when http method is not supported", func() {
 				It("should return 405 Method Not Allowed", func() {
 					invalidMethods := []string{"PATCH"}
@@ -105,14 +127,39 @@ var _ = Describe("RequestHandlerConcrete", func() {
 			})
 
 			Context("when http method is supported", func() {
+				validUrlPaths := map[string]string{
+					"/v1/data/smurf":                          "smurf",
+					"/v1/data/smurf/color":                    "smurf/color",
+					"/v1/data/smurf/color/darkness":           "smurf/color/darkness",
+					"/v1/data/smurf/color/dark_ness/name-tag": "smurf/color/dark_ness/name-tag",
+				}
+
 				Describe("GET", func() {
+
+					It("can handle all types of validkeys", func() {
+						mockStore.GetReturns("common value", nil)
+						var counter int = 0
+						for path, extractedKey := range validUrlPaths {
+							getReq, _ := http.NewRequest("GET", path, nil)
+							getRecorder := httptest.NewRecorder()
+
+							requestHandler.ServeHTTP(getRecorder, getReq)
+							key := mockStore.GetArgsForCall(counter)
+
+							Expect(key).To(Equal(extractedKey))
+
+							Expect(getRecorder.Code).To(Equal(http.StatusOK))
+							counter = counter + 1
+						}
+					})
+
 					Context("when key exists", func() {
 						It("returns value in the store", func() {
-							storeValues := []string {
+							storeValues := []string{
 								`"{"path":"bla","value": 123}"`,
 								`"{"path":"bla","value":"blabla"}"`,
 								`"{"path":"bla","value": {"key":"blabla"}}"`,
-							    `anything`}
+								`anything`}
 
 							for _, storeValue := range storeValues {
 								mockStore.GetReturns(storeValue, nil)
@@ -151,6 +198,21 @@ var _ = Describe("RequestHandlerConcrete", func() {
 				})
 
 				Describe("PUT", func() {
+					It("can handle all types of validkeys", func() {
+						var counter int = 0
+						for path, extractedKey := range validUrlPaths {
+							req, _ := http.NewRequest("PUT", path, strings.NewReader(`{"value":"str"}`))
+							putRecorder := httptest.NewRecorder()
+							requestHandler.ServeHTTP(putRecorder, req)
+
+							key, _ := mockStore.PutArgsForCall(counter)
+
+							Expect(key).To(Equal(extractedKey))
+							Expect(putRecorder.Code).To(Equal(http.StatusNoContent))
+							counter++
+						}
+					})
+
 					Context("when request body is NOT in the specified format", func() {
 						Context("when body is empty", func() {
 							It("should return 400 Bad Request", func() {
@@ -187,7 +249,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 					})
 
 					Context("when request body is in the specified format", func() {
-						Context("when key value is a string ", func() {
+						Context("when value is a string ", func() {
 							It("should store value in a specific JSON format and respond with 204 StatusNoContent", func() {
 								req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader(`{"value":"str"}`))
 								putRecorder := httptest.NewRecorder()
@@ -202,7 +264,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 							})
 						})
 
-						Context("when key value is a number", func() {
+						Context("when value is a number", func() {
 							It("should store value in a specific JSON format and respond with 204 StatusNoContent", func() {
 								req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader(`{"value":123}`))
 								putRecorder := httptest.NewRecorder()
@@ -217,7 +279,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 							})
 						})
 
-						Context("when key value is a JSON hash", func() {
+						Context("when value is a JSON hash", func() {
 							It("should store value in a specific JSON format and respond with 204 StatusNoContent", func() {
 								requestBody := `{"value":{"age":10,"color":"red"}}`
 								valueToStore := `{"path":"bla","value":{"age":10,"color":"red"}}`
@@ -238,6 +300,22 @@ var _ = Describe("RequestHandlerConcrete", func() {
 				})
 
 				Describe("POST", func() {
+					It("can handle all types of validkeys", func() {
+						mockStore.GetReturns("anything", nil)
+
+						var counter int = 0
+						for path, extractedKey := range validUrlPaths {
+							req, _ := http.NewRequest("POST", path, strings.NewReader(`{"type":"password","parameters":{}}`))
+							recorder := httptest.NewRecorder()
+							requestHandler.ServeHTTP(recorder, req)
+
+							key := mockStore.GetArgsForCall(counter)
+
+							Expect(key).To(Equal(extractedKey))
+							counter++
+						}
+					})
+
 					Context("when request body is NOT in the specified format", func() {
 						Context("when body is empty", func() {
 							It("should return 400 Bad Request", func() {
@@ -371,6 +449,21 @@ var _ = Describe("RequestHandlerConcrete", func() {
 				})
 
 				Describe("DELETE", func() {
+					It("can handle all types of validkeys", func() {
+						mockStore.DeleteReturns(true, nil)
+
+						var counter int = 0
+						for path, extractedKey := range validUrlPaths {
+							req, _ := http.NewRequest("DELETE", path, nil)
+
+							recorder := httptest.NewRecorder()
+							requestHandler.ServeHTTP(recorder, req)
+
+							Expect(mockStore.DeleteArgsForCall(counter)).To(Equal(extractedKey))
+							counter++
+						}
+					})
+
 					Context("Key exists", func() {
 						BeforeEach(func() {
 							mockStore.DeleteReturns(true, nil)

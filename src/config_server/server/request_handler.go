@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/cloudfoundry/bosh-utils/errors"
+	"regexp"
 )
 
 type requestHandler struct {
@@ -26,13 +27,12 @@ func NewRequestHandler(store store.Store, valueGeneratorFactory types.ValueGener
 }
 
 func (handler requestHandler) ServeHTTP(resWriter http.ResponseWriter, req *http.Request) {
-	paths := strings.Split(strings.Trim(req.URL.Path, "/"), "/")
-	if len(paths) != 3 {
-		http.Error(resWriter, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+	key, err := handler.extractKeyFromURLPath(req.URL.Path)
+
+	if err != nil {
+		http.Error(resWriter, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	key := paths[len(paths)-1]
 
 	switch req.Method {
 	case "GET":
@@ -59,12 +59,12 @@ func (handler requestHandler) handleGet(key string, resWriter http.ResponseWrite
 	if value == "" {
 		http.Error(resWriter, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	} else {
-		respond(resWriter, value, http.StatusOK)
+		handler.respond(resWriter, value, http.StatusOK)
 	}
 }
 
 func (handler requestHandler) handlePut(key string, req *http.Request, resWriter http.ResponseWriter) {
-	value, err := readPutRequest(req)
+	value, err := handler.readPutRequest(req)
 
 	if err != nil {
 		http.Error(resWriter, err.Error(), http.StatusBadRequest)
@@ -82,7 +82,7 @@ func (handler requestHandler) handlePut(key string, req *http.Request, resWriter
 }
 
 func (handler requestHandler) handlePost(key string, req *http.Request, resWriter http.ResponseWriter) {
-	generationType, parameters, err := readPostRequest(req)
+	generationType, parameters, err := handler.readPostRequest(req)
 
 	if err != nil {
 		http.Error(resWriter, err.Error(), http.StatusBadRequest)
@@ -91,7 +91,7 @@ func (handler requestHandler) handlePost(key string, req *http.Request, resWrite
 
 	value, err := handler.store.Get(key)
 	if value != "" {
-		respond(resWriter, value, http.StatusOK)
+		handler.respond(resWriter, value, http.StatusOK)
 
 	} else {
 		generator, err := handler.valueGeneratorFactory.GetGenerator(generationType)
@@ -117,7 +117,7 @@ func (handler requestHandler) handlePost(key string, req *http.Request, resWrite
 			http.Error(resWriter, err.Error(), http.StatusInternalServerError)
 		}
 
-		respond(resWriter, value.(string), http.StatusCreated)
+		handler.respond(resWriter, value.(string), http.StatusCreated)
 	}
 }
 
@@ -126,9 +126,9 @@ func (handler requestHandler) handleDelete(key string, req *http.Request, resWri
 
 	if err == nil {
 		if deleted {
-			respond(resWriter, "", http.StatusNoContent)
+			handler.respond(resWriter, "", http.StatusNoContent)
 		} else {
-			respond(resWriter, "", http.StatusNotFound)
+			handler.respond(resWriter, "", http.StatusNotFound)
 		}
 	} else {
 		http.Error(resWriter, err.Error(), http.StatusInternalServerError)
@@ -150,7 +150,7 @@ func (handler requestHandler) saveToStore(key string, value interface{}) error {
 	return nil
 }
 
-func respond(res http.ResponseWriter, message string, status int) {
+func (handler requestHandler) respond(res http.ResponseWriter, message string, status int) {
 	res.WriteHeader(status)
 
 	_, err := res.Write([]byte(message))
@@ -159,8 +159,8 @@ func respond(res http.ResponseWriter, message string, status int) {
 	}
 }
 
-func readPutRequest(req *http.Request) (interface{}, error) {
-	jsonMap, err := readJSONBody(req)
+func (handler requestHandler) readPutRequest(req *http.Request) (interface{}, error) {
+	jsonMap, err := handler.readJSONBody(req)
 
 	if err != nil {
 		return nil, err
@@ -174,8 +174,8 @@ func readPutRequest(req *http.Request) (interface{}, error) {
 	return value, nil
 }
 
-func readPostRequest(req *http.Request) (string, interface{}, error) {
-	jsonMap, err := readJSONBody(req)
+func (handler requestHandler) readPostRequest(req *http.Request) (string, interface{}, error) {
+	jsonMap, err := handler.readJSONBody(req)
 
 	if err != nil {
 		return "", nil, err
@@ -189,7 +189,7 @@ func readPostRequest(req *http.Request) (string, interface{}, error) {
 	return generationType.(string), jsonMap["parameters"], nil
 }
 
-func readJSONBody(req *http.Request) (map[string]interface{}, error) {
+func (handler requestHandler) readJSONBody(req *http.Request) (map[string]interface{}, error) {
 	if req == nil {
 		return nil, errors.Error("Request can't be nil")
 	}
@@ -204,4 +204,24 @@ func readJSONBody(req *http.Request) (map[string]interface{}, error) {
 	}
 
 	return f.(map[string]interface{}), nil
+}
+
+func (handler requestHandler) extractKeyFromURLPath(path string) (string, error) {
+	paths := strings.Split(strings.Trim(path, "/"), "/")
+
+	if len(paths) < 3 {
+		return "", errors.Error("Request URL invalid, seems to be missing key")
+	}
+
+	tokens := paths[2:]
+
+	var validKeyToken = regexp.MustCompile(`^[a-zA-Z0-9_\-]+$`)
+
+	for _, token := range tokens {
+		if !validKeyToken.MatchString(token) {
+			return "", errors.Error("Key must consist of alphanumeric, underscores, dashes, and forward slashes")
+		}
+	}
+
+	return strings.Join(tokens, "/"), nil
 }
