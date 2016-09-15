@@ -64,18 +64,15 @@ func (handler requestHandler) handleGet(key string, resWriter http.ResponseWrite
 }
 
 func (handler requestHandler) handlePut(key string, req *http.Request, resWriter http.ResponseWriter) {
+	value, err := readPutRequest(req)
 
-	type RequestBody struct {
-		Value interface{}
-	}
-	var requestBody RequestBody
-
-	err := handler.readRequestBody(req, resWriter, &requestBody)
 	if err != nil {
+		http.Error(resWriter, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = handler.saveToStore(key, requestBody.Value)
+	err = handler.saveToStore(key, value)
+
 	if err != nil {
 		http.Error(resWriter, err.Error(), http.StatusInternalServerError)
 		return
@@ -85,15 +82,10 @@ func (handler requestHandler) handlePut(key string, req *http.Request, resWriter
 }
 
 func (handler requestHandler) handlePost(key string, req *http.Request, resWriter http.ResponseWriter) {
+	generationType, parameters, err := readPostRequest(req)
 
-	type RequestBody struct {
-		Type       string
-		Parameters interface{}
-	}
-	var requestBody RequestBody
-
-	err := handler.readRequestBody(req, resWriter, &requestBody)
 	if err != nil {
+		http.Error(resWriter, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -102,13 +94,13 @@ func (handler requestHandler) handlePost(key string, req *http.Request, resWrite
 		respond(resWriter, value, http.StatusOK)
 
 	} else {
-		generator, err := handler.valueGeneratorFactory.GetGenerator(requestBody.Type)
+		generator, err := handler.valueGeneratorFactory.GetGenerator(generationType)
 		if err != nil {
-			http.Error(resWriter, "Unable to create generator", http.StatusInternalServerError)
+			http.Error(resWriter, "Unsupport type {put type here}", http.StatusBadRequest)
 			return
 		}
 
-		value, err := generator.Generate(requestBody.Parameters)
+		value, err := generator.Generate(parameters)
 		if err != nil {
 			http.Error(resWriter, err.Error(), http.StatusInternalServerError)
 			return
@@ -143,22 +135,6 @@ func (handler requestHandler) handleDelete(key string, req *http.Request, resWri
 	}
 }
 
-func (handler requestHandler) readRequestBody(req *http.Request, resWriter http.ResponseWriter, value interface{}) error {
-	var err error
-
-	if req.Body == nil {
-		err = errors.Error("Value cannot be empty")
-		http.Error(resWriter, err.Error(), http.StatusBadRequest)
-	} else {
-		err = json.NewDecoder(req.Body).Decode(value)
-		if err != nil {
-			http.Error(resWriter, err.Error(), http.StatusBadRequest)
-		}
-	}
-
-	return err
-}
-
 func (handler requestHandler) saveToStore(key string, value interface{}) error {
 
 	storeValue, err := store.StoreValue{Path: key, Value: value}.Json()
@@ -181,4 +157,51 @@ func respond(res http.ResponseWriter, message string, status int) {
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 	}
+}
+
+func readPutRequest(req *http.Request) (interface{}, error) {
+	jsonMap, err := readJSONBody(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	value, keyExist := jsonMap["value"]
+	if !keyExist {
+		return nil, errors.Error("JSON request body shoud contain the key 'value'")
+	}
+
+	return value, nil
+}
+
+func readPostRequest(req *http.Request) (string, interface{}, error) {
+	jsonMap, err := readJSONBody(req)
+
+	if err != nil {
+		return "", nil, err
+	}
+
+	generationType, keyExist := jsonMap["type"]
+	if !keyExist {
+		return "", nil, errors.Error("JSON request body shoud contain the key 'type'")
+	}
+
+	return generationType.(string), jsonMap["parameters"], nil
+}
+
+func readJSONBody(req *http.Request) (map[string]interface{}, error) {
+	if req == nil {
+		return nil, errors.Error("Request can't be nil")
+	}
+
+	if req.Body == nil {
+		return nil, errors.Error("Request can't be empty")
+	}
+
+	var f interface{}
+	if err := json.NewDecoder(req.Body).Decode(&f); err != nil {
+		return nil, errors.Error("Request Body should be JSON string")
+	}
+
+	return f.(map[string]interface{}), nil
 }

@@ -158,6 +158,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 								putRecorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(putRecorder, req)
 
+								Expect(putRecorder.Body.String()).To(ContainSubstring("Request can't be empty"))
 								Expect(putRecorder.Code).To(Equal(http.StatusBadRequest))
 							})
 						})
@@ -168,18 +169,18 @@ var _ = Describe("RequestHandlerConcrete", func() {
 								putRecorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(putRecorder, req)
 
+								Expect(putRecorder.Body.String()).To(ContainSubstring("Request Body should be JSON string"))
 								Expect(putRecorder.Code).To(Equal(http.StatusBadRequest))
 							})
 						})
 
-						//TODO: We should decide if we should allow json bodies that do not
-						//adhere to the correct format
 						Context("when body is JSON string but NOT as expected", func() {
-							PIt("should return 400 Bad Request", func() {
+							It("should return 400 Bad Request", func() {
 								req, _ := http.NewRequest("PUT", "/v1/data/key", strings.NewReader(`{"smurf":"blue"}`))
 								putRecorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(putRecorder, req)
 
+								Expect(putRecorder.Body.String()).To(ContainSubstring("JSON request body shoud contain the key 'value'"))
 								Expect(putRecorder.Code).To(Equal(http.StatusBadRequest))
 							})
 						})
@@ -244,28 +245,29 @@ var _ = Describe("RequestHandlerConcrete", func() {
 								recorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(recorder, req)
 
+								Expect(recorder.Body.String()).To(ContainSubstring("Request can't be empty"))
 								Expect(recorder.Code).To(Equal(http.StatusBadRequest))
 							})
 						})
 
 						Context("when body is NOT JSON string", func() {
 							It("should return 400 Bad Request", func() {
-								req, _ := http.NewRequest("POST", "/v1/data/key", strings.NewReader(`smurf`))
+								req, _ := http.NewRequest("POST", "/v1/data/key", strings.NewReader("smurf"))
 								recorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(recorder, req)
 
+								Expect(recorder.Body.String()).To(ContainSubstring("Request Body should be JSON string"))
 								Expect(recorder.Code).To(Equal(http.StatusBadRequest))
 							})
 						})
 
-						//TODO: We should decide if we should allow json bodies that do not
-						//adhere to the correct format
 						Context("when body is JSON string but NOT as expected", func() {
-							PIt("should return 400 Bad Request", func() {
+							It("should return 400 Bad Request", func() {
 								req, _ := http.NewRequest("POST", "/v1/data/key", strings.NewReader(`{"smurf":"blue"}`))
 								recorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(recorder, req)
 
+								Expect(recorder.Body.String()).To(ContainSubstring("JSON request body shoud contain the key 'type'"))
 								Expect(recorder.Code).To(Equal(http.StatusBadRequest))
 							})
 						})
