@@ -132,7 +132,7 @@ func (handler requestHandler) handlePost(key string, req *http.Request, resWrite
 func (handler requestHandler) handleDelete(key string, req *http.Request, resWriter http.ResponseWriter) {
 	deleted, err := handler.store.Delete(key)
 
-    if err == nil {
+	if err == nil {
 		if deleted {
 			respond(resWriter, "", http.StatusNoContent)
 		} else {

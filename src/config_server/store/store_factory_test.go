@@ -3,9 +3,9 @@ package store_test
 import (
 	. "config_server/store"
 
+	"config_server/config"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"config_server/config"
 )
 
 var _ = Describe("CreateStore", func() {
@@ -15,9 +15,8 @@ var _ = Describe("CreateStore", func() {
 
 		BeforeEach(func() {
 			serverConfig = config.ServerConfig{
-				Store: "database",
-				Database: config.DBConfig{
-				},
+				Store:    "database",
+				Database: config.DBConfig{},
 			}
 		})
 

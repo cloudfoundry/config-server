@@ -102,16 +102,16 @@ var _ = Describe("StoreMysql", func() {
 		It("does an insert when key does not exist in database", func() {
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
-            err := store.Put("Luke", "Skywalker")
-            Expect(err).To(BeNil())
+			err := store.Put("Luke", "Skywalker")
+			Expect(err).To(BeNil())
 
-            Expect(fakeDb.ExecCallCount()).To(Equal(1))
+			Expect(fakeDb.ExecCallCount()).To(Equal(1))
 
-            query, values := fakeDb.ExecArgsForCall(0)
-            Expect(query).To(Equal("INSERT INTO config VALUES(?,?)"))
+			query, values := fakeDb.ExecArgsForCall(0)
+			Expect(query).To(Equal("INSERT INTO config VALUES(?,?)"))
 
-            Expect(values[0]).To(Equal("Luke"))
-            Expect(values[1]).To(Equal("Skywalker"))
+			Expect(values[0]).To(Equal("Luke"))
+			Expect(values[1]).To(Equal("Skywalker"))
 		})
 
 		It("does an update when key exists in database", func() {
@@ -123,14 +123,14 @@ var _ = Describe("StoreMysql", func() {
 			Expect(fakeDb.ExecCallCount()).To(Equal(2))
 
 			query, values := fakeDb.ExecArgsForCall(0)
-            Expect(query).To(Equal("INSERT INTO config VALUES(?,?)"))
-            Expect(values[0]).To(Equal("Luke"))
-            Expect(values[1]).To(Equal("Skywalker"))
+			Expect(query).To(Equal("INSERT INTO config VALUES(?,?)"))
+			Expect(values[0]).To(Equal("Luke"))
+			Expect(values[1]).To(Equal("Skywalker"))
 
 			query, values = fakeDb.ExecArgsForCall(1)
-            Expect(query).To(Equal("UPDATE config SET config.config_value = ? WHERE config.config_key = ?"))
-            Expect(values[0]).To(Equal("Skywalker"))
-            Expect(values[1]).To(Equal("Luke"))
+			Expect(query).To(Equal("UPDATE config SET config.config_value = ? WHERE config.config_key = ?"))
+			Expect(values[0]).To(Equal("Skywalker"))
+			Expect(values[1]).To(Equal("Luke"))
 		})
 	})
 
@@ -154,18 +154,18 @@ var _ = Describe("StoreMysql", func() {
 			It("removes value", func() {
 				store.Delete("Luke")
 
-                Expect(fakeDb.ExecCallCount()).To(Equal(1))
-                query, value := fakeDb.ExecArgsForCall(0)
-                Expect(query).To(Equal("DELETE FROM config WHERE config_key = ?"))
-                Expect(value[0]).To(Equal("Luke"))
+				Expect(fakeDb.ExecCallCount()).To(Equal(1))
+				query, value := fakeDb.ExecArgsForCall(0)
+				Expect(query).To(Equal("DELETE FROM config WHERE config_key = ?"))
+				Expect(value[0]).To(Equal("Luke"))
 			})
 
-            It("returns true", func() {
-                deleted, err := store.Delete("Luke")
+			It("returns true", func() {
+				deleted, err := store.Delete("Luke")
 
-                Expect(deleted).To(BeTrue())
-                Expect(err).To(BeNil())
-            })
+				Expect(deleted).To(BeTrue())
+				Expect(err).To(BeNil())
+			})
 		})
 
 		Context("Key does not exist", func() {

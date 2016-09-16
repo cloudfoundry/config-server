@@ -292,15 +292,15 @@ var _ = Describe("RequestHandlerConcrete", func() {
 						Expect(mockStore.DeleteArgsForCall(0)).To(Equal("bla"))
 					})
 
-                    It("should return 204 Status No Content", func() {
-                        req, _ := http.NewRequest("DELETE", "/v1/data/bla", nil)
-                        req.Header.Set("Authorization", "bearer fake-auth-header")
+					It("should return 204 Status No Content", func() {
+						req, _ := http.NewRequest("DELETE", "/v1/data/bla", nil)
+						req.Header.Set("Authorization", "bearer fake-auth-header")
 
-                        putRecorder := httptest.NewRecorder()
-                        requestHandler.ServeHTTP(putRecorder, req)
+						putRecorder := httptest.NewRecorder()
+						requestHandler.ServeHTTP(putRecorder, req)
 
-                        Expect(putRecorder.Code).To(Equal(http.StatusNoContent))
-                    })
+						Expect(putRecorder.Code).To(Equal(http.StatusNoContent))
+					})
 				})
 
 				Context("Key does not exist", func() {

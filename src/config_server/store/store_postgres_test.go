@@ -103,15 +103,15 @@ var _ = Describe("StorePostgres", func() {
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
 			err := store.Put("Luke", "Skywalker")
-            Expect(err).To(BeNil())
+			Expect(err).To(BeNil())
 
 			Expect(fakeDb.ExecCallCount()).To(Equal(1))
 
-            query, values := fakeDb.ExecArgsForCall(0)
-            Expect(query).To(Equal("INSERT INTO config VALUES($1, $2)"))
+			query, values := fakeDb.ExecArgsForCall(0)
+			Expect(query).To(Equal("INSERT INTO config VALUES($1, $2)"))
 
-            Expect(values[0]).To(Equal("Luke"))
-            Expect(values[1]).To(Equal("Skywalker"))
+			Expect(values[0]).To(Equal("Luke"))
+			Expect(values[1]).To(Equal("Skywalker"))
 		})
 
 		It("does an update when key exists in database", func() {
@@ -122,15 +122,15 @@ var _ = Describe("StorePostgres", func() {
 
 			Expect(fakeDb.ExecCallCount()).To(Equal(2))
 
-            query, values := fakeDb.ExecArgsForCall(0)
-            Expect(query).To(Equal("INSERT INTO config VALUES($1, $2)"))
-            Expect(values[0]).To(Equal("Luke"))
-            Expect(values[1]).To(Equal("Skywalker"))
+			query, values := fakeDb.ExecArgsForCall(0)
+			Expect(query).To(Equal("INSERT INTO config VALUES($1, $2)"))
+			Expect(values[0]).To(Equal("Luke"))
+			Expect(values[1]).To(Equal("Skywalker"))
 
-            query, values = fakeDb.ExecArgsForCall(1)
-            Expect(query).To(Equal("UPDATE config SET config_value=$1 WHERE config_key=$2"))
-            Expect(values[0]).To(Equal("Skywalker"))
-            Expect(values[1]).To(Equal("Luke"))
+			query, values = fakeDb.ExecArgsForCall(1)
+			Expect(query).To(Equal("UPDATE config SET config_value=$1 WHERE config_key=$2"))
+			Expect(values[0]).To(Equal("Skywalker"))
+			Expect(values[1]).To(Equal("Luke"))
 		})
 	})
 
@@ -157,15 +157,15 @@ var _ = Describe("StorePostgres", func() {
 				Expect(fakeDb.ExecCallCount()).To(Equal(1))
 				query, value := fakeDb.ExecArgsForCall(0)
 				Expect(query).To(Equal("DELETE FROM config WHERE config_key = $1"))
-                Expect(value[0]).To(Equal("Luke"))
+				Expect(value[0]).To(Equal("Luke"))
 			})
 
-            It("returns true", func() {
-                deleted, err := store.Delete("Luke")
+			It("returns true", func() {
+				deleted, err := store.Delete("Luke")
 
-                Expect(deleted).To(BeTrue())
-                Expect(err).To(BeNil())
-            })
+				Expect(deleted).To(BeTrue())
+				Expect(err).To(BeNil())
+			})
 		})
 
 		Context("Key does not exist", func() {

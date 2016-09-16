@@ -49,11 +49,11 @@ var _ = Describe("MemoryStore", func() {
 					Expect(value).To(Equal(""))
 				})
 
-                It("returns true", func() {
-                    deleted, err := store.Delete("key")
-                    Expect(err).To(BeNil())
-                    Expect(deleted).To(BeTrue())
-                })
+				It("returns true", func() {
+					deleted, err := store.Delete("key")
+					Expect(err).To(BeNil())
+					Expect(deleted).To(BeTrue())
+				})
 			})
 
 			Context("Key does not exist", func() {

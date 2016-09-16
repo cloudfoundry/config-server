@@ -21,8 +21,8 @@ func (store MemoryStore) Delete(key string) (bool, error) {
 	deleted := false
 	value, _ := store.Get(key)
 
-    // map contains key, delete
-    if len(value) > 0 {
+	// map contains key, delete
+	if len(value) > 0 {
 		delete(store.db, key)
 		deleted = true
 	}
