@@ -14,7 +14,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func getCert(generator ValueGenerator, certString string) (*x509.Certificate, error) {
+func parseCertString(certString string) (*x509.Certificate, error) {
 	block, _ := pem.Decode([]byte(certString))
 	crt, err := x509.ParseCertificate(block.Bytes)
 
@@ -105,7 +105,7 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
 			Context("Certificate", func() {
 				It("generates a certificate", func() {
 					certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
-					certificate, err := getCert(generator, certResp.Certificate)
+					certificate, err := parseCertString(certResp.Certificate)
 
 					Expect(err).To(BeNil())
 					Expect(certificate).ToNot(BeNil())
@@ -115,7 +115,7 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
 					altNames := []interface{}{"cloudfoundry.com", "example.com"}
 					certResp := getCertResp(generator, map[string]interface{}{"common_name": "bosh.io",
 						"alternative_names": altNames})
-					certificate, _ := getCert(generator, certResp.Certificate)
+					certificate, _ := parseCertString(certResp.Certificate)
 
 					Expect(certificate.Subject.CommonName).Should(Equal("bosh.io"))
 
@@ -128,7 +128,7 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
 					altNames := []interface{}{"bosh.io", "cloudfoundry.com", "example.com"}
 					certResp := getCertResp(generator, map[string]interface{}{"common_name": "bosh.io",
 						"alternative_names": altNames})
-					certificate, _ := getCert(generator, certResp.Certificate)
+					certificate, _ := parseCertString(certResp.Certificate)
 
 					Expect(certificate.Subject.CommonName).Should(Equal("bosh.io"))
 
@@ -139,7 +139,7 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
 
 				It("should set expiry for the cert in 1 year", func() {
 					certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
-					certificate, _ := getCert(generator, certResp.Certificate)
+					certificate, _ := parseCertString(certResp.Certificate)
 
 					oneYearFromToday := time.Now().UTC().Add(365 * 24 * time.Hour)
 
@@ -171,7 +171,7 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
 
 				It("is not a CA", func() {
 					certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
-					certificate, _ := getCert(generator, certResp.Certificate)
+					certificate, _ := parseCertString(certResp.Certificate)
 
 					Expect(certificate.IsCA).To(BeFalse())
 				})
@@ -186,7 +186,7 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
 
 				It("should have the public keys of the private key and certificate match", func() {
 					certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
-					certificate, _ := getCert(generator, certResp.Certificate)
+					certificate, _ := parseCertString(certResp.Certificate)
 
 					block, _ := pem.Decode([]byte(certResp.PrivateKey))
 					key, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
