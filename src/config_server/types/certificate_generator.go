@@ -84,7 +84,6 @@ func (cfg certificateGenerator) generateCert(cParams CertParams) (CertResponse, 
 		BasicConstraintsValid: true,
 		IsCA: false,
 	}
-	template.DNSNames = append(template.DNSNames, cParams.CommonName)
 
 	for _, altName := range cParams.AlternativeName {
 		template.DNSNames = append(template.DNSNames, altName)

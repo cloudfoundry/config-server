@@ -112,14 +112,29 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
 				})
 
 				It("sets common name and alternative name as passed in", func() {
-					altNames := []interface{}{"alt1", "alt2"}
-					certResp := getCertResp(generator, map[string]interface{}{"common_name": "test",
+					altNames := []interface{}{"cloudfoundry.com", "example.com"}
+					certResp := getCertResp(generator, map[string]interface{}{"common_name": "bosh.io",
 						"alternative_names": altNames})
 					certificate, _ := getCert(generator, certResp.Certificate)
 
-					Expect(certificate.DNSNames).Should(ContainElement("test"))
-					Expect(certificate.DNSNames).Should(ContainElement("alt1"))
-					Expect(certificate.DNSNames).Should(ContainElement("alt2"))
+					Expect(certificate.Subject.CommonName).Should(Equal("bosh.io"))
+
+					Expect(certificate.DNSNames).ShouldNot(ContainElement("bosh.io"))
+					Expect(certificate.DNSNames).Should(ContainElement("cloudfoundry.com"))
+					Expect(certificate.DNSNames).Should(ContainElement("example.com"))
+				})
+
+				It("should work if CN was also included in SAN", func() {
+					altNames := []interface{}{"bosh.io", "cloudfoundry.com", "example.com"}
+					certResp := getCertResp(generator, map[string]interface{}{"common_name": "bosh.io",
+						"alternative_names": altNames})
+					certificate, _ := getCert(generator, certResp.Certificate)
+
+					Expect(certificate.Subject.CommonName).Should(Equal("bosh.io"))
+
+					Expect(certificate.DNSNames).Should(ContainElement("bosh.io"))
+					Expect(certificate.DNSNames).Should(ContainElement("cloudfoundry.com"))
+					Expect(certificate.DNSNames).Should(ContainElement("example.com"))
 				})
 
 				It("should set expiry for the cert in 1 year", func() {
