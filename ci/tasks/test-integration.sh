@@ -6,4 +6,9 @@ export PATH=/usr/local/go/bin:$GOPATH/bin:$PATH
 
 go clean -r config_server
 
-echo INTEGRATION_TESTS_NOT_IMPLEMENTED!
+go get github.com/onsi/ginkgo/ginkgo
+go get github.com/onsi/gomega
+
+cd config-server
+
+./scripts/test-integration.sh
