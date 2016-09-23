@@ -1,34 +1,20 @@
 #!/bin/bash
 
-go build -o ./test_server src/config_server/main.go
+rm -r ./tmp
+mkdir ./tmp
 
-ASSETS_DIR="$PWD/src/integration_tests/assets"
-CONFIG_FILE="$ASSETS_DIR/config.json"
+pushd ./tmp
 
-cat > $CONFIG_FILE <<- EOM
-{
-  "port": 9000,
-  "store": "memory",
-  "certificate_file_path": "$ASSETS_DIR/ssl.crt",
-  "private_key_file_path": "$ASSETS_DIR/ssl.key",
-  "ca_certificate_file_path": "$ASSETS_DIR/ca.crt",
-  "ca_private_key_file_path": "$ASSETS_DIR/crt.key",
-  "jwt_verification_key_path": "$ASSETS_DIR/uaa.pub"
-}
-EOM
+cp ../scripts/start_server.sh .
+cp ../scripts/stop_server.sh .
+cp ../scripts/test-integration.sh .
+chmod +x ./*
 
-./test_server $CONFIG_FILE &
-SERVER_PID=$!
+cp -r ../src/integration_tests/assets ./assets
 
-ginkgo build -r src/integration_tests
+go build -o config_server.bin ../src/config_server/main.go
+ginkgo build -r ../src/integration_tests
 
-# prevent ginkgo from running tests in random tmp directory
-mv src/integration_tests/integration_tests.test .
+mv ../src/integration_tests/integration_tests.test .
 
 ./integration_tests.test
-
-kill $SERVER_PID
-
-rm ./test_server
-rm ./integration_tests.test
-rm $CONFIG_FILE

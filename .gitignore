@@ -11,3 +11,4 @@ config/private.yml
 bin
 pkg
 *.coverprofile
+tmp
