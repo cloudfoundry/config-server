@@ -1,6 +1,8 @@
 #!/bin/bash
 
-rm -r ./tmp
+set -e -x
+
+rm -rf ./tmp
 mkdir ./tmp
 
 pushd ./tmp

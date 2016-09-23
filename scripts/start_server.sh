@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e -x
+
 ASSETS_DIR="./assets"
 CONFIG_FILE="$ASSETS_DIR/config.json"
 
