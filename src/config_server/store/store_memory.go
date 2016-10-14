@@ -18,9 +18,9 @@ func (store MemoryStore) Put(key string, value string) error {
 
 	if ok == false {
 		store.db[key] = Configuration{
-			Key: key,
+			Key:   key,
 			Value: value,
-			Id: strconv.Itoa(dbCounter),
+			Id:    strconv.Itoa(dbCounter),
 		}
 		dbCounter++
 	} else {

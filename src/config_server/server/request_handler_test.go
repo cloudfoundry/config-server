@@ -167,8 +167,8 @@ var _ = Describe("RequestHandlerConcrete", func() {
 							for _, value := range values {
 								respValue := store.Configuration{
 									Value: `{"value":` + value + "}",
-									Key: "bla",
-									Id: "some_id",
+									Key:   "bla",
+									Id:    "some_id",
 								}
 								mockStore.GetReturns(respValue, nil)
 
@@ -371,9 +371,8 @@ var _ = Describe("RequestHandlerConcrete", func() {
 									mockStore.GetStub = func(key string) (store.Configuration, error) {
 										respValue := store.Configuration{
 											Value: `{"value":"smurf"}`,
-											Id: "some_id",
-											Key: "bla",
-
+											Id:    "some_id",
+											Key:   "bla",
 										}
 										return respValue, nil
 									}
@@ -415,10 +414,9 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 									mockStore.GetStub = func(key string) (store.Configuration, error) {
 										respValue := store.Configuration{
-											Value:  `{"value":"smurf"}`,
-											Id: "some_id",
-											Key: "bla",
-
+											Value: `{"value":"smurf"}`,
+											Id:    "some_id",
+											Key:   "bla",
 										}
 										return respValue, nil
 									}

@@ -77,9 +77,9 @@ var _ = Describe("StoreMysql", func() {
 			value, err := store.Get("Luke")
 			Expect(err).To(BeNil())
 			Expect(value).To(Equal(Configuration{
-				Id: "some_id",
+				Id:    "some_id",
 				Value: "Skywalker",
-				Key: "Luke",
+				Key:   "Luke",
 			}))
 		})
 

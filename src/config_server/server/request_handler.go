@@ -143,7 +143,7 @@ func (handler requestHandler) handleDelete(key string, req *http.Request, resWri
 }
 
 func (handler requestHandler) saveToStore(key string, value interface{}) error {
-	configValue :=  make(map[string]interface{})
+	configValue := make(map[string]interface{})
 	configValue["value"] = value
 
 	bytes, err := json.Marshal(&configValue)

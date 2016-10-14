@@ -5,11 +5,11 @@ import (
 	"strings"
 )
 
-func GetMigrations(adapter string) ([]migration.Migrator) {
+func GetMigrations(adapter string) []migration.Migrator {
 	var migrations []string
 
 	if strings.EqualFold(adapter, "mysql") {
-		migrations =  MysqlMigrations()
+		migrations = MysqlMigrations()
 	} else if strings.EqualFold(adapter, "postgres") {
 		migrations = PostgresMigrations()
 	}

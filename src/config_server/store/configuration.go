@@ -4,10 +4,9 @@ import (
 	"encoding/json"
 )
 
-
 type Configuration struct {
-	Id string
-	Key string
+	Id    string
+	Key   string
 	Value string
 }
 

@@ -10,11 +10,11 @@ import (
 var _ = Describe("Configuration", func() {
 
 	Describe("StringifiedJSON", func() {
-		Context("When value is a string", func(){
-			It("returns json string from the given db result", func(){
+		Context("When value is a string", func() {
+			It("returns json string from the given db result", func() {
 				configuration := store.Configuration{
-					Id: "123",
-					Key: "smurf",
+					Id:    "123",
+					Key:   "smurf",
 					Value: `{"value": "blue"}`,
 				}
 
@@ -24,11 +24,11 @@ var _ = Describe("Configuration", func() {
 			})
 		})
 
-		Context("When value is a number", func(){
-			It("returns json string from the given db result", func(){
+		Context("When value is a number", func() {
+			It("returns json string from the given db result", func() {
 				configuration := store.Configuration{
-					Id: "123",
-					Key: "smurf",
+					Id:    "123",
+					Key:   "smurf",
 					Value: `{"value": 123}`,
 				}
 
@@ -38,11 +38,11 @@ var _ = Describe("Configuration", func() {
 			})
 		})
 
-		Context("When value is complex", func(){
-			It("returns json string from the given db result", func(){
+		Context("When value is complex", func() {
+			It("returns json string from the given db result", func() {
 				configuration := store.Configuration{
-					Id: "123",
-					Key: "smurf",
+					Id:    "123",
+					Key:   "smurf",
 					Value: `{"value": {"smurf":"gargamel"}}`,
 				}
 

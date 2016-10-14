@@ -39,8 +39,8 @@ var _ = Describe("MemoryStore", func() {
 				returnedValue, err := store.Get("some_key")
 				Expect(err).To(BeNil())
 				Expect(returnedValue).To(Equal(Configuration{
-					Id: "0",
-					Key: "some_key",
+					Id:    "0",
+					Key:   "some_key",
 					Value: "some_value",
 				}))
 			})
@@ -53,8 +53,8 @@ var _ = Describe("MemoryStore", func() {
 					value, err := store.Get("some_key")
 					Expect(err).To(BeNil())
 					Expect(value).To(Equal(Configuration{
-						Id: "0",
-						Key: "some_key",
+						Id:    "0",
+						Key:   "some_key",
 						Value: "some_value",
 					}))
 				})
