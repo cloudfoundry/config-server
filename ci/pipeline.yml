@@ -39,6 +39,49 @@ jobs:
             icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
             text: {{slack_failure_message}}
 
+  - name: test-integration-in-memory
+    public: true
+    plan:
+      - {get: config-server, trigger: true}
+      - task: test-integration
+        file: config-server/ci/tasks/test-integration.yml
+        on_failure:
+          put: slack-alert
+          params:
+            channel: {{slack_channel_name}}
+            icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+            text: {{slack_failure_message}}
+            DB: memory
+
+  - name: test-integration-mysql
+    public: true
+    plan:
+      - {get: config-server, trigger: true}
+      - task: test-integration
+        file: config-server/ci/tasks/test-integration.yml
+        on_failure:
+          put: slack-alert
+          params:
+            channel: {{slack_channel_name}}
+            icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+            text: {{slack_failure_message}}
+            DB: mysql
+
+  - name: test-integration-postgresql
+    public: true
+    plan:
+      - {get: config-server, trigger: true}
+      - task: test-integration
+        file: config-server/ci/tasks/test-integration.yml
+        on_failure:
+          put: slack-alert
+          params:
+            channel: {{slack_channel_name}}
+            icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+            text: {{slack_failure_message}}
+            DB: postgresql
+
+
   - name: bosh-release
     public: true
     plan:

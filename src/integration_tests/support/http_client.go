@@ -1,9 +1,9 @@
 package support
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
-	"bytes"
 )
 
 const SERVER_URL string = "https://localhost:9000"
@@ -41,7 +41,6 @@ func SendPostRequest(key string, valueType string) (*http.Response, error) {
 	case "certificate":
 		requestBytes = bytes.NewReader([]byte(`{"type":"certificate","parameters":{"common_name": "asdf", "alternative_names":["nam1", "name2"]}}`))
 	}
-
 
 	req, _ := http.NewRequest("POST", SERVER_URL+"/v1/data/"+key, requestBytes)
 	req.Header.Add("Authorization", "bearer "+ValidToken())

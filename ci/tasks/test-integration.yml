@@ -11,3 +11,6 @@ inputs:
 
 run:
   path: config-server/ci/tasks/test-integration.sh
+
+params:
+  DB: replace-me

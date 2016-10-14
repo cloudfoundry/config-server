@@ -5,19 +5,20 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"time"
-	"io"
 )
 
 const ASSETS_DIR string = "assets"
 const SECONDS_WAIT_FOR_SERVER_TO_START int = 10
 const START_SCRIPT string = "./start_server.sh"
 const STOP_SCRIPT string = "./stop_server.sh"
+const SETUP_DB_SCRIPT string = "./setup_db.sh"
 
 var HTTPSClient *http.Client = createHTTPSClient()
 
@@ -57,6 +58,15 @@ func StopServer() {
 	}
 
 	waitForServerToStop()
+}
+
+func SetupDB() {
+	db := os.Getenv("DB")
+	err := exec.Command(SETUP_DB_SCRIPT, db).Run()
+	if err != nil {
+		panic("Failed to setup DB: " + err.Error())
+
+	}
 }
 
 func waitForServerToStart() {

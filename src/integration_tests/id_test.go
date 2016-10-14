@@ -1,22 +1,22 @@
 package acceptance_tests
 
 import (
-. "github.com/onsi/ginkgo"
-. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 
-. "integration_tests/support"
+	. "integration_tests/support"
 )
 
 var _ = Describe("Supported HTTP Methods", func() {
 
 	BeforeEach(func() {
+		SetupDB()
 		StartServer()
 	})
 
 	AfterEach(func() {
 		StopServer()
 	})
-
 
 	Describe("Key Id", func() {
 

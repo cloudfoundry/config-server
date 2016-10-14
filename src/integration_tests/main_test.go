@@ -12,6 +12,7 @@ import (
 var _ = Describe("Supported HTTP Methods", func() {
 
 	BeforeEach(func() {
+		SetupDB()
 		StartServer()
 	})
 
