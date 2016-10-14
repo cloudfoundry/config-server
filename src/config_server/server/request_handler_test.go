@@ -137,7 +137,10 @@ var _ = Describe("RequestHandlerConcrete", func() {
 				Describe("GET", func() {
 
 					It("can handle all types of validkeys", func() {
-						mockStore.GetReturns("common value", nil)
+						respValue := store.Configuration{
+							Value: `{"value":"common value"}`,
+						}
+						mockStore.GetReturns(respValue, nil)
 						var counter int = 0
 						for path, extractedKey := range validUrlPaths {
 							getReq, _ := http.NewRequest("GET", path, nil)
@@ -155,21 +158,27 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 					Context("when key exists", func() {
 						It("returns value in the store", func() {
-							storeValues := []string{
-								`"{"path":"bla","value": 123}"`,
-								`"{"path":"bla","value":"blabla"}"`,
-								`"{"path":"bla","value": {"key":"blabla"}}"`,
-								`anything`}
+							values := []string{
+								`123`,
+								`"blabla"`,
+								`{"key":"blabla"}`,
+							}
 
-							for _, storeValue := range storeValues {
-								mockStore.GetReturns(storeValue, nil)
+							for _, value := range values {
+								respValue := store.Configuration{
+									Value: `{"value":` + value + "}",
+									Key: "bla",
+									Id: "some_id",
+								}
+								mockStore.GetReturns(respValue, nil)
 
 								getReq, _ := http.NewRequest("GET", "/v1/data/bla/", nil)
 								getRecorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(getRecorder, getReq)
 
 								Expect(getRecorder.Code).To(Equal(http.StatusOK))
-								Expect(getRecorder.Body.String()).To(Equal(storeValue))
+								expectedString := `{"id":"some_id","path":"bla","value":` + value + "}"
+								Expect(getRecorder.Body.String()).To(Equal(expectedString))
 							}
 						})
 					})
@@ -186,7 +195,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 					Context("when store errors", func() {
 						It("returns 500 Internal Server Error", func() {
-							mockStore.GetReturns("", errors.New("Kaboom!"))
+							mockStore.GetReturns(store.Configuration{}, errors.New("Kaboom!"))
 
 							getReq, _ := http.NewRequest("GET", "/v1/data/bla/", nil)
 							getRecorder := httptest.NewRecorder()
@@ -259,7 +268,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 								key, value := mockStore.PutArgsForCall(0)
 
 								Expect(key).To(Equal("bla"))
-								Expect(value).To(Equal(`{"path":"bla","value":"str"}`))
+								Expect(value).To(Equal(`{"value":"str"}`))
 								Expect(putRecorder.Code).To(Equal(http.StatusNoContent))
 							})
 						})
@@ -274,7 +283,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 								key, value := mockStore.PutArgsForCall(0)
 
 								Expect(key).To(Equal("bla"))
-								Expect(value).To(Equal(`{"path":"bla","value":123}`))
+								Expect(value).To(Equal(`{"value":123}`))
 								Expect(putRecorder.Code).To(Equal(http.StatusNoContent))
 							})
 						})
@@ -282,7 +291,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 						Context("when value is a JSON hash", func() {
 							It("should store value in a specific JSON format and respond with 204 StatusNoContent", func() {
 								requestBody := `{"value":{"age":10,"color":"red"}}`
-								valueToStore := `{"path":"bla","value":{"age":10,"color":"red"}}`
+								valueToStore := `{"value":{"age":10,"color":"red"}}`
 
 								req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader(requestBody))
 								putRecorder := httptest.NewRecorder()
@@ -301,7 +310,10 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 				Describe("POST", func() {
 					It("can handle all types of validkeys", func() {
-						mockStore.GetReturns("anything", nil)
+						respValue := store.Configuration{
+							Value: `{"value":"anything"}`,
+						}
+						mockStore.GetReturns(respValue, nil)
 
 						var counter int = 0
 						for path, extractedKey := range validUrlPaths {
@@ -356,11 +368,14 @@ var _ = Describe("RequestHandlerConcrete", func() {
 						Describe("Password generation", func() {
 							Context("when value already exists", func() {
 								It("should not generate a password", func() {
-									mockStore.GetStub = func(key string) (string, error) {
-										if key == "bla" {
-											return `{"path":"bla","value":"value"}`, nil
+									mockStore.GetStub = func(key string) (store.Configuration, error) {
+										respValue := store.Configuration{
+											Value: `{"value":"smurf"}`,
+											Id: "some_id",
+											Key: "bla",
+
 										}
-										return "", nil
+										return respValue, nil
 									}
 
 									postReq, _ := http.NewRequest("POST", "/v1/data/bla/", strings.NewReader(`{"type":"password","parameters":{}}`))
@@ -369,7 +384,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 									requestHandler.ServeHTTP(recorder, postReq)
 
 									Expect(recorder.Code).To(Equal(http.StatusOK))
-									Expect(recorder.Body.String()).To(Equal(`{"path":"bla","value":"value"}`))
+									Expect(recorder.Body.String()).To(Equal(`{"id":"some_id","path":"bla","value":"smurf"}`))
 									Expect(mockValueGeneratorFactory.GetGeneratorCallCount()).To(Equal(0))
 								})
 							})
@@ -397,11 +412,15 @@ var _ = Describe("RequestHandlerConcrete", func() {
 						Describe("Certificate generation", func() {
 							Context("when value already exists", func() {
 								It("should not generate certificates", func() {
-									mockStore.GetStub = func(key string) (string, error) {
-										if key == "bla" {
-											return `{"path":"bla","value":"value"}`, nil
+
+									mockStore.GetStub = func(key string) (store.Configuration, error) {
+										respValue := store.Configuration{
+											Value:  `{"value":"smurf"}`,
+											Id: "some_id",
+											Key: "bla",
+
 										}
-										return "", nil
+										return respValue, nil
 									}
 
 									postReq, _ := http.NewRequest("POST", "/v1/data/bla/", strings.NewReader(`{"type":"certificate","parameters":{}}`))
@@ -410,7 +429,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 									requestHandler.ServeHTTP(recorder, postReq)
 
 									Expect(recorder.Code).To(Equal(http.StatusOK))
-									Expect(recorder.Body.String()).To(Equal(`{"path":"bla","value":"value"}`))
+									Expect(recorder.Body.String()).To(Equal(`{"id":"some_id","path":"bla","value":"smurf"}`))
 									Expect(mockValueGeneratorFactory.GetGeneratorCallCount()).To(Equal(0))
 								})
 							})

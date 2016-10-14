@@ -78,7 +78,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 		})
 	})
 
-	Describe("Put", func() {
+	Describe("PUT", func() {
 		It("errors when key has invalid characters", func() {
 			resp, err := SendPutRequest("sm!urf/garg$amel/cat", "value")
 

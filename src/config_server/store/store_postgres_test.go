@@ -41,11 +41,33 @@ var _ = Describe("StorePostgres", func() {
 			Expect(fakeDb.CloseCallCount()).To(Equal(1))
 		})
 
+		It("queries the database for the latest entry for a given key", func() {
+			fakeDb.QueryRowReturns(&fakes.FakeIRow{})
+			fakeDbProvider.DbReturns(fakeDb, nil)
+
+			_, err := store.Get("Luke")
+			Expect(err).To(BeNil())
+			query, _ := fakeDb.QueryRowArgsForCall(0)
+
+			Expect(query).To(Equal("SELECT id, config_key, value FROM configurations WHERE config_key = $1 ORDER BY id DESC LIMIT 1"))
+			Expect(fakeDb.CloseCallCount()).To(Equal(1))
+		})
+
 		It("returns value from db query", func() {
 			fakeRow.ScanStub = func(dest ...interface{}) error {
-				valuePtr, ok := dest[0].(*string)
+				idPtr, ok := dest[0].(*string)
+				Expect(ok).To(BeTrue())
+
+				*idPtr = "some_id"
+				keyPtr, ok := dest[1].(*string)
+				Expect(ok).To(BeTrue())
+
+				*keyPtr = "Luke"
+				valuePtr, ok := dest[2].(*string)
+
 				Expect(ok).To(BeTrue())
 				*valuePtr = "Skywalker"
+
 				return nil
 			}
 
@@ -54,7 +76,11 @@ var _ = Describe("StorePostgres", func() {
 
 			value, err := store.Get("Luke")
 			Expect(err).To(BeNil())
-			Expect(value).To(Equal("Skywalker"))
+			Expect(value).To(Equal(Configuration{
+				Id: "some_id",
+				Value: "Skywalker",
+				Key: "Luke",
+			}))
 		})
 
 		It("returns empty string when no result is found", func() {
@@ -65,7 +91,7 @@ var _ = Describe("StorePostgres", func() {
 
 			value, err := store.Get("luke")
 			Expect(err).To(BeNil())
-			Expect(value).To(Equal(""))
+			Expect(value).To(Equal(Configuration{}))
 		})
 
 		It("returns an error when db provider fails to return db", func() {
@@ -108,7 +134,7 @@ var _ = Describe("StorePostgres", func() {
 			Expect(fakeDb.ExecCallCount()).To(Equal(1))
 
 			query, values := fakeDb.ExecArgsForCall(0)
-			Expect(query).To(Equal("INSERT INTO config VALUES($1, $2)"))
+			Expect(query).To(Equal("INSERT INTO configurations (config_key, value) VALUES($1, $2)"))
 
 			Expect(values[0]).To(Equal("Luke"))
 			Expect(values[1]).To(Equal("Skywalker"))
@@ -123,12 +149,12 @@ var _ = Describe("StorePostgres", func() {
 			Expect(fakeDb.ExecCallCount()).To(Equal(2))
 
 			query, values := fakeDb.ExecArgsForCall(0)
-			Expect(query).To(Equal("INSERT INTO config VALUES($1, $2)"))
+			Expect(query).To(Equal("INSERT INTO configurations (config_key, value) VALUES($1, $2)"))
 			Expect(values[0]).To(Equal("Luke"))
 			Expect(values[1]).To(Equal("Skywalker"))
 
 			query, values = fakeDb.ExecArgsForCall(1)
-			Expect(query).To(Equal("UPDATE config SET config_value=$1 WHERE config_key=$2"))
+			Expect(query).To(Equal("UPDATE configurations SET value=$1 WHERE config_key=$2"))
 			Expect(values[0]).To(Equal("Skywalker"))
 			Expect(values[1]).To(Equal("Luke"))
 		})
@@ -156,7 +182,7 @@ var _ = Describe("StorePostgres", func() {
 
 				Expect(fakeDb.ExecCallCount()).To(Equal(1))
 				query, value := fakeDb.ExecArgsForCall(0)
-				Expect(query).To(Equal("DELETE FROM config WHERE config_key = $1"))
+				Expect(query).To(Equal("DELETE FROM configurations WHERE config_key = $1"))
 				Expect(value[0]).To(Equal("Luke"))
 			})
 

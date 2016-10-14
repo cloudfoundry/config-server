@@ -1,13 +1,14 @@
 package store
 
 import (
-	"config_server/config"
 	"fmt"
 
-	"github.com/BurntSushi/migration"
 	"github.com/cloudfoundry/bosh-utils/errors"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
+
+	"config_server/config"
+	. "config_server/store/db_migrations"
 )
 
 type concreteDbProvider struct {
@@ -28,7 +29,7 @@ func (p concreteDbProvider) Db() (IDb, error) {
 		return db, errors.WrapError(err, "Failed to generate DB connection string")
 	}
 
-	db, err = p.sql.Open(p.config.Adapter, connectionString, Migrations)
+	db, err = p.sql.Open(p.config.Adapter, connectionString, GetMigrations(p.config.Adapter))
 	if err != nil {
 		return db, errors.WrapError(err, "Failed to open connection to DB")
 	}
@@ -56,13 +57,4 @@ func (p concreteDbProvider) connectionString(config config.DBConfig) (string, er
 	}
 
 	return connectionString, err
-}
-
-var Migrations = []migration.Migrator{
-	InitialSchema,
-}
-
-func InitialSchema(tx migration.LimitedTx) error {
-	_, err := tx.Exec("CREATE TABLE config (config_key VARCHAR(255) NOT NULL UNIQUE, config_value TEXT NOT NULL)")
-	return err
 }

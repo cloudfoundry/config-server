@@ -20,30 +20,30 @@ func (ms mysqlStore) Put(key string, value string) error {
 	}
 	defer db.Close()
 
-	_, err = db.Exec("INSERT INTO config VALUES(?,?)", key, value)
+	_, err = db.Exec("INSERT INTO configurations (config_key, value) VALUES(?,?)", key, value)
+
 	if err != nil {
-		_, err = db.Exec("UPDATE config SET config.config_value = ? WHERE config.config_key = ?", value, key)
+		_, err = db.Exec("UPDATE configurations SET value = ? WHERE config_key = ?", value, key)
 	}
 
 	return err
 }
 
-func (ms mysqlStore) Get(key string) (string, error) {
-
-	var value string
+func (ms mysqlStore) Get(key string) (Configuration, error) {
+	result := Configuration{}
 
 	db, err := ms.dbProvider.Db()
 	if err != nil {
-		return value, err
+		return result, err
 	}
 	defer db.Close()
 
-	err = db.QueryRow("SELECT config_value FROM config c WHERE c.config_key = ?", key).Scan(&value)
+	err = db.QueryRow("SELECT id, config_key, value FROM configurations WHERE config_key = ? ORDER BY id DESC LIMIT 1", key).Scan(&result.Id, &result.Key, &result.Value)
 	if err == sql.ErrNoRows {
-		return value, nil
+		return result, nil
 	}
 
-	return value, err
+	return result, err
 }
 
 func (ms mysqlStore) Delete(key string) (bool, error) {
@@ -54,7 +54,7 @@ func (ms mysqlStore) Delete(key string) (bool, error) {
 	}
 	defer db.Close()
 
-	result, err := db.Exec("DELETE FROM config WHERE config_key = ?", key)
+	result, err := db.Exec("DELETE FROM configurations WHERE config_key = ?", key)
 	if (err != nil) || (result == nil) {
 		return false, err
 	}

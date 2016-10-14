@@ -21,36 +21,54 @@ var _ = Describe("MemoryStore", func() {
 				err := store.Put("key", "value")
 				Expect(err).To(BeNil())
 			})
+
+			It("generates a unique id for new record", func() {
+				store.Put("key1", "value1")
+				value1, _ := store.Get("key1")
+				store.Put("key2", "value2")
+				value2, _ := store.Get("key2")
+
+				Expect(value1.Id).To(Equal("0"))
+				Expect(value2.Id).To(Equal("1"))
+			})
 		})
 
 		Context("Get", func() {
 			It("should return associated value", func() {
-				store.Put("key", "value")
-				returnedValue, err := store.Get("key")
+				store.Put("some_key", "some_value")
+				returnedValue, err := store.Get("some_key")
 				Expect(err).To(BeNil())
-				Expect(returnedValue).To(Equal("value"))
+				Expect(returnedValue).To(Equal(Configuration{
+					Id: "0",
+					Key: "some_key",
+					Value: "some_value",
+				}))
 			})
 		})
 
 		Context("Delete", func() {
 			Context("Key exists", func() {
 				BeforeEach(func() {
-					store.Put("key", "value")
-					value, err := store.Get("key")
+					store.Put("some_key", "some_value")
+					value, err := store.Get("some_key")
 					Expect(err).To(BeNil())
-					Expect(value).To(Equal("value"))
+					Expect(value).To(Equal(Configuration{
+						Id: "0",
+						Key: "some_key",
+						Value: "some_value",
+					}))
 				})
 
 				It("removes value", func() {
-					store.Delete("key")
+					store.Delete("some_key")
 
-					value, err := store.Get("key")
+					value, err := store.Get("some_key")
 					Expect(err).To(BeNil())
-					Expect(value).To(Equal(""))
+					Expect(value).To(Equal(Configuration{}))
 				})
 
 				It("returns true", func() {
-					deleted, err := store.Delete("key")
+					deleted, err := store.Delete("some_key")
 					Expect(err).To(BeNil())
 					Expect(deleted).To(BeTrue())
 				})
@@ -58,7 +76,7 @@ var _ = Describe("MemoryStore", func() {
 
 			Context("Key does not exist", func() {
 				It("returns false", func() {
-					deleted, err := store.Delete("key")
+					deleted, err := store.Delete("fake_key")
 					Expect(deleted).To(BeFalse())
 					Expect(err).To(BeNil())
 				})

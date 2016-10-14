@@ -16,13 +16,13 @@ type FakeStore struct {
 	putReturns struct {
 		result1 error
 	}
-	GetStub        func(key string) (string, error)
+	GetStub        func(key string) (store.Configuration, error)
 	getMutex       sync.RWMutex
 	getArgsForCall []struct {
 		key string
 	}
 	getReturns struct {
-		result1 string
+		result1 store.Configuration
 		result2 error
 	}
 	DeleteStub        func(key string) (bool, error)
@@ -72,7 +72,7 @@ func (fake *FakeStore) PutReturns(result1 error) {
 	}{result1}
 }
 
-func (fake *FakeStore) Get(key string) (string, error) {
+func (fake *FakeStore) Get(key string) (store.Configuration, error) {
 	fake.getMutex.Lock()
 	fake.getArgsForCall = append(fake.getArgsForCall, struct {
 		key string
@@ -98,10 +98,10 @@ func (fake *FakeStore) GetArgsForCall(i int) string {
 	return fake.getArgsForCall[i].key
 }
 
-func (fake *FakeStore) GetReturns(result1 string, result2 error) {
+func (fake *FakeStore) GetReturns(result1 store.Configuration, result2 error) {
 	fake.GetStub = nil
 	fake.getReturns = struct {
-		result1 string
+		result1 store.Configuration
 		result2 error
 	}{result1, result2}
 }

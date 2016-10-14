@@ -56,10 +56,13 @@ func (handler requestHandler) handleGet(key string, resWriter http.ResponseWrite
 		return
 	}
 
-	if value == "" {
+	emptyValue := store.Configuration{}
+
+	if value == emptyValue {
 		http.Error(resWriter, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	} else {
-		handler.respond(resWriter, value, http.StatusOK)
+		result, _ := value.StringifiedJSON()
+		handler.respond(resWriter, result, http.StatusOK)
 	}
 }
 
@@ -89,9 +92,12 @@ func (handler requestHandler) handlePost(key string, req *http.Request, resWrite
 		return
 	}
 
+	emptyValue := store.Configuration{}
+
 	value, err := handler.store.Get(key)
-	if value != "" {
-		handler.respond(resWriter, value, http.StatusOK)
+	if value != emptyValue {
+		result, _ := value.StringifiedJSON()
+		handler.respond(resWriter, result, http.StatusOK)
 
 	} else {
 		generator, err := handler.valueGeneratorFactory.GetGenerator(generationType)
@@ -100,24 +106,25 @@ func (handler requestHandler) handlePost(key string, req *http.Request, resWrite
 			return
 		}
 
-		value, err := generator.Generate(parameters)
+		generatedValue, err := generator.Generate(parameters)
 		if err != nil {
 			http.Error(resWriter, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		err = handler.saveToStore(key, value)
+		err = handler.saveToStore(key, generatedValue)
 		if err != nil {
 			http.Error(resWriter, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		value, err = handler.store.Get(key)
+		configuration, err := handler.store.Get(key)
 		if err != nil {
 			http.Error(resWriter, err.Error(), http.StatusInternalServerError)
 		}
 
-		handler.respond(resWriter, value.(string), http.StatusCreated)
+		result, _ := configuration.StringifiedJSON()
+		handler.respond(resWriter, result, http.StatusCreated)
 	}
 }
 
@@ -136,13 +143,16 @@ func (handler requestHandler) handleDelete(key string, req *http.Request, resWri
 }
 
 func (handler requestHandler) saveToStore(key string, value interface{}) error {
+	configValue :=  make(map[string]interface{})
+	configValue["value"] = value
 
-	storeValue, err := store.StoreValue{Path: key, Value: value}.Json()
+	bytes, err := json.Marshal(&configValue)
+
 	if err != nil {
 		return err
 	}
 
-	err = handler.store.Put(key, storeValue)
+	err = handler.store.Put(key, string(bytes))
 	if err != nil {
 		return err
 	}

@@ -1,28 +1,46 @@
 package store
 
+import "strconv"
+
 type MemoryStore struct {
-	db map[string]string
+	db map[string]Configuration
 }
 
+var dbCounter int
+
 func NewMemoryStore() MemoryStore {
-	return MemoryStore{make(map[string]string)}
+	dbCounter = 0
+	return MemoryStore{db: make(map[string]Configuration)}
 }
 
 func (store MemoryStore) Put(key string, value string) error {
-	store.db[key] = value
+	val, ok := store.db[key]
+
+	if ok == false {
+		store.db[key] = Configuration{
+			Key: key,
+			Value: value,
+			Id: strconv.Itoa(dbCounter),
+		}
+		dbCounter++
+	} else {
+		val.Value = value
+		store.db[key] = val
+	}
+
 	return nil
 }
 
-func (store MemoryStore) Get(key string) (string, error) {
+func (store MemoryStore) Get(key string) (Configuration, error) {
 	return store.db[key], nil
 }
 
 func (store MemoryStore) Delete(key string) (bool, error) {
 	deleted := false
-	value, _ := store.Get(key)
+	result, _ := store.Get(key)
 
 	// map contains key, delete
-	if len(value) > 0 {
+	if len(result.Value) > 0 {
 		delete(store.db, key)
 		deleted = true
 	}

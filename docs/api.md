@@ -15,6 +15,7 @@ GET /v1/data/:key-path
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
+| id | string | Unique Id |
 | path | string | Full path to key |
 | value | JSON Object | Any valid JSON object |
 
@@ -34,6 +35,7 @@ GET /v1/data/:key-path
 Response:
 ``` JSON
 {
+  "id": "some_id",
   "path": "color",
   "value": "blue"
 }
@@ -46,6 +48,7 @@ Response:
 Response:
 ``` JSON
 {
+  "id": "some_id",
   "path": "server/tomcat/port",
   "value": 8080
 }
@@ -58,6 +61,7 @@ Response:
 Response:
 ``` JSON
 {
+  "id": "some_id",
   "path": "server/tomcat/port",
   "value": {
     "cert": "my-cert",
@@ -162,6 +166,7 @@ It returns an array of the following object:
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
+| id | string | Unique Id |
 | path | string | key  |
 | value | JSON Object | value generated |
 
@@ -177,6 +182,7 @@ It returns an array of the following object:
 ###### Password
 ```
 {
+  "id": "some_id",
   "path": "/mypasswd",
   "value":"49cek4ow75ev5zw4t3v3"
 }
@@ -184,6 +190,7 @@ It returns an array of the following object:
 ###### Certificate
 ``` JSON
 {
+  "id": "some_id",
   "path":"/mycert",
   "value": {
     "ca" : "---- Root CA Certificate ----",
