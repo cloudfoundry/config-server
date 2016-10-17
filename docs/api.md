@@ -99,10 +99,19 @@ Request Body:
 }
 ```
 
+##### Response Body
+`Content-Type: application/json`
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| id | string | Unique Id |
+| path | string | Full path to key |
+| value | JSON Object | Any valid JSON object |
+
 ##### Response Codes
 | Code | Description |
 | ---- | ----------- |
-| 204 | Call successful - key value was added |
+| 200 | Call successful - key value was added |
 | 400 | Bad Request |
 | 401 | Not Authorized |
 | 500 | Server Error |
@@ -188,7 +197,7 @@ It returns an array of the following object:
 }
 ```
 ###### Certificate
-``` JSON
+``` 
 {
   "id": "some_id",
   "path":"/mycert",

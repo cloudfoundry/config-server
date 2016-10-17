@@ -91,11 +91,22 @@ var _ = Describe("Supported HTTP Methods", func() {
 		})
 
 		Context("when key does NOT exist in server", func() {
-			It("responds with status 204 when value is successfully stored", func() {
+			It("responds with value & id", func() {
+				resp, err := SendPutRequest("cross", "fit")
+
+				Expect(err).To(BeNil())
+				Expect(resp.StatusCode).To(Equal(200))
+
+				resultMap := UnmarshalJsonString(resp.Body)
+				Expect(resultMap["path"]).To(Equal("cross"))
+				Expect(resultMap["value"]).To(Equal("fit"))
+			})
+
+			It("responds with status 200 when value is successfully stored", func() {
 				resp, err := SendPutRequest("smurf", "blue")
 
 				Expect(err).To(BeNil())
-				Expect(resp.StatusCode).To(Equal(204))
+				Expect(resp.StatusCode).To(Equal(200))
 			})
 		})
 

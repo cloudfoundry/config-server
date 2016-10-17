@@ -208,6 +208,13 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 				Describe("PUT", func() {
 					It("can handle all types of validkeys", func() {
+						config := store.Configuration{
+							Key: "bla",
+							Value: `{"value":"burpees"}`,
+							Id: "1",
+						}
+						mockStore.GetReturns(config, nil)
+
 						var counter int = 0
 						for path, extractedKey := range validUrlPaths {
 							req, _ := http.NewRequest("PUT", path, strings.NewReader(`{"value":"str"}`))
@@ -217,7 +224,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 							key, _ := mockStore.PutArgsForCall(counter)
 
 							Expect(key).To(Equal(extractedKey))
-							Expect(putRecorder.Code).To(Equal(http.StatusNoContent))
+							Expect(putRecorder.Code).To(Equal(http.StatusOK))
 							counter++
 						}
 					})
@@ -258,6 +265,28 @@ var _ = Describe("RequestHandlerConcrete", func() {
 					})
 
 					Context("when request body is in the specified format", func() {
+
+						BeforeEach(func() {
+							config := store.Configuration{
+								Key: "bla",
+								Value: `{"value":"burpees"}`,
+								Id: "1",
+							}
+							mockStore.GetReturns(config, nil)
+						})
+
+
+						It("returns value, path and id in the response", func() {
+							req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader(`{"value":"str"}`))
+							putRecorder := httptest.NewRecorder()
+							requestHandler.ServeHTTP(putRecorder, req)
+
+							key := mockStore.GetArgsForCall(0)
+							Expect(key).To(Equal("bla"))
+
+							Expect(putRecorder.Body.String()).To(Equal(`{"id":"1","path":"bla","value":"burpees"}`))
+						})
+
 						Context("when value is a string ", func() {
 							It("should store value in a specific JSON format and respond with 204 StatusNoContent", func() {
 								req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader(`{"value":"str"}`))
@@ -269,7 +298,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 								Expect(key).To(Equal("bla"))
 								Expect(value).To(Equal(`{"value":"str"}`))
-								Expect(putRecorder.Code).To(Equal(http.StatusNoContent))
+								Expect(putRecorder.Code).To(Equal(http.StatusOK))
 							})
 						})
 
@@ -284,7 +313,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 								Expect(key).To(Equal("bla"))
 								Expect(value).To(Equal(`{"value":123}`))
-								Expect(putRecorder.Code).To(Equal(http.StatusNoContent))
+								Expect(putRecorder.Code).To(Equal(http.StatusOK))
 							})
 						})
 
@@ -302,7 +331,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 								Expect(key).To(Equal("bla"))
 								Expect(value).To(Equal(valueToStore))
-								Expect(putRecorder.Code).To(Equal(http.StatusNoContent))
+								Expect(putRecorder.Code).To(Equal(http.StatusOK))
 							})
 						})
 					})

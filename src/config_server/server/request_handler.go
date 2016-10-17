@@ -74,14 +74,15 @@ func (handler requestHandler) handlePut(key string, req *http.Request, resWriter
 		return
 	}
 
-	err = handler.saveToStore(key, value)
+	configuration, err := handler.saveToStore(key, value)
 
 	if err != nil {
 		http.Error(resWriter, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	resWriter.WriteHeader(http.StatusNoContent)
+	result, _ := configuration.StringifiedJSON()
+	handler.respond(resWriter, result, http.StatusOK)
 }
 
 func (handler requestHandler) handlePost(key string, req *http.Request, resWriter http.ResponseWriter) {
@@ -112,15 +113,10 @@ func (handler requestHandler) handlePost(key string, req *http.Request, resWrite
 			return
 		}
 
-		err = handler.saveToStore(key, generatedValue)
+		configuration, err := handler.saveToStore(key, generatedValue)
 		if err != nil {
 			http.Error(resWriter, err.Error(), http.StatusInternalServerError)
 			return
-		}
-
-		configuration, err := handler.store.Get(key)
-		if err != nil {
-			http.Error(resWriter, err.Error(), http.StatusInternalServerError)
 		}
 
 		result, _ := configuration.StringifiedJSON()
@@ -142,22 +138,27 @@ func (handler requestHandler) handleDelete(key string, req *http.Request, resWri
 	}
 }
 
-func (handler requestHandler) saveToStore(key string, value interface{}) error {
+func (handler requestHandler) saveToStore(key string, value interface{}) (store.Configuration, error) {
 	configValue := make(map[string]interface{})
 	configValue["value"] = value
 
 	bytes, err := json.Marshal(&configValue)
 
 	if err != nil {
-		return err
+		return store.Configuration{}, err
 	}
 
 	err = handler.store.Put(key, string(bytes))
 	if err != nil {
-		return err
+		return store.Configuration{}, err
 	}
 
-	return nil
+	configuration, err := handler.store.Get(key)
+	if err != nil {
+		return store.Configuration{}, err
+	}
+
+	return configuration, nil
 }
 
 func (handler requestHandler) respond(res http.ResponseWriter, message string, status int) {
