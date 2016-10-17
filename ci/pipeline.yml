@@ -6,7 +6,7 @@ jobs:
       - {get: config-server, trigger: true}
       - task: test-gofmt
         file: config-server/ci/tasks/test-gofmt.yml
-        on_failure:
+        on_failure: &slack-alert
           put: slack-alert
           params:
             channel: {{slack_channel_name}}
@@ -20,24 +20,7 @@ jobs:
       - task: test-unit
         file: config-server/ci/tasks/test-unit.yml
         on_failure:
-          put: slack-alert
-          params:
-            channel: {{slack_channel_name}}
-            icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
-            text: {{slack_failure_message}}
-
-  - name: test-integration
-    public: true
-    plan:
-      - {get: config-server, trigger: true}
-      - task: test-integration
-        file: config-server/ci/tasks/test-integration.yml
-        on_failure:
-          put: slack-alert
-          params:
-            channel: {{slack_channel_name}}
-            icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
-            text: {{slack_failure_message}}
+          <<: *slack-alert
 
   - name: test-integration-in-memory
     public: true
@@ -49,11 +32,7 @@ jobs:
         params:
           DB: memory
         on_failure:
-          put: slack-alert
-          params:
-            channel: {{slack_channel_name}}
-            icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
-            text: {{slack_failure_message}}
+          <<: *slack-alert
 
   - name: test-integration-mysql
     public: true
@@ -65,11 +44,7 @@ jobs:
         params:
           DB: mysql
         on_failure:
-          put: slack-alert
-          params:
-            channel: {{slack_channel_name}}
-            icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
-            text: {{slack_failure_message}}
+          <<: *slack-alert
 
 
   - name: test-integration-postgresql
@@ -82,11 +57,7 @@ jobs:
         params:
           DB: postgresql
         on_failure:
-          put: slack-alert
-          params:
-            channel: {{slack_channel_name}}
-            icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
-            text: {{slack_failure_message}}
+          <<: *slack-alert
 
 
   - name: bosh-release
@@ -97,18 +68,14 @@ jobs:
       - task: bosh-release
         file: config-server/ci/tasks/bosh-release.yml
         on_failure:
-          put: slack-alert
-          params:
-            channel: {{slack_channel_name}}
-            icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
-            text: {{slack_failure_message}}
+          <<: *slack-alert
 
   - name: build
     public: true
     plan:
       - aggregate:
         - get: config-server
-          passed: [test-gofmt, test-unit, test-integration, bosh-release]
+          passed: [test-gofmt, test-unit, test-integration-in-memory, test-integration-mysql, test-integration-postgresql, bosh-release]
           trigger: true
         - get: version-semver
           params: {bump: patch}
