@@ -209,9 +209,9 @@ var _ = Describe("RequestHandlerConcrete", func() {
 				Describe("PUT", func() {
 					It("can handle all types of validkeys", func() {
 						config := store.Configuration{
-							Key: "bla",
+							Key:   "bla",
 							Value: `{"value":"burpees"}`,
-							Id: "1",
+							Id:    "1",
 						}
 						mockStore.GetReturns(config, nil)
 
@@ -268,13 +268,12 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 						BeforeEach(func() {
 							config := store.Configuration{
-								Key: "bla",
+								Key:   "bla",
 								Value: `{"value":"burpees"}`,
-								Id: "1",
+								Id:    "1",
 							}
 							mockStore.GetReturns(config, nil)
 						})
-
 
 						It("returns value, path and id in the response", func() {
 							req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader(`{"value":"str"}`))
