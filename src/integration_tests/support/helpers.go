@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"time"
+	"encoding/pem"
 )
 
 const ASSETS_DIR string = "assets"
@@ -30,6 +31,13 @@ func UnmarshalJsonString(requestBody io.ReadCloser) map[string]interface{} {
 	}
 
 	return f.(map[string]interface{})
+}
+
+func ParseCertString(certString string) (*x509.Certificate, error) {
+	block, _ := pem.Decode([]byte(certString))
+	crt, err := x509.ParseCertificate(block.Bytes)
+
+	return crt, err
 }
 
 func ValidToken() string {

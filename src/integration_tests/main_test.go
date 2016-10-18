@@ -108,6 +108,31 @@ var _ = Describe("Supported HTTP Methods", func() {
 				Expect(err).To(BeNil())
 				Expect(resp.StatusCode).To(Equal(200))
 			})
+
+			Context("when key is empty string", func(){
+				It("is stored and responds with value & id", func() {
+					resp, err := SendPutRequest("crossfit", "")
+
+					Expect(err).To(BeNil())
+					Expect(resp.StatusCode).To(Equal(200))
+
+					resultMap := UnmarshalJsonString(resp.Body)
+					Expect(resultMap["path"]).To(Equal("crossfit"))
+					Expect(resultMap["value"]).To(Equal(""))
+				})
+			})
+			Context("when key is nil", func(){
+				It("is stored and responds with value & id", func() {
+					resp, err := SendPutRequest("crossfit", nil)
+
+					Expect(err).To(BeNil())
+					Expect(resp.StatusCode).To(Equal(200))
+
+					resultMap := UnmarshalJsonString(resp.Body)
+					Expect(resultMap["path"]).To(Equal("crossfit"))
+					Expect(resultMap["value"]).To(BeNil())
+				})
+			})
 		})
 
 		Context("when key exists in server", func() {
@@ -127,6 +152,36 @@ var _ = Describe("Supported HTTP Methods", func() {
 				Expect(resultMap["path"]).To(Equal("smurf"))
 				Expect(resultMap["value"]).To(Equal("red"))
 			})
+		})
+	})
+
+	Describe("POST", func() {
+		It("generates a new id and password for a new key", func() {
+			resp, _ := SendPostRequest("password-key", "password")
+			result := UnmarshalJsonString(resp.Body)
+
+			Expect(result["id"]).ToNot(BeNil())
+			Expect(result["path"]).To(Equal("password-key"))
+			Expect(result["value"]).To(MatchRegexp("[a-z0-9]{20}"))
+		})
+
+		It("generates a new id and certificate for a new key", func() {
+			resp, _ := SendPostRequest("certificate-key", "certificate")
+			result := UnmarshalJsonString(resp.Body)
+
+			Expect(result["id"]).ToNot(BeNil())
+			Expect(result["path"]).To(Equal("certificate-key"))
+
+			value := result["value"].(map[string]interface{})
+			cert, _ := ParseCertString(value["certificate"].(string))
+
+			Expect(cert.DNSNames).Should(ContainElement("cnj"))
+			Expect(cert.DNSNames).Should(ContainElement("deadlift"))
+			Expect(cert.Subject.CommonName).To(Equal("burpees"))
+
+			Expect(cert.Issuer.Organization).To(ContainElement("Internet Widgits Pty Ltd"))
+			Expect(cert.Issuer.Country).To(ContainElement("AU"))
+			Expect(cert.Issuer.Province).To(ContainElement("Some-State"))
 		})
 	})
 })

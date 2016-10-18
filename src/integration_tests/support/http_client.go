@@ -39,7 +39,7 @@ func SendPostRequest(key string, valueType string) (*http.Response, error) {
 	case "password":
 		requestBytes = bytes.NewReader([]byte(`{"type":"password","parameters":{}}`))
 	case "certificate":
-		requestBytes = bytes.NewReader([]byte(`{"type":"certificate","parameters":{"common_name": "asdf", "alternative_names":["nam1", "name2"]}}`))
+		requestBytes = bytes.NewReader([]byte(`{"type":"certificate","parameters":{"common_name": "burpees", "alternative_names":["cnj", "deadlift"]}}`))
 	}
 
 	req, _ := http.NewRequest("POST", SERVER_URL+"/v1/data/"+key, requestBytes)
