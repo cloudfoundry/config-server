@@ -114,7 +114,6 @@ var _ = Describe("RequestHandlerConcrete", func() {
 			Context("when http method is not supported", func() {
 				It("should return 405 Method Not Allowed", func() {
 					invalidMethods := []string{"PATCH"}
-					http.NewRequest("PUT", "/v1/data/bla", strings.NewReader("value=blabla"))
 
 					for _, method := range invalidMethods {
 						req, _ := http.NewRequest(method, "/v1/data/bla", nil)
