@@ -82,16 +82,16 @@ var _ = Describe("Supported HTTP Methods", func() {
 		})
 
 		Describe("Lookup by ID", func() {
-			Context("when key does not exist in server", func() {
+			Context("when id does not exist in server", func() {
 				It("responds with status 404", func() {
-					resp, err := SendGetRequestByID("smurf")
+					resp, err := SendGetRequestByID("123")
 
 					Expect(err).To(BeNil())
 					Expect(resp.StatusCode).To(Equal(404))
 				})
 			})
 
-			Context("when key exists in server", func() {
+			Context("when id exists in server", func() {
 				It("responds with status 200", func() {
 					putResponse, _ := SendPutRequest("smurf", "blue")
 					config := UnmarshalJsonString(putResponse.Body)

@@ -2,6 +2,7 @@ package store
 
 import (
 	"database/sql"
+	"strconv"
 )
 
 type postgresStore struct {
@@ -47,6 +48,11 @@ func (ps postgresStore) GetByKey(key string) (Configuration, error) {
 
 func (ps postgresStore) GetById(id string) (Configuration, error) {
 	result := Configuration{}
+
+	_, err := strconv.Atoi(id)
+	if err != nil {
+		return result, nil
+	}
 
 	db, err := ps.dbProvider.Db()
 	if err != nil {

@@ -83,7 +83,7 @@ var _ = Describe("StorePostgres", func() {
 			}))
 		})
 
-		It("returns empty string when no result is found", func() {
+		It("returns empty configuration when no result is found", func() {
 			fakeRow.ScanReturns(sql.ErrNoRows)
 
 			fakeDb.QueryRowReturns(fakeRow)
@@ -149,7 +149,7 @@ var _ = Describe("StorePostgres", func() {
 				valuePtr, ok := dest[2].(*string)
 				Expect(ok).To(BeTrue())
 
-				*idPtr = "some_id"
+				*idPtr = "54"
 				*valuePtr = "Skywalker"
 				*keyPtr = "Luke"
 
@@ -159,17 +159,28 @@ var _ = Describe("StorePostgres", func() {
 			fakeDb.QueryRowReturns(fakeRow)
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
-			value, err := store.GetById("some_id")
+			value, err := store.GetById("54")
 			Expect(err).To(BeNil())
 			Expect(value).To(Equal(Configuration{
-				Id:    "some_id",
+				Id:    "54",
 				Value: "Skywalker",
 				Key:   "Luke",
 			}))
 		})
 
-		It("returns empty string when no result is found", func() {
+		It("returns empty configuration when no result is found", func() {
 			fakeRow.ScanReturns(sql.ErrNoRows)
+
+			fakeDb.QueryRowReturns(fakeRow)
+			fakeDbProvider.DbReturns(fakeDb, nil)
+
+			value, err := store.GetById("54")
+			Expect(err).To(BeNil())
+			Expect(value).To(Equal(Configuration{}))
+		})
+
+		It("returns empty configuration when id cannot be converted to a int", func() {
+			fakeRow.ScanReturns(errors.New("pq: invalid input syntax for integer"))
 
 			fakeDb.QueryRowReturns(fakeRow)
 			fakeDbProvider.DbReturns(fakeDb, nil)
@@ -183,7 +194,7 @@ var _ = Describe("StorePostgres", func() {
 			dbError := errors.New("connection failure")
 			fakeDbProvider.DbReturns(nil, dbError)
 
-			_, err := store.GetById("some_id")
+			_, err := store.GetById("2")
 			Expect(err).ToNot(BeNil())
 			Expect(err).To(Equal(dbError))
 		})
@@ -195,7 +206,7 @@ var _ = Describe("StorePostgres", func() {
 			fakeDb.QueryRowReturns(fakeRow)
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
-			_, err := store.GetById("some_id")
+			_, err := store.GetById("7")
 			Expect(err).ToNot(BeNil())
 			Expect(err).To(Equal(scanError))
 		})
