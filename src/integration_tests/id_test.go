@@ -23,7 +23,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 		Describe("PUT", func() {
 			It("generates new id for a key when adding new value", func() {
 				SendPutRequest("Dale", "Wick")
-				resp, _ := SendGetRequest("Dale")
+				resp, _ := SendGetRequestByKey("Dale")
 
 				resultMap := UnmarshalJsonString(resp.Body)
 				Expect(resultMap["id"]).ToNot(BeNil())
@@ -33,13 +33,13 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 			It("generates new id for different keys", func() {
 				SendPutRequest("Dale", "Wick")
-				resp1, _ := SendGetRequest("Dale")
+				resp1, _ := SendGetRequestByKey("Dale")
 				resultMap1 := UnmarshalJsonString(resp1.Body)
 				Expect(resultMap1["id"]).ToNot(BeNil())
 				Expect(len((resultMap1["id"].(string))) > 0).To(BeTrue())
 
 				SendPutRequest("Alan", "Donovan")
-				resp2, _ := SendGetRequest("Alan")
+				resp2, _ := SendGetRequestByKey("Alan")
 				resultMap2 := UnmarshalJsonString(resp2.Body)
 				Expect(resultMap2["id"]).ToNot(BeNil())
 				Expect(len((resultMap2["id"].(string))) > 0).To(BeTrue())

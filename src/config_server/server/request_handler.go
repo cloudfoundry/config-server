@@ -27,30 +27,40 @@ func NewRequestHandler(store store.Store, valueGeneratorFactory types.ValueGener
 }
 
 func (handler requestHandler) ServeHTTP(resWriter http.ResponseWriter, req *http.Request) {
-	key, err := handler.extractKeyFromURLPath(req.URL.Path)
-
-	if err != nil {
-		http.Error(resWriter, err.Error(), http.StatusBadRequest)
-		return
-	}
-
 	switch req.Method {
 	case "GET":
-		handler.handleGet(key, resWriter)
+		handler.handleGet(resWriter, req)
 	case "PUT":
-		handler.handlePut(key, req, resWriter)
+		handler.handlePut(resWriter, req)
 	case "POST":
-		handler.handlePost(key, req, resWriter)
+		handler.handlePost(resWriter, req)
 	case "DELETE":
-		handler.handleDelete(key, req, resWriter)
+		handler.handleDelete(resWriter, req)
 	default:
 		http.Error(resWriter, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 	}
 }
 
-func (handler requestHandler) handleGet(key string, resWriter http.ResponseWriter) {
+func (handler requestHandler) handleGet(resWriter http.ResponseWriter, req *http.Request) {
+	key, keyErr := handler.extractKeyFromURLPath(req.URL.Path)
 
-	value, err := handler.store.Get(key)
+	_, idExists := req.URL.Query()["id"]
+
+	if keyErr != nil && idExists != true {
+		http.Error(resWriter, keyErr.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var value store.Configuration
+	var err error
+
+	if key != "" && keyErr == nil {
+		value, err = handler.store.GetByKey(key)
+	} else {
+		id := req.URL.Query().Get("id")
+		value, err = handler.store.GetById(id)
+	}
+
 	if err != nil {
 		http.Error(resWriter, err.Error(), http.StatusInternalServerError)
 		return
@@ -66,7 +76,13 @@ func (handler requestHandler) handleGet(key string, resWriter http.ResponseWrite
 	}
 }
 
-func (handler requestHandler) handlePut(key string, req *http.Request, resWriter http.ResponseWriter) {
+func (handler requestHandler) handlePut(resWriter http.ResponseWriter, req *http.Request) {
+	key, keyErr := handler.extractKeyFromURLPath(req.URL.Path)
+	if keyErr != nil {
+		http.Error(resWriter, keyErr.Error(), http.StatusBadRequest)
+		return
+	}
+
 	value, err := handler.readPutRequest(req)
 
 	if err != nil {
@@ -85,7 +101,12 @@ func (handler requestHandler) handlePut(key string, req *http.Request, resWriter
 	handler.respond(resWriter, result, http.StatusOK)
 }
 
-func (handler requestHandler) handlePost(key string, req *http.Request, resWriter http.ResponseWriter) {
+func (handler requestHandler) handlePost(resWriter http.ResponseWriter, req *http.Request) {
+	key, keyErr := handler.extractKeyFromURLPath(req.URL.Path)
+	if keyErr != nil {
+		http.Error(resWriter, keyErr.Error(), http.StatusBadRequest)
+		return
+	}
 	generationType, parameters, err := handler.readPostRequest(req)
 
 	if err != nil {
@@ -95,7 +116,7 @@ func (handler requestHandler) handlePost(key string, req *http.Request, resWrite
 
 	emptyValue := store.Configuration{}
 
-	value, err := handler.store.Get(key)
+	value, err := handler.store.GetByKey(key)
 	if value != emptyValue {
 		result, _ := value.StringifiedJSON()
 		handler.respond(resWriter, result, http.StatusOK)
@@ -124,7 +145,12 @@ func (handler requestHandler) handlePost(key string, req *http.Request, resWrite
 	}
 }
 
-func (handler requestHandler) handleDelete(key string, req *http.Request, resWriter http.ResponseWriter) {
+func (handler requestHandler) handleDelete(resWriter http.ResponseWriter, req *http.Request) {
+	key, keyErr := handler.extractKeyFromURLPath(req.URL.Path)
+	if keyErr != nil {
+		http.Error(resWriter, keyErr.Error(), http.StatusBadRequest)
+		return
+	}
 	deleted, err := handler.store.Delete(key)
 
 	if err == nil {
@@ -153,7 +179,7 @@ func (handler requestHandler) saveToStore(key string, value interface{}) (store.
 		return store.Configuration{}, err
 	}
 
-	configuration, err := handler.store.Get(key)
+	configuration, err := handler.store.GetByKey(key)
 	if err != nil {
 		return store.Configuration{}, err
 	}

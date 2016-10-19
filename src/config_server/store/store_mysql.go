@@ -29,7 +29,7 @@ func (ms mysqlStore) Put(key string, value string) error {
 	return err
 }
 
-func (ms mysqlStore) Get(key string) (Configuration, error) {
+func (ms mysqlStore) GetByKey(key string) (Configuration, error) {
 	result := Configuration{}
 
 	db, err := ms.dbProvider.Db()
@@ -39,6 +39,23 @@ func (ms mysqlStore) Get(key string) (Configuration, error) {
 	defer db.Close()
 
 	err = db.QueryRow("SELECT id, config_key, value FROM configurations WHERE config_key = ? ORDER BY id DESC LIMIT 1", key).Scan(&result.Id, &result.Key, &result.Value)
+	if err == sql.ErrNoRows {
+		return result, nil
+	}
+
+	return result, err
+}
+
+func (ms mysqlStore) GetById(key string) (Configuration, error) {
+	result := Configuration{}
+
+	db, err := ms.dbProvider.Db()
+	if err != nil {
+		return result, err
+	}
+	defer db.Close()
+
+	err = db.QueryRow("SELECT id, config_key, value FROM configurations WHERE id = ?", key).Scan(&result.Id, &result.Key, &result.Value)
 	if err == sql.ErrNoRows {
 		return result, nil
 	}

@@ -24,21 +24,35 @@ var _ = Describe("MemoryStore", func() {
 
 			It("generates a unique id for new record", func() {
 				store.Put("key1", "value1")
-				value1, _ := store.Get("key1")
+				value1, _ := store.GetByKey("key1")
 				store.Put("key2", "value2")
-				value2, _ := store.Get("key2")
+				value2, _ := store.GetByKey("key2")
 
 				Expect(value1.Id).To(Equal("0"))
 				Expect(value2.Id).To(Equal("1"))
 			})
 		})
 
-		Context("Get", func() {
+		Context("GetByKey", func() {
 			It("should return associated value", func() {
 				store.Put("some_key", "some_value")
-				returnedValue, err := store.Get("some_key")
+				returnedValue, err := store.GetByKey("some_key")
 				Expect(err).To(BeNil())
 				Expect(returnedValue).To(Equal(Configuration{
+					Id:    "0",
+					Key:   "some_key",
+					Value: "some_value",
+				}))
+			})
+		})
+
+		Context("GetById", func() {
+			It("should return associated value", func() {
+				store.Put("some_key", "some_value")
+
+				configuration, err := store.GetById("0")
+				Expect(err).To(BeNil())
+				Expect(configuration).To(Equal(Configuration{
 					Id:    "0",
 					Key:   "some_key",
 					Value: "some_value",
@@ -50,7 +64,7 @@ var _ = Describe("MemoryStore", func() {
 			Context("Key exists", func() {
 				BeforeEach(func() {
 					store.Put("some_key", "some_value")
-					value, err := store.Get("some_key")
+					value, err := store.GetByKey("some_key")
 					Expect(err).To(BeNil())
 					Expect(value).To(Equal(Configuration{
 						Id:    "0",
@@ -62,7 +76,7 @@ var _ = Describe("MemoryStore", func() {
 				It("removes value", func() {
 					store.Delete("some_key")
 
-					value, err := store.Get("some_key")
+					value, err := store.GetByKey("some_key")
 					Expect(err).To(BeNil())
 					Expect(value).To(Equal(Configuration{}))
 				})

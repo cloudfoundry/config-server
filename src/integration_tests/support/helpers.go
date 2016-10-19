@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -12,7 +13,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"time"
-	"encoding/pem"
 )
 
 const ASSETS_DIR string = "assets"
@@ -79,7 +79,7 @@ func SetupDB() {
 
 func waitForServerToStart() {
 	for i := 0; i < SECONDS_WAIT_FOR_SERVER_TO_START; i++ {
-		resp, err := SendGetRequest("key")
+		resp, err := SendGetRequestByKey("key")
 
 		if err == nil && resp.StatusCode == 404 {
 			break
@@ -95,7 +95,7 @@ func waitForServerToStart() {
 
 func waitForServerToStop() {
 	for i := 0; i < SECONDS_WAIT_FOR_SERVER_TO_START; i++ {
-		_, err := SendGetRequest("key")
+		_, err := SendGetRequestByKey("key")
 
 		if err != nil {
 			break

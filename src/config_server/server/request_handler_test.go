@@ -133,418 +133,453 @@ var _ = Describe("RequestHandlerConcrete", func() {
 					"/v1/data/smurf/color/dark_ness/name-tag": "smurf/color/dark_ness/name-tag",
 				}
 
-				Describe("GET", func() {
-
-					It("can handle all types of validkeys", func() {
-						respValue := store.Configuration{
-							Value: `{"value":"common value"}`,
-						}
-						mockStore.GetReturns(respValue, nil)
-						var counter int = 0
-						for path, extractedKey := range validUrlPaths {
-							getReq, _ := http.NewRequest("GET", path, nil)
-							getRecorder := httptest.NewRecorder()
-
-							requestHandler.ServeHTTP(getRecorder, getReq)
-							key := mockStore.GetArgsForCall(counter)
-
-							Expect(key).To(Equal(extractedKey))
-
-							Expect(getRecorder.Code).To(Equal(http.StatusOK))
-							counter = counter + 1
-						}
-					})
-
-					Context("when key exists", func() {
-						It("returns value in the store", func() {
-							values := []string{
-								`123`,
-								`"blabla"`,
-								`{"key":"blabla"}`,
-							}
-
-							for _, value := range values {
+				Describe("/v1/data", func() {
+					Describe("GET", func() {
+						Context("when configuration with id exists", func() {
+							It("returns value in the store", func() {
 								respValue := store.Configuration{
-									Value: `{"value":` + value + "}",
+									Value: `{"value":"crossfit"}`,
 									Key:   "bla",
 									Id:    "some_id",
 								}
-								mockStore.GetReturns(respValue, nil)
+								mockStore.GetByIdReturns(respValue, nil)
+
+								getReq, _ := http.NewRequest("GET", "/v1/data?id="+respValue.Id, nil)
+								getRecorder := httptest.NewRecorder()
+								requestHandler.ServeHTTP(getRecorder, getReq)
+
+								Expect(getRecorder.Code).To(Equal(http.StatusOK))
+								expectedString := `{"id":"some_id","path":"bla","value":"crossfit"}`
+								Expect(getRecorder.Body.String()).To(Equal(expectedString))
+							})
+						})
+
+						Context("when configuration with id does not exist", func() {
+							It("should return 404 Not Found", func() {
+								req, _ := http.NewRequest("GET", "/v1/data?id=test", nil)
+								getRecorder := httptest.NewRecorder()
+								requestHandler.ServeHTTP(getRecorder, req)
+
+								Expect(getRecorder.Code).To(Equal(http.StatusNotFound))
+							})
+						})
+					})
+				})
+
+				Describe("/v1/data/:key", func() {
+					Describe("GET", func() {
+
+						It("can handle all types of validkeys", func() {
+							respValue := store.Configuration{
+								Value: `{"value":"common value"}`,
+							}
+							mockStore.GetByKeyReturns(respValue, nil)
+							var counter int = 0
+							for path, extractedKey := range validUrlPaths {
+								getReq, _ := http.NewRequest("GET", path, nil)
+								getRecorder := httptest.NewRecorder()
+
+								requestHandler.ServeHTTP(getRecorder, getReq)
+								key := mockStore.GetByKeyArgsForCall(counter)
+
+								Expect(key).To(Equal(extractedKey))
+
+								Expect(getRecorder.Code).To(Equal(http.StatusOK))
+								counter = counter + 1
+							}
+						})
+
+						Context("when key exists", func() {
+							It("returns value in the store", func() {
+								values := []string{
+									`123`,
+									`"blabla"`,
+									`{"key":"blabla"}`,
+								}
+
+								for _, value := range values {
+									respValue := store.Configuration{
+										Value: `{"value":` + value + "}",
+										Key:   "bla",
+										Id:    "some_id",
+									}
+									mockStore.GetByKeyReturns(respValue, nil)
+
+									getReq, _ := http.NewRequest("GET", "/v1/data/bla/", nil)
+									getRecorder := httptest.NewRecorder()
+									requestHandler.ServeHTTP(getRecorder, getReq)
+
+									Expect(getRecorder.Code).To(Equal(http.StatusOK))
+									expectedString := `{"id":"some_id","path":"bla","value":` + value + "}"
+									Expect(getRecorder.Body.String()).To(Equal(expectedString))
+								}
+							})
+						})
+
+						Context("when key does not exist", func() {
+							It("should return 404 Not Found", func() {
+								req, _ := http.NewRequest("GET", "/v1/data/test", nil)
+								getRecorder := httptest.NewRecorder()
+								requestHandler.ServeHTTP(getRecorder, req)
+
+								Expect(getRecorder.Code).To(Equal(http.StatusNotFound))
+							})
+						})
+
+						Context("when store errors", func() {
+							It("returns 500 Internal Server Error", func() {
+								mockStore.GetByKeyReturns(store.Configuration{}, errors.New("Kaboom!"))
 
 								getReq, _ := http.NewRequest("GET", "/v1/data/bla/", nil)
 								getRecorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(getRecorder, getReq)
 
-								Expect(getRecorder.Code).To(Equal(http.StatusOK))
-								expectedString := `{"id":"some_id","path":"bla","value":` + value + "}"
-								Expect(getRecorder.Body.String()).To(Equal(expectedString))
-							}
-						})
-					})
-
-					Context("when key does not exist", func() {
-						It("should return 404 Not Found", func() {
-							req, _ := http.NewRequest("GET", "/v1/data/test", nil)
-							getRecorder := httptest.NewRecorder()
-							requestHandler.ServeHTTP(getRecorder, req)
-
-							Expect(getRecorder.Code).To(Equal(http.StatusNotFound))
-						})
-					})
-
-					Context("when store errors", func() {
-						It("returns 500 Internal Server Error", func() {
-							mockStore.GetReturns(store.Configuration{}, errors.New("Kaboom!"))
-
-							getReq, _ := http.NewRequest("GET", "/v1/data/bla/", nil)
-							getRecorder := httptest.NewRecorder()
-							requestHandler.ServeHTTP(getRecorder, getReq)
-
-							Expect(getRecorder.Code).To(Equal(http.StatusInternalServerError))
-						})
-					})
-				})
-
-				Describe("PUT", func() {
-					It("can handle all types of validkeys", func() {
-						config := store.Configuration{
-							Key:   "bla",
-							Value: `{"value":"burpees"}`,
-							Id:    "1",
-						}
-						mockStore.GetReturns(config, nil)
-
-						var counter int = 0
-						for path, extractedKey := range validUrlPaths {
-							req, _ := http.NewRequest("PUT", path, strings.NewReader(`{"value":"str"}`))
-							putRecorder := httptest.NewRecorder()
-							requestHandler.ServeHTTP(putRecorder, req)
-
-							key, _ := mockStore.PutArgsForCall(counter)
-
-							Expect(key).To(Equal(extractedKey))
-							Expect(putRecorder.Code).To(Equal(http.StatusOK))
-							counter++
-						}
-					})
-
-					Context("when request body is NOT in the specified format", func() {
-						Context("when body is empty", func() {
-							It("should return 400 Bad Request", func() {
-								req, _ := http.NewRequest("PUT", "/v1/data/key", nil)
-								putRecorder := httptest.NewRecorder()
-								requestHandler.ServeHTTP(putRecorder, req)
-
-								Expect(putRecorder.Body.String()).To(ContainSubstring("Request can't be empty"))
-								Expect(putRecorder.Code).To(Equal(http.StatusBadRequest))
-							})
-						})
-
-						Context("when body is NOT JSON string", func() {
-							It("should return 400 Bad Request", func() {
-								req, _ := http.NewRequest("PUT", "/v1/data/key", strings.NewReader(`smurf`))
-								putRecorder := httptest.NewRecorder()
-								requestHandler.ServeHTTP(putRecorder, req)
-
-								Expect(putRecorder.Body.String()).To(ContainSubstring("Request Body should be JSON string"))
-								Expect(putRecorder.Code).To(Equal(http.StatusBadRequest))
-							})
-						})
-
-						Context("when body is JSON string but NOT as expected", func() {
-							It("should return 400 Bad Request", func() {
-								req, _ := http.NewRequest("PUT", "/v1/data/key", strings.NewReader(`{"smurf":"blue"}`))
-								putRecorder := httptest.NewRecorder()
-								requestHandler.ServeHTTP(putRecorder, req)
-
-								Expect(putRecorder.Body.String()).To(ContainSubstring("JSON request body shoud contain the key 'value'"))
-								Expect(putRecorder.Code).To(Equal(http.StatusBadRequest))
+								Expect(getRecorder.Code).To(Equal(http.StatusInternalServerError))
 							})
 						})
 					})
 
-					Context("when request body is in the specified format", func() {
-
-						BeforeEach(func() {
+					Describe("PUT", func() {
+						It("can handle all types of validkeys", func() {
 							config := store.Configuration{
 								Key:   "bla",
 								Value: `{"value":"burpees"}`,
 								Id:    "1",
 							}
-							mockStore.GetReturns(config, nil)
+							mockStore.GetByKeyReturns(config, nil)
+
+							var counter int = 0
+							for path, extractedKey := range validUrlPaths {
+								req, _ := http.NewRequest("PUT", path, strings.NewReader(`{"value":"str"}`))
+								putRecorder := httptest.NewRecorder()
+								requestHandler.ServeHTTP(putRecorder, req)
+
+								key, _ := mockStore.PutArgsForCall(counter)
+
+								Expect(key).To(Equal(extractedKey))
+								Expect(putRecorder.Code).To(Equal(http.StatusOK))
+								counter++
+							}
 						})
 
-						It("returns value, path and id in the response", func() {
-							req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader(`{"value":"str"}`))
-							putRecorder := httptest.NewRecorder()
-							requestHandler.ServeHTTP(putRecorder, req)
+						Context("when request body is NOT in the specified format", func() {
+							Context("when body is empty", func() {
+								It("should return 400 Bad Request", func() {
+									req, _ := http.NewRequest("PUT", "/v1/data/key", nil)
+									putRecorder := httptest.NewRecorder()
+									requestHandler.ServeHTTP(putRecorder, req)
 
-							key := mockStore.GetArgsForCall(0)
-							Expect(key).To(Equal("bla"))
+									Expect(putRecorder.Body.String()).To(ContainSubstring("Request can't be empty"))
+									Expect(putRecorder.Code).To(Equal(http.StatusBadRequest))
+								})
+							})
 
-							Expect(putRecorder.Body.String()).To(Equal(`{"id":"1","path":"bla","value":"burpees"}`))
+							Context("when body is NOT JSON string", func() {
+								It("should return 400 Bad Request", func() {
+									req, _ := http.NewRequest("PUT", "/v1/data/key", strings.NewReader(`smurf`))
+									putRecorder := httptest.NewRecorder()
+									requestHandler.ServeHTTP(putRecorder, req)
+
+									Expect(putRecorder.Body.String()).To(ContainSubstring("Request Body should be JSON string"))
+									Expect(putRecorder.Code).To(Equal(http.StatusBadRequest))
+								})
+							})
+
+							Context("when body is JSON string but NOT as expected", func() {
+								It("should return 400 Bad Request", func() {
+									req, _ := http.NewRequest("PUT", "/v1/data/key", strings.NewReader(`{"smurf":"blue"}`))
+									putRecorder := httptest.NewRecorder()
+									requestHandler.ServeHTTP(putRecorder, req)
+
+									Expect(putRecorder.Body.String()).To(ContainSubstring("JSON request body shoud contain the key 'value'"))
+									Expect(putRecorder.Code).To(Equal(http.StatusBadRequest))
+								})
+							})
 						})
 
-						Context("when value is a string ", func() {
-							It("should store value in a specific JSON format and respond with 204 StatusNoContent", func() {
+						Context("when request body is in the specified format", func() {
+
+							BeforeEach(func() {
+								config := store.Configuration{
+									Key:   "bla",
+									Value: `{"value":"burpees"}`,
+									Id:    "1",
+								}
+								mockStore.GetByKeyReturns(config, nil)
+							})
+
+							It("returns value, path and id in the response", func() {
 								req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader(`{"value":"str"}`))
 								putRecorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(putRecorder, req)
 
-								Expect(mockStore.PutCallCount()).To(Equal(1))
-								key, value := mockStore.PutArgsForCall(0)
-
+								key := mockStore.GetByKeyArgsForCall(0)
 								Expect(key).To(Equal("bla"))
-								Expect(value).To(Equal(`{"value":"str"}`))
-								Expect(putRecorder.Code).To(Equal(http.StatusOK))
+
+								Expect(putRecorder.Body.String()).To(Equal(`{"id":"1","path":"bla","value":"burpees"}`))
 							})
-						})
 
-						Context("when value is a number", func() {
-							It("should store value in a specific JSON format and respond with 204 StatusNoContent", func() {
-								req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader(`{"value":123}`))
-								putRecorder := httptest.NewRecorder()
-								requestHandler.ServeHTTP(putRecorder, req)
+							Context("when value is a string ", func() {
+								It("should store value in a specific JSON format and respond with 204 StatusNoContent", func() {
+									req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader(`{"value":"str"}`))
+									putRecorder := httptest.NewRecorder()
+									requestHandler.ServeHTTP(putRecorder, req)
 
-								Expect(mockStore.PutCallCount()).To(Equal(1))
-								key, value := mockStore.PutArgsForCall(0)
+									Expect(mockStore.PutCallCount()).To(Equal(1))
+									key, value := mockStore.PutArgsForCall(0)
 
-								Expect(key).To(Equal("bla"))
-								Expect(value).To(Equal(`{"value":123}`))
-								Expect(putRecorder.Code).To(Equal(http.StatusOK))
+									Expect(key).To(Equal("bla"))
+									Expect(value).To(Equal(`{"value":"str"}`))
+									Expect(putRecorder.Code).To(Equal(http.StatusOK))
+								})
 							})
-						})
 
-						Context("when value is a JSON hash", func() {
-							It("should store value in a specific JSON format and respond with 204 StatusNoContent", func() {
-								requestBody := `{"value":{"age":10,"color":"red"}}`
-								valueToStore := `{"value":{"age":10,"color":"red"}}`
+							Context("when value is a number", func() {
+								It("should store value in a specific JSON format and respond with 204 StatusNoContent", func() {
+									req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader(`{"value":123}`))
+									putRecorder := httptest.NewRecorder()
+									requestHandler.ServeHTTP(putRecorder, req)
 
-								req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader(requestBody))
-								putRecorder := httptest.NewRecorder()
-								requestHandler.ServeHTTP(putRecorder, req)
+									Expect(mockStore.PutCallCount()).To(Equal(1))
+									key, value := mockStore.PutArgsForCall(0)
 
-								Expect(mockStore.PutCallCount()).To(Equal(1))
-								key, value := mockStore.PutArgsForCall(0)
-
-								Expect(key).To(Equal("bla"))
-								Expect(value).To(Equal(valueToStore))
-								Expect(putRecorder.Code).To(Equal(http.StatusOK))
+									Expect(key).To(Equal("bla"))
+									Expect(value).To(Equal(`{"value":123}`))
+									Expect(putRecorder.Code).To(Equal(http.StatusOK))
+								})
 							})
-						})
-					})
-				})
 
-				Describe("POST", func() {
-					It("can handle all types of validkeys", func() {
-						respValue := store.Configuration{
-							Value: `{"value":"anything"}`,
-						}
-						mockStore.GetReturns(respValue, nil)
+							Context("when value is a JSON hash", func() {
+								It("should store value in a specific JSON format and respond with 204 StatusNoContent", func() {
+									requestBody := `{"value":{"age":10,"color":"red"}}`
+									valueToStore := `{"value":{"age":10,"color":"red"}}`
 
-						var counter int = 0
-						for path, extractedKey := range validUrlPaths {
-							req, _ := http.NewRequest("POST", path, strings.NewReader(`{"type":"password","parameters":{}}`))
-							recorder := httptest.NewRecorder()
-							requestHandler.ServeHTTP(recorder, req)
+									req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader(requestBody))
+									putRecorder := httptest.NewRecorder()
+									requestHandler.ServeHTTP(putRecorder, req)
 
-							key := mockStore.GetArgsForCall(counter)
+									Expect(mockStore.PutCallCount()).To(Equal(1))
+									key, value := mockStore.PutArgsForCall(0)
 
-							Expect(key).To(Equal(extractedKey))
-							counter++
-						}
-					})
-
-					Context("when request body is NOT in the specified format", func() {
-						Context("when body is empty", func() {
-							It("should return 400 Bad Request", func() {
-								req, _ := http.NewRequest("POST", "/v1/data/key", nil)
-								recorder := httptest.NewRecorder()
-								requestHandler.ServeHTTP(recorder, req)
-
-								Expect(recorder.Body.String()).To(ContainSubstring("Request can't be empty"))
-								Expect(recorder.Code).To(Equal(http.StatusBadRequest))
-							})
-						})
-
-						Context("when body is NOT JSON string", func() {
-							It("should return 400 Bad Request", func() {
-								req, _ := http.NewRequest("POST", "/v1/data/key", strings.NewReader("smurf"))
-								recorder := httptest.NewRecorder()
-								requestHandler.ServeHTTP(recorder, req)
-
-								Expect(recorder.Body.String()).To(ContainSubstring("Request Body should be JSON string"))
-								Expect(recorder.Code).To(Equal(http.StatusBadRequest))
-							})
-						})
-
-						Context("when body is JSON string but NOT as expected", func() {
-							It("should return 400 Bad Request", func() {
-								req, _ := http.NewRequest("POST", "/v1/data/key", strings.NewReader(`{"smurf":"blue"}`))
-								recorder := httptest.NewRecorder()
-								requestHandler.ServeHTTP(recorder, req)
-
-								Expect(recorder.Body.String()).To(ContainSubstring("JSON request body shoud contain the key 'type'"))
-								Expect(recorder.Code).To(Equal(http.StatusBadRequest))
+									Expect(key).To(Equal("bla"))
+									Expect(value).To(Equal(valueToStore))
+									Expect(putRecorder.Code).To(Equal(http.StatusOK))
+								})
 							})
 						})
 					})
 
-					Context("when request body is in the specified format", func() {
+					Describe("POST", func() {
+						It("can handle all types of validkeys", func() {
+							respValue := store.Configuration{
+								Value: `{"value":"anything"}`,
+							}
+							mockStore.GetByKeyReturns(respValue, nil)
 
-						Describe("Password generation", func() {
-							Context("when value already exists", func() {
-								It("should not generate a password", func() {
-									mockStore.GetStub = func(key string) (store.Configuration, error) {
-										respValue := store.Configuration{
-											Value: `{"value":"smurf"}`,
-											Id:    "some_id",
-											Key:   "bla",
+							var counter int = 0
+							for path, extractedKey := range validUrlPaths {
+								req, _ := http.NewRequest("POST", path, strings.NewReader(`{"type":"password","parameters":{}}`))
+								recorder := httptest.NewRecorder()
+								requestHandler.ServeHTTP(recorder, req)
+
+								key := mockStore.GetByKeyArgsForCall(counter)
+
+								Expect(key).To(Equal(extractedKey))
+								counter++
+							}
+						})
+
+						Context("when request body is NOT in the specified format", func() {
+							Context("when body is empty", func() {
+								It("should return 400 Bad Request", func() {
+									req, _ := http.NewRequest("POST", "/v1/data/key", nil)
+									recorder := httptest.NewRecorder()
+									requestHandler.ServeHTTP(recorder, req)
+
+									Expect(recorder.Body.String()).To(ContainSubstring("Request can't be empty"))
+									Expect(recorder.Code).To(Equal(http.StatusBadRequest))
+								})
+							})
+
+							Context("when body is NOT JSON string", func() {
+								It("should return 400 Bad Request", func() {
+									req, _ := http.NewRequest("POST", "/v1/data/key", strings.NewReader("smurf"))
+									recorder := httptest.NewRecorder()
+									requestHandler.ServeHTTP(recorder, req)
+
+									Expect(recorder.Body.String()).To(ContainSubstring("Request Body should be JSON string"))
+									Expect(recorder.Code).To(Equal(http.StatusBadRequest))
+								})
+							})
+
+							Context("when body is JSON string but NOT as expected", func() {
+								It("should return 400 Bad Request", func() {
+									req, _ := http.NewRequest("POST", "/v1/data/key", strings.NewReader(`{"smurf":"blue"}`))
+									recorder := httptest.NewRecorder()
+									requestHandler.ServeHTTP(recorder, req)
+
+									Expect(recorder.Body.String()).To(ContainSubstring("JSON request body shoud contain the key 'type'"))
+									Expect(recorder.Code).To(Equal(http.StatusBadRequest))
+								})
+							})
+						})
+
+						Context("when request body is in the specified format", func() {
+
+							Describe("Password generation", func() {
+								Context("when value already exists", func() {
+									It("should not generate a password", func() {
+										mockStore.GetByKeyStub = func(key string) (store.Configuration, error) {
+											respValue := store.Configuration{
+												Value: `{"value":"smurf"}`,
+												Id:    "some_id",
+												Key:   "bla",
+											}
+											return respValue, nil
 										}
-										return respValue, nil
-									}
 
-									postReq, _ := http.NewRequest("POST", "/v1/data/bla/", strings.NewReader(`{"type":"password","parameters":{}}`))
+										postReq, _ := http.NewRequest("POST", "/v1/data/bla/", strings.NewReader(`{"type":"password","parameters":{}}`))
 
-									recorder := httptest.NewRecorder()
-									requestHandler.ServeHTTP(recorder, postReq)
+										recorder := httptest.NewRecorder()
+										requestHandler.ServeHTTP(recorder, postReq)
 
-									Expect(recorder.Code).To(Equal(http.StatusOK))
-									Expect(recorder.Body.String()).To(Equal(`{"id":"some_id","path":"bla","value":"smurf"}`))
-									Expect(mockValueGeneratorFactory.GetGeneratorCallCount()).To(Equal(0))
+										Expect(recorder.Code).To(Equal(http.StatusOK))
+										Expect(recorder.Body.String()).To(Equal(`{"id":"some_id","path":"bla","value":"smurf"}`))
+										Expect(mockValueGeneratorFactory.GetGeneratorCallCount()).To(Equal(0))
+									})
+								})
+
+								Context("when value does NOT exist", func() {
+									It("should return generated password", func() {
+										requestHandler, _ = NewRequestHandler(store.NewMemoryStore(), types.NewValueGeneratorConcrete(config.ServerConfig{}))
+
+										postReq, _ := http.NewRequest("POST", "/v1/data/bla/", strings.NewReader(`{"type":"password","parameters":{}}`))
+
+										recorder := httptest.NewRecorder()
+										requestHandler.ServeHTTP(recorder, postReq)
+
+										Expect(recorder.Code).To(Equal(http.StatusCreated))
+
+										var data map[string]string
+										json.Unmarshal(recorder.Body.Bytes(), &data)
+
+										Expect(data["path"]).To(Equal("bla"))
+										Expect(data["value"]).Should(MatchRegexp("[a-z0-9]{20}"))
+									})
 								})
 							})
 
-							Context("when value does NOT exist", func() {
-								It("should return generated password", func() {
-									requestHandler, _ = NewRequestHandler(store.NewMemoryStore(), types.NewValueGeneratorConcrete(config.ServerConfig{}))
+							Describe("Certificate generation", func() {
+								Context("when value already exists", func() {
+									It("should not generate certificates", func() {
 
-									postReq, _ := http.NewRequest("POST", "/v1/data/bla/", strings.NewReader(`{"type":"password","parameters":{}}`))
-
-									recorder := httptest.NewRecorder()
-									requestHandler.ServeHTTP(recorder, postReq)
-
-									Expect(recorder.Code).To(Equal(http.StatusCreated))
-
-									var data map[string]string
-									json.Unmarshal(recorder.Body.Bytes(), &data)
-
-									Expect(data["path"]).To(Equal("bla"))
-									Expect(data["value"]).Should(MatchRegexp("[a-z0-9]{20}"))
-								})
-							})
-						})
-
-						Describe("Certificate generation", func() {
-							Context("when value already exists", func() {
-								It("should not generate certificates", func() {
-
-									mockStore.GetStub = func(key string) (store.Configuration, error) {
-										respValue := store.Configuration{
-											Value: `{"value":"smurf"}`,
-											Id:    "some_id",
-											Key:   "bla",
+										mockStore.GetByKeyStub = func(key string) (store.Configuration, error) {
+											respValue := store.Configuration{
+												Value: `{"value":"smurf"}`,
+												Id:    "some_id",
+												Key:   "bla",
+											}
+											return respValue, nil
 										}
-										return respValue, nil
-									}
 
-									postReq, _ := http.NewRequest("POST", "/v1/data/bla/", strings.NewReader(`{"type":"certificate","parameters":{}}`))
+										postReq, _ := http.NewRequest("POST", "/v1/data/bla/", strings.NewReader(`{"type":"certificate","parameters":{}}`))
 
-									recorder := httptest.NewRecorder()
-									requestHandler.ServeHTTP(recorder, postReq)
+										recorder := httptest.NewRecorder()
+										requestHandler.ServeHTTP(recorder, postReq)
 
-									Expect(recorder.Code).To(Equal(http.StatusOK))
-									Expect(recorder.Body.String()).To(Equal(`{"id":"some_id","path":"bla","value":"smurf"}`))
-									Expect(mockValueGeneratorFactory.GetGeneratorCallCount()).To(Equal(0))
+										Expect(recorder.Code).To(Equal(http.StatusOK))
+										Expect(recorder.Body.String()).To(Equal(`{"id":"some_id","path":"bla","value":"smurf"}`))
+										Expect(mockValueGeneratorFactory.GetGeneratorCallCount()).To(Equal(0))
+									})
 								})
-							})
 
-							Context("when value does NOT exist", func() {
-								It("should return generated certificate, its private key and root certificate used to sign the generated certificate", func() {
-									requestHandler, _ = NewRequestHandler(store.NewMemoryStore(), mockValueGeneratorFactory)
-									mockValueGeneratorFactory.GetGeneratorReturns(mockValueGenerator, nil)
+								Context("when value does NOT exist", func() {
+									It("should return generated certificate, its private key and root certificate used to sign the generated certificate", func() {
+										requestHandler, _ = NewRequestHandler(store.NewMemoryStore(), mockValueGeneratorFactory)
+										mockValueGeneratorFactory.GetGeneratorReturns(mockValueGenerator, nil)
 
-									mockValueGenerator.GenerateReturns(types.CertResponse{
-										Certificate: "fake-certificate",
-										PrivateKey:  "fake-private-key",
-										CA:          "fake-ca",
-									}, nil)
+										mockValueGenerator.GenerateReturns(types.CertResponse{
+											Certificate: "fake-certificate",
+											PrivateKey:  "fake-private-key",
+											CA:          "fake-ca",
+										}, nil)
 
-									postReq, _ := http.NewRequest("POST", "/v1/data/bla/", strings.NewReader(`{"type":"certificate","parameters":{"common_name": "asdf", "alternative_names":["nam1", "name2"]}}`))
+										postReq, _ := http.NewRequest("POST", "/v1/data/bla/", strings.NewReader(`{"type":"certificate","parameters":{"common_name": "asdf", "alternative_names":["nam1", "name2"]}}`))
 
-									recorder := httptest.NewRecorder()
-									requestHandler.ServeHTTP(recorder, postReq)
+										recorder := httptest.NewRecorder()
+										requestHandler.ServeHTTP(recorder, postReq)
 
-									Expect(recorder.Code).To(Equal(http.StatusCreated))
+										Expect(recorder.Code).To(Equal(http.StatusCreated))
 
-									var data map[string]interface{}
-									json.Unmarshal(recorder.Body.Bytes(), &data)
+										var data map[string]interface{}
+										json.Unmarshal(recorder.Body.Bytes(), &data)
 
-									Expect(data["path"]).To(Equal("bla"))
+										Expect(data["path"]).To(Equal("bla"))
 
-									value := data["value"].(map[string]interface{})
-									Expect(value["certificate"]).To(Equal("fake-certificate"))
-									Expect(value["private_key"]).To(Equal("fake-private-key"))
-									Expect(value["ca"]).To(Equal("fake-ca"))
+										value := data["value"].(map[string]interface{})
+										Expect(value["certificate"]).To(Equal("fake-certificate"))
+										Expect(value["private_key"]).To(Equal("fake-private-key"))
+										Expect(value["ca"]).To(Equal("fake-ca"))
+									})
 								})
 							})
 						})
 					})
-				})
 
-				Describe("DELETE", func() {
-					It("can handle all types of validkeys", func() {
-						mockStore.DeleteReturns(true, nil)
-
-						var counter int = 0
-						for path, extractedKey := range validUrlPaths {
-							req, _ := http.NewRequest("DELETE", path, nil)
-
-							recorder := httptest.NewRecorder()
-							requestHandler.ServeHTTP(recorder, req)
-
-							Expect(mockStore.DeleteArgsForCall(counter)).To(Equal(extractedKey))
-							counter++
-						}
-					})
-
-					Context("Key exists", func() {
-						BeforeEach(func() {
+					Describe("DELETE", func() {
+						It("can handle all types of validkeys", func() {
 							mockStore.DeleteReturns(true, nil)
+
+							var counter int = 0
+							for path, extractedKey := range validUrlPaths {
+								req, _ := http.NewRequest("DELETE", path, nil)
+
+								recorder := httptest.NewRecorder()
+								requestHandler.ServeHTTP(recorder, req)
+
+								Expect(mockStore.DeleteArgsForCall(counter)).To(Equal(extractedKey))
+								counter++
+							}
 						})
 
-						It("should delete value", func() {
-							req, _ := http.NewRequest("DELETE", "/v1/data/bla", nil)
+						Context("Key exists", func() {
+							BeforeEach(func() {
+								mockStore.DeleteReturns(true, nil)
+							})
 
-							putRecorder := httptest.NewRecorder()
-							requestHandler.ServeHTTP(putRecorder, req)
+							It("should delete value", func() {
+								req, _ := http.NewRequest("DELETE", "/v1/data/bla", nil)
 
-							Expect(mockStore.DeleteCallCount()).To(Equal(1))
-							Expect(mockStore.DeleteArgsForCall(0)).To(Equal("bla"))
+								putRecorder := httptest.NewRecorder()
+								requestHandler.ServeHTTP(putRecorder, req)
+
+								Expect(mockStore.DeleteCallCount()).To(Equal(1))
+								Expect(mockStore.DeleteArgsForCall(0)).To(Equal("bla"))
+							})
+
+							It("should return 204 Status No Content", func() {
+								req, _ := http.NewRequest("DELETE", "/v1/data/bla", nil)
+								req.Header.Set("Authorization", "bearer fake-auth-header")
+
+								putRecorder := httptest.NewRecorder()
+								requestHandler.ServeHTTP(putRecorder, req)
+
+								Expect(putRecorder.Code).To(Equal(http.StatusNoContent))
+							})
 						})
 
-						It("should return 204 Status No Content", func() {
-							req, _ := http.NewRequest("DELETE", "/v1/data/bla", nil)
-							req.Header.Set("Authorization", "bearer fake-auth-header")
+						Context("Key does not exist", func() {
+							It("should return 404 Status Not Found", func() {
+								req, _ := http.NewRequest("DELETE", "/v1/data/bla", nil)
+								req.Header.Set("Authorization", "bearer fake-auth-header")
 
-							putRecorder := httptest.NewRecorder()
-							requestHandler.ServeHTTP(putRecorder, req)
+								putRecorder := httptest.NewRecorder()
+								requestHandler.ServeHTTP(putRecorder, req)
 
-							Expect(putRecorder.Code).To(Equal(http.StatusNoContent))
-						})
-					})
-
-					Context("Key does not exist", func() {
-						It("should return 404 Status Not Found", func() {
-							req, _ := http.NewRequest("DELETE", "/v1/data/bla", nil)
-							req.Header.Set("Authorization", "bearer fake-auth-header")
-
-							putRecorder := httptest.NewRecorder()
-							requestHandler.ServeHTTP(putRecorder, req)
-
-							Expect(putRecorder.Code).To(Equal(http.StatusNotFound))
-							Expect(mockStore.DeleteCallCount()).To(Equal(1))
-							Expect(mockStore.DeleteArgsForCall(0)).To(Equal("bla"))
+								Expect(putRecorder.Code).To(Equal(http.StatusNotFound))
+								Expect(mockStore.DeleteCallCount()).To(Equal(1))
+								Expect(mockStore.DeleteArgsForCall(0)).To(Equal("bla"))
+							})
 						})
 					})
 				})

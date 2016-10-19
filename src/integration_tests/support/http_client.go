@@ -12,8 +12,15 @@ type requestBody struct {
 	Value interface{} `json:"value"`
 }
 
-func SendGetRequest(key string) (*http.Response, error) {
+func SendGetRequestByKey(key string) (*http.Response, error) {
 	req, _ := http.NewRequest("GET", SERVER_URL+"/v1/data/"+key, nil)
+	req.Header.Add("Authorization", "bearer "+ValidToken())
+
+	return HTTPSClient.Do(req)
+}
+
+func SendGetRequestByID(id string) (*http.Response, error) {
+	req, _ := http.NewRequest("GET", SERVER_URL+"/v1/data/?id="+id, nil)
 	req.Header.Add("Authorization", "bearer "+ValidToken())
 
 	return HTTPSClient.Do(req)

@@ -31,13 +31,13 @@ var _ = Describe("StorePostgres", func() {
 		store = NewPostgresStore(fakeDbProvider)
 	})
 
-	Describe("Get", func() {
+	Describe("GetByKey", func() {
 
 		It("closes db connection on exit", func() {
 			fakeDb.QueryRowReturns(&fakes.FakeIRow{})
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
-			store.Get("Luke")
+			store.GetByKey("Luke")
 			Expect(fakeDb.CloseCallCount()).To(Equal(1))
 		})
 
@@ -45,7 +45,7 @@ var _ = Describe("StorePostgres", func() {
 			fakeDb.QueryRowReturns(&fakes.FakeIRow{})
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
-			_, err := store.Get("Luke")
+			_, err := store.GetByKey("Luke")
 			Expect(err).To(BeNil())
 			query, _ := fakeDb.QueryRowArgsForCall(0)
 
@@ -74,7 +74,7 @@ var _ = Describe("StorePostgres", func() {
 			fakeDb.QueryRowReturns(fakeRow)
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
-			value, err := store.Get("Luke")
+			value, err := store.GetByKey("Luke")
 			Expect(err).To(BeNil())
 			Expect(value).To(Equal(Configuration{
 				Id:    "some_id",
@@ -89,7 +89,7 @@ var _ = Describe("StorePostgres", func() {
 			fakeDb.QueryRowReturns(fakeRow)
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
-			value, err := store.Get("luke")
+			value, err := store.GetByKey("luke")
 			Expect(err).To(BeNil())
 			Expect(value).To(Equal(Configuration{}))
 		})
@@ -98,7 +98,7 @@ var _ = Describe("StorePostgres", func() {
 			dbError := errors.New("connection failure")
 			fakeDbProvider.DbReturns(nil, dbError)
 
-			_, err := store.Get("luke")
+			_, err := store.GetByKey("luke")
 			Expect(err).ToNot(BeNil())
 			Expect(err).To(Equal(dbError))
 		})
@@ -110,7 +110,92 @@ var _ = Describe("StorePostgres", func() {
 			fakeDb.QueryRowReturns(fakeRow)
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
-			_, err := store.Get("luke")
+			_, err := store.GetByKey("luke")
+			Expect(err).ToNot(BeNil())
+			Expect(err).To(Equal(scanError))
+		})
+	})
+
+	Describe("GetById", func() {
+
+		It("closes db connection on exit", func() {
+			fakeDb.QueryRowReturns(&fakes.FakeIRow{})
+			fakeDbProvider.DbReturns(fakeDb, nil)
+
+			store.GetById("1")
+			Expect(fakeDb.CloseCallCount()).To(Equal(1))
+		})
+
+		It("queries the database for the latest entry for a given id", func() {
+			fakeDb.QueryRowReturns(&fakes.FakeIRow{})
+			fakeDbProvider.DbReturns(fakeDb, nil)
+
+			_, err := store.GetById("1")
+			Expect(err).To(BeNil())
+			query, _ := fakeDb.QueryRowArgsForCall(0)
+
+			Expect(query).To(Equal("SELECT id, config_key, value FROM configurations WHERE id = $1"))
+			Expect(fakeDb.CloseCallCount()).To(Equal(1))
+		})
+
+		It("returns value from db query", func() {
+			fakeRow.ScanStub = func(dest ...interface{}) error {
+				idPtr, ok := dest[0].(*string)
+				Expect(ok).To(BeTrue())
+
+				keyPtr, ok := dest[1].(*string)
+				Expect(ok).To(BeTrue())
+
+				valuePtr, ok := dest[2].(*string)
+				Expect(ok).To(BeTrue())
+
+				*idPtr = "some_id"
+				*valuePtr = "Skywalker"
+				*keyPtr = "Luke"
+
+				return nil
+			}
+
+			fakeDb.QueryRowReturns(fakeRow)
+			fakeDbProvider.DbReturns(fakeDb, nil)
+
+			value, err := store.GetById("some_id")
+			Expect(err).To(BeNil())
+			Expect(value).To(Equal(Configuration{
+				Id:    "some_id",
+				Value: "Skywalker",
+				Key:   "Luke",
+			}))
+		})
+
+		It("returns empty string when no result is found", func() {
+			fakeRow.ScanReturns(sql.ErrNoRows)
+
+			fakeDb.QueryRowReturns(fakeRow)
+			fakeDbProvider.DbReturns(fakeDb, nil)
+
+			value, err := store.GetById("fake_id")
+			Expect(err).To(BeNil())
+			Expect(value).To(Equal(Configuration{}))
+		})
+
+		It("returns an error when db provider fails to return db", func() {
+			dbError := errors.New("connection failure")
+			fakeDbProvider.DbReturns(nil, dbError)
+
+			_, err := store.GetById("some_id")
+			Expect(err).ToNot(BeNil())
+			Expect(err).To(Equal(dbError))
+		})
+
+		It("returns an error when db query fails", func() {
+			scanError := errors.New("query failure")
+			fakeRow.ScanReturns(scanError)
+
+			fakeDb.QueryRowReturns(fakeRow)
+			fakeDbProvider.DbReturns(fakeDb, nil)
+
+			_, err := store.GetById("some_id")
 			Expect(err).ToNot(BeNil())
 			Expect(err).To(Equal(scanError))
 		})

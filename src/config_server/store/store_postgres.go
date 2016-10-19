@@ -28,7 +28,7 @@ func (ps postgresStore) Put(key string, value string) error {
 	return err
 }
 
-func (ps postgresStore) Get(key string) (Configuration, error) {
+func (ps postgresStore) GetByKey(key string) (Configuration, error) {
 	result := Configuration{}
 
 	db, err := ps.dbProvider.Db()
@@ -38,6 +38,23 @@ func (ps postgresStore) Get(key string) (Configuration, error) {
 	defer db.Close()
 
 	err = db.QueryRow("SELECT id, config_key, value FROM configurations WHERE config_key = $1 ORDER BY id DESC LIMIT 1", key).Scan(&result.Id, &result.Key, &result.Value)
+	if err == sql.ErrNoRows {
+		return result, nil
+	}
+
+	return result, err
+}
+
+func (ps postgresStore) GetById(id string) (Configuration, error) {
+	result := Configuration{}
+
+	db, err := ps.dbProvider.Db()
+	if err != nil {
+		return result, err
+	}
+	defer db.Close()
+
+	err = db.QueryRow("SELECT id, config_key, value FROM configurations WHERE id = $1", id).Scan(&result.Id, &result.Key, &result.Value)
 	if err == sql.ErrNoRows {
 		return result, nil
 	}

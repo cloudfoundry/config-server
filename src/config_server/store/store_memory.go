@@ -31,13 +31,26 @@ func (store MemoryStore) Put(key string, value string) error {
 	return nil
 }
 
-func (store MemoryStore) Get(key string) (Configuration, error) {
+func (store MemoryStore) GetByKey(key string) (Configuration, error) {
 	return store.db[key], nil
+}
+
+func (store MemoryStore) GetById(id string) (Configuration, error) {
+	result := Configuration{}
+
+	for _, config := range store.db {
+		if config.Id == id {
+			result = config
+			break
+		}
+	}
+
+	return result, nil
 }
 
 func (store MemoryStore) Delete(key string) (bool, error) {
 	deleted := false
-	result, _ := store.Get(key)
+	result, _ := store.GetByKey(key)
 
 	// map contains key, delete
 	if len(result.Value) > 0 {
