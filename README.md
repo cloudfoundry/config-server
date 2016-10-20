@@ -11,7 +11,11 @@ Go Formatting| ![Resize icon][badge-test-gofmt]
 
 [badge-test-unit]: https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-unit/badge
 
-[badge-test-integration]: https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-integration/badge
+[badge-test-integration-in-memory]: https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-integration-in-memory/badge
+
+[badge-test-integration-mysql]: https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-integration-mysql/badge
+
+[badge-test-integration-postgresql]: https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-integration-postgresql/badge
 
 [badge-bosh-release]: https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/bosh-release/badge
 
