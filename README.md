@@ -5,7 +5,9 @@
 Job            | Status  
 :------------: | -------------
 Unit tests     | ![Resize icon][badge-test-unit] 
-Integration tests  | ![Resize icon][badge-test-integration]
+Integration tests In Memory  | ![Resize icon][badge-test-integration-in-memory]
+Integration tests Mysql  | ![Resize icon][badge-test-integration-mysql]
+Integration tests Postgresql  | ![Resize icon][badge-test-integration-postgresql]
 BOSH Release   | ![Resize icon][badge-bosh-release]
 Go Formatting| ![Resize icon][badge-test-gofmt]   
 
