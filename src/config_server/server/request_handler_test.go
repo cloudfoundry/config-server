@@ -17,6 +17,7 @@ import (
 	"config_server/store"
 	"config_server/types"
 	"encoding/json"
+	"io"
 )
 
 type BadMockStore struct{}
@@ -27,6 +28,15 @@ func (store BadMockStore) Get(key string) (string, error) {
 
 func (store BadMockStore) Put(key string, value string) error {
 	return errors.New("")
+}
+
+func generateHttpRequest(method, urlStr string, body io.Reader) (*http.Request, error) {
+	req, err := http.NewRequest(method, urlStr, body)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
 }
 
 var _ = Describe("RequestHandlerConcrete", func() {
@@ -64,7 +74,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 				for _, method := range validMethods {
 					for _, path := range invalidPaths {
-						req, _ := http.NewRequest(method, path, nil)
+						req, _ := generateHttpRequest(method, path, nil)
 						recorder := httptest.NewRecorder()
 						requestHandler.ServeHTTP(recorder, req)
 
@@ -77,7 +87,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 				It("should return 400 Bad Request", func() {
 					validMethods := []string{"GET", "PUT", "POST", "DELETE"}
 					for _, method := range validMethods {
-						req, _ := http.NewRequest(method, "/v1/data/", nil)
+						req, _ := generateHttpRequest(method, "/v1/data/", nil)
 						getRecorder := httptest.NewRecorder()
 						requestHandler.ServeHTTP(getRecorder, req)
 
@@ -98,7 +108,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 					for _, method := range validMethods {
 						for _, path := range inValidUrlPaths {
-							req, _ := http.NewRequest(method, path, nil)
+							req, _ := generateHttpRequest(method, path, nil)
 							recorder := httptest.NewRecorder()
 							requestHandler.ServeHTTP(recorder, req)
 
@@ -116,7 +126,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 					invalidMethods := []string{"PATCH"}
 
 					for _, method := range invalidMethods {
-						req, _ := http.NewRequest(method, "/v1/data/bla", nil)
+						req, _ := generateHttpRequest(method, "/v1/data/bla", nil)
 						recorder := httptest.NewRecorder()
 						requestHandler.ServeHTTP(recorder, req)
 
@@ -144,7 +154,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 								}
 								mockStore.GetByIdReturns(respValue, nil)
 
-								getReq, _ := http.NewRequest("GET", "/v1/data?id="+respValue.Id, nil)
+								getReq, _ := generateHttpRequest("GET", "/v1/data?id="+respValue.Id, nil)
 								getRecorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(getRecorder, getReq)
 
@@ -156,7 +166,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 						Context("when configuration with id does not exist", func() {
 							It("should return 404 Not Found", func() {
-								req, _ := http.NewRequest("GET", "/v1/data?id=test", nil)
+								req, _ := generateHttpRequest("GET", "/v1/data?id=test", nil)
 								getRecorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(getRecorder, req)
 
@@ -176,7 +186,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 							mockStore.GetByKeyReturns(respValue, nil)
 							var counter int = 0
 							for path, extractedKey := range validUrlPaths {
-								getReq, _ := http.NewRequest("GET", path, nil)
+								getReq, _ := generateHttpRequest("GET", path, nil)
 								getRecorder := httptest.NewRecorder()
 
 								requestHandler.ServeHTTP(getRecorder, getReq)
@@ -205,7 +215,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 									}
 									mockStore.GetByKeyReturns(respValue, nil)
 
-									getReq, _ := http.NewRequest("GET", "/v1/data/bla/", nil)
+									getReq, _ := generateHttpRequest("GET", "/v1/data/bla/", nil)
 									getRecorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(getRecorder, getReq)
 
@@ -218,7 +228,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 						Context("when key does not exist", func() {
 							It("should return 404 Not Found", func() {
-								req, _ := http.NewRequest("GET", "/v1/data/test", nil)
+								req, _ := generateHttpRequest("GET", "/v1/data/test", nil)
 								getRecorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(getRecorder, req)
 
@@ -230,7 +240,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 							It("returns 500 Internal Server Error", func() {
 								mockStore.GetByKeyReturns(store.Configuration{}, errors.New("Kaboom!"))
 
-								getReq, _ := http.NewRequest("GET", "/v1/data/bla/", nil)
+								getReq, _ := generateHttpRequest("GET", "/v1/data/bla/", nil)
 								getRecorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(getRecorder, getReq)
 
@@ -250,7 +260,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 							var counter int = 0
 							for path, extractedKey := range validUrlPaths {
-								req, _ := http.NewRequest("PUT", path, strings.NewReader(`{"value":"str"}`))
+								req, _ := generateHttpRequest("PUT", path, strings.NewReader(`{"value":"str"}`))
 								putRecorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(putRecorder, req)
 
@@ -265,7 +275,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 						Context("when request body is NOT in the specified format", func() {
 							Context("when body is empty", func() {
 								It("should return 400 Bad Request", func() {
-									req, _ := http.NewRequest("PUT", "/v1/data/key", nil)
+									req, _ := generateHttpRequest("PUT", "/v1/data/key", nil)
 									putRecorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(putRecorder, req)
 
@@ -276,7 +286,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 							Context("when body is NOT JSON string", func() {
 								It("should return 400 Bad Request", func() {
-									req, _ := http.NewRequest("PUT", "/v1/data/key", strings.NewReader(`smurf`))
+									req, _ := generateHttpRequest("PUT", "/v1/data/key", strings.NewReader(`smurf`))
 									putRecorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(putRecorder, req)
 
@@ -287,7 +297,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 							Context("when body is JSON string but NOT as expected", func() {
 								It("should return 400 Bad Request", func() {
-									req, _ := http.NewRequest("PUT", "/v1/data/key", strings.NewReader(`{"smurf":"blue"}`))
+									req, _ := generateHttpRequest("PUT", "/v1/data/key", strings.NewReader(`{"smurf":"blue"}`))
 									putRecorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(putRecorder, req)
 
@@ -309,7 +319,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 							})
 
 							It("returns value, path and id in the response", func() {
-								req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader(`{"value":"str"}`))
+								req, _ := generateHttpRequest("PUT", "/v1/data/bla", strings.NewReader(`{"value":"str"}`))
 								putRecorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(putRecorder, req)
 
@@ -321,7 +331,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 							Context("when value is a string ", func() {
 								It("should store value in a specific JSON format and respond with 204 StatusNoContent", func() {
-									req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader(`{"value":"str"}`))
+									req, _ := generateHttpRequest("PUT", "/v1/data/bla", strings.NewReader(`{"value":"str"}`))
 									putRecorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(putRecorder, req)
 
@@ -336,7 +346,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 							Context("when value is a number", func() {
 								It("should store value in a specific JSON format and respond with 204 StatusNoContent", func() {
-									req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader(`{"value":123}`))
+									req, _ := generateHttpRequest("PUT", "/v1/data/bla", strings.NewReader(`{"value":123}`))
 									putRecorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(putRecorder, req)
 
@@ -354,7 +364,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 									requestBody := `{"value":{"age":10,"color":"red"}}`
 									valueToStore := `{"value":{"age":10,"color":"red"}}`
 
-									req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader(requestBody))
+									req, _ := generateHttpRequest("PUT", "/v1/data/bla", strings.NewReader(requestBody))
 									putRecorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(putRecorder, req)
 
@@ -378,7 +388,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 							var counter int = 0
 							for path, extractedKey := range validUrlPaths {
-								req, _ := http.NewRequest("POST", path, strings.NewReader(`{"type":"password","parameters":{}}`))
+								req, _ := generateHttpRequest("POST", path, strings.NewReader(`{"type":"password","parameters":{}}`))
 								recorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(recorder, req)
 
@@ -392,7 +402,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 						Context("when request body is NOT in the specified format", func() {
 							Context("when body is empty", func() {
 								It("should return 400 Bad Request", func() {
-									req, _ := http.NewRequest("POST", "/v1/data/key", nil)
+									req, _ := generateHttpRequest("POST", "/v1/data/key", nil)
 									recorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(recorder, req)
 
@@ -403,7 +413,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 							Context("when body is NOT JSON string", func() {
 								It("should return 400 Bad Request", func() {
-									req, _ := http.NewRequest("POST", "/v1/data/key", strings.NewReader("smurf"))
+									req, _ := generateHttpRequest("POST", "/v1/data/key", strings.NewReader("smurf"))
 									recorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(recorder, req)
 
@@ -414,7 +424,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 							Context("when body is JSON string but NOT as expected", func() {
 								It("should return 400 Bad Request", func() {
-									req, _ := http.NewRequest("POST", "/v1/data/key", strings.NewReader(`{"smurf":"blue"}`))
+									req, _ := generateHttpRequest("POST", "/v1/data/key", strings.NewReader(`{"smurf":"blue"}`))
 									recorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(recorder, req)
 
@@ -438,7 +448,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 											return respValue, nil
 										}
 
-										postReq, _ := http.NewRequest("POST", "/v1/data/bla/", strings.NewReader(`{"type":"password","parameters":{}}`))
+										postReq, _ := generateHttpRequest("POST", "/v1/data/bla/", strings.NewReader(`{"type":"password","parameters":{}}`))
 
 										recorder := httptest.NewRecorder()
 										requestHandler.ServeHTTP(recorder, postReq)
@@ -453,7 +463,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 									It("should return generated password", func() {
 										requestHandler, _ = NewRequestHandler(store.NewMemoryStore(), types.NewValueGeneratorConcrete(config.ServerConfig{}))
 
-										postReq, _ := http.NewRequest("POST", "/v1/data/bla/", strings.NewReader(`{"type":"password","parameters":{}}`))
+										postReq, _ := generateHttpRequest("POST", "/v1/data/bla/", strings.NewReader(`{"type":"password","parameters":{}}`))
 
 										recorder := httptest.NewRecorder()
 										requestHandler.ServeHTTP(recorder, postReq)
@@ -482,7 +492,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 											return respValue, nil
 										}
 
-										postReq, _ := http.NewRequest("POST", "/v1/data/bla/", strings.NewReader(`{"type":"certificate","parameters":{}}`))
+										postReq, _ := generateHttpRequest("POST", "/v1/data/bla/", strings.NewReader(`{"type":"certificate","parameters":{}}`))
 
 										recorder := httptest.NewRecorder()
 										requestHandler.ServeHTTP(recorder, postReq)
@@ -504,7 +514,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 											CA:          "fake-ca",
 										}, nil)
 
-										postReq, _ := http.NewRequest("POST", "/v1/data/bla/", strings.NewReader(`{"type":"certificate","parameters":{"common_name": "asdf", "alternative_names":["nam1", "name2"]}}`))
+										postReq, _ := generateHttpRequest("POST", "/v1/data/bla/", strings.NewReader(`{"type":"certificate","parameters":{"common_name": "asdf", "alternative_names":["nam1", "name2"]}}`))
 
 										recorder := httptest.NewRecorder()
 										requestHandler.ServeHTTP(recorder, postReq)
@@ -532,7 +542,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 							var counter int = 0
 							for path, extractedKey := range validUrlPaths {
-								req, _ := http.NewRequest("DELETE", path, nil)
+								req, _ := generateHttpRequest("DELETE", path, nil)
 
 								recorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(recorder, req)
@@ -548,7 +558,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 							})
 
 							It("should delete value", func() {
-								req, _ := http.NewRequest("DELETE", "/v1/data/bla", nil)
+								req, _ := generateHttpRequest("DELETE", "/v1/data/bla", nil)
 
 								putRecorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(putRecorder, req)
@@ -558,7 +568,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 							})
 
 							It("should return 204 Status No Content", func() {
-								req, _ := http.NewRequest("DELETE", "/v1/data/bla", nil)
+								req, _ := generateHttpRequest("DELETE", "/v1/data/bla", nil)
 								req.Header.Set("Authorization", "bearer fake-auth-header")
 
 								putRecorder := httptest.NewRecorder()
@@ -570,7 +580,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 						Context("Key does not exist", func() {
 							It("should return 404 Status Not Found", func() {
-								req, _ := http.NewRequest("DELETE", "/v1/data/bla", nil)
+								req, _ := generateHttpRequest("DELETE", "/v1/data/bla", nil)
 								req.Header.Set("Authorization", "bearer fake-auth-header")
 
 								putRecorder := httptest.NewRecorder()
