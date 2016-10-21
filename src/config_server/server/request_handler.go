@@ -77,6 +77,11 @@ func (handler requestHandler) handleGet(resWriter http.ResponseWriter, req *http
 }
 
 func (handler requestHandler) handlePut(resWriter http.ResponseWriter, req *http.Request) {
+	if contentTypeErr := handler.validateRequestContentType(req); contentTypeErr != nil {
+		http.Error(resWriter, contentTypeErr.Error(), http.StatusUnsupportedMediaType)
+		return
+	}
+
 	key, keyErr := handler.extractKeyFromURLPath(req.URL.Path)
 	if keyErr != nil {
 		http.Error(resWriter, keyErr.Error(), http.StatusBadRequest)
@@ -102,6 +107,11 @@ func (handler requestHandler) handlePut(resWriter http.ResponseWriter, req *http
 }
 
 func (handler requestHandler) handlePost(resWriter http.ResponseWriter, req *http.Request) {
+	if contentTypeErr := handler.validateRequestContentType(req); contentTypeErr != nil {
+		http.Error(resWriter, contentTypeErr.Error(), http.StatusUnsupportedMediaType)
+		return
+	}
+
 	key, keyErr := handler.extractKeyFromURLPath(req.URL.Path)
 	if keyErr != nil {
 		http.Error(resWriter, keyErr.Error(), http.StatusBadRequest)
@@ -261,4 +271,12 @@ func (handler requestHandler) extractKeyFromURLPath(path string) (string, error)
 	}
 
 	return strings.Join(tokens, "/"), nil
+}
+
+func (handler requestHandler) validateRequestContentType(req *http.Request) error {
+	if !strings.EqualFold(req.Header.Get("content-type"), "application/json") {
+		return errors.Error("Unsupported Media Type - Accepts application/json only")
+	}
+
+	return nil
 }

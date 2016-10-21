@@ -6,7 +6,9 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"bytes"
 	. "integration_tests/support"
+	"net/http"
 )
 
 var _ = Describe("Supported HTTP Methods", func() {
@@ -122,6 +124,19 @@ var _ = Describe("Supported HTTP Methods", func() {
 	})
 
 	Describe("PUT", func() {
+		It("fails if content-type in the header is not set to application/json", func() {
+			requestBytes := bytes.NewReader([]byte(`{"value":"smurf"`))
+			req, _ := http.NewRequest("PUT", SERVER_URL+"/v1/data/blah", requestBytes)
+			req.Header.Add("Authorization", "bearer "+ValidToken())
+
+			resp, err := HTTPSClient.Do(req)
+			Expect(resp.StatusCode).To(Equal(415))
+			Expect(err).To(BeNil())
+
+			body, _ := ioutil.ReadAll(resp.Body)
+			Expect(string(body)).To(ContainSubstring("Unsupported Media Type - Accepts application/json only"))
+		})
+
 		It("errors when key has invalid characters", func() {
 			resp, err := SendPutRequest("sm!urf/garg$amel/cat", "value")
 
@@ -198,6 +213,19 @@ var _ = Describe("Supported HTTP Methods", func() {
 	})
 
 	Describe("POST", func() {
+		It("fails if content-type in the header is not set to application/json", func() {
+			requestBytes := bytes.NewReader([]byte(`{"type":"password","parameters":{}}`))
+			req, _ := http.NewRequest("POST", SERVER_URL+"/v1/data/blah", requestBytes)
+			req.Header.Add("Authorization", "bearer "+ValidToken())
+
+			resp, err := HTTPSClient.Do(req)
+			Expect(resp.StatusCode).To(Equal(415))
+			Expect(err).To(BeNil())
+
+			body, _ := ioutil.ReadAll(resp.Body)
+			Expect(string(body)).To(ContainSubstring("Unsupported Media Type - Accepts application/json only"))
+		})
+
 		It("generates a new id and password for a new key", func() {
 			resp, _ := SendPostRequest("password-key", "password")
 			result := UnmarshalJsonString(resp.Body)

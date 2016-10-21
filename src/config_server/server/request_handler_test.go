@@ -36,7 +36,22 @@ func generateHttpRequest(method, urlStr string, body io.Reader) (*http.Request, 
 		return nil, err
 	}
 
+	methodsWithContentType := []string{"PUT", "POST"}
+
+	if stringInSlice(method, methodsWithContentType) {
+		req.Header.Add("Content-Type", "application/json")
+	}
+
 	return req, nil
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
 }
 
 var _ = Describe("RequestHandlerConcrete", func() {
@@ -250,6 +265,15 @@ var _ = Describe("RequestHandlerConcrete", func() {
 					})
 
 					Describe("PUT", func() {
+						It("throws an error if request header content type is not application/json", func() {
+							req, _ := http.NewRequest("PUT", "/v1/data/key", strings.NewReader(`{"value":"str"}`))
+							putRecorder := httptest.NewRecorder()
+							requestHandler.ServeHTTP(putRecorder, req)
+
+							Expect(putRecorder.Body.String()).To(ContainSubstring("Unsupported Media Type - Accepts application/json only"))
+							Expect(putRecorder.Code).To(Equal(http.StatusUnsupportedMediaType))
+						})
+
 						It("can handle all types of validkeys", func() {
 							config := store.Configuration{
 								Key:   "bla",
@@ -380,6 +404,15 @@ var _ = Describe("RequestHandlerConcrete", func() {
 					})
 
 					Describe("POST", func() {
+						It("throws an error if request header content type is not application/json", func() {
+							req, _ := http.NewRequest("POST", "/v1/data/key", strings.NewReader(`{"type":"password","parameters":{}}`))
+							postRecorder := httptest.NewRecorder()
+							requestHandler.ServeHTTP(postRecorder, req)
+
+							Expect(postRecorder.Body.String()).To(ContainSubstring("Unsupported Media Type - Accepts application/json only"))
+							Expect(postRecorder.Code).To(Equal(http.StatusUnsupportedMediaType))
+						})
+
 						It("can handle all types of validkeys", func() {
 							respValue := store.Configuration{
 								Value: `{"value":"anything"}`,

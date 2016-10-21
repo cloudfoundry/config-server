@@ -114,6 +114,7 @@ Request Body:
 | 200 | Call successful - key value was added |
 | 400 | Bad Request |
 | 401 | Not Authorized |
+| 415 | Unsupported Media Type |
 | 500 | Server Error |
 
 ---
@@ -185,6 +186,7 @@ It returns an array of the following object:
 | 201 | Call successful |
 | 400 | Bad Request |
 | 401 | Not Authorized |
+| 415 | Unsupported Media Type |
 | 500 | Server Error |
 
 ##### Sample Response

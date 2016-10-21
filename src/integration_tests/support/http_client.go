@@ -35,6 +35,7 @@ func SendPutRequest(key string, value interface{}) (*http.Response, error) {
 
 	req, _ := http.NewRequest("PUT", SERVER_URL+"/v1/data/"+key, bytes.NewReader(requestBytes))
 	req.Header.Add("Authorization", "bearer "+ValidToken())
+	req.Header.Add("Content-Type", "application/json")
 
 	return HTTPSClient.Do(req)
 }
@@ -51,6 +52,7 @@ func SendPostRequest(key string, valueType string) (*http.Response, error) {
 
 	req, _ := http.NewRequest("POST", SERVER_URL+"/v1/data/"+key, requestBytes)
 	req.Header.Add("Authorization", "bearer "+ValidToken())
+	req.Header.Add("Content-Type", "application/json")
 
 	return HTTPSClient.Do(req)
 }
