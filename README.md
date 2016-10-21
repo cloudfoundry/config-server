@@ -1,27 +1,14 @@
 ## Config Server
 
 
-
-Job            | Status  
+Concourse Job  | Status  
 :------------: | -------------
-Unit tests     | ![Resize icon][badge-test-unit] 
-Integration tests In Memory  | ![Resize icon][badge-test-integration-in-memory]
-Integration tests Mysql  | ![Resize icon][badge-test-integration-mysql]
-Integration tests Postgresql  | ![Resize icon][badge-test-integration-postgresql]
-BOSH Release   | ![Resize icon][badge-bosh-release]
-Go Formatting| ![Resize icon][badge-test-gofmt]   
-
-[badge-test-unit]: https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-unit/badge
-
-[badge-test-integration-in-memory]: https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-integration-in-memory/badge
-
-[badge-test-integration-mysql]: https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-integration-mysql/badge
-
-[badge-test-integration-postgresql]: https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-integration-postgresql/badge
-
-[badge-bosh-release]: https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/bosh-release/badge
-
-[badge-test-gofmt]: https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-gofmt/badge
+Unit tests     | [![bosh-ci.cf-app.com](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-unit/badge)](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-unit)
+Integration tests In Memory  | [![bosh-ci.cf-app.com](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-integration-in-memory/badge)](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-integration-in-memory)
+Integration tests Mysql  | [![bosh-ci.cf-app.com](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-integration-mysql/badge)](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-integration-mysql)
+Integration tests Postgresql  | [![bosh-ci.cf-app.com](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-integration-postgresql/badge)](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-integration-postgresql)
+BOSH Release   | [![bosh-ci.cf-app.com](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/bosh-release/badge)](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/bosh-release)
+Go Formatting| [![bosh-ci.cf-app.com](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-gofmt/badge)](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-gofmt)
 
 __CI :__ <https://main.bosh-ci.cf-app.com/teams/main/pipelines/config-server> <br>
 
