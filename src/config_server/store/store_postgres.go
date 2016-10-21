@@ -13,7 +13,7 @@ func NewPostgresStore(dbProvider DbProvider) Store {
 	return postgresStore{dbProvider}
 }
 
-func (ps postgresStore) Put(key string, value string) error {
+func (ps postgresStore) Put(name string, value string) error {
 
 	db, err := ps.dbProvider.Db()
 	if err != nil {
@@ -21,15 +21,15 @@ func (ps postgresStore) Put(key string, value string) error {
 	}
 	defer db.Close()
 
-	_, err = db.Exec("INSERT INTO configurations (config_key, value) VALUES($1, $2)", key, value)
+	_, err = db.Exec("INSERT INTO configurations (name, value) VALUES($1, $2)", name, value)
 	if err != nil {
-		_, err = db.Exec("UPDATE configurations SET value=$1 WHERE config_key=$2", value, key)
+		_, err = db.Exec("UPDATE configurations SET value=$1 WHERE name=$2", value, name)
 	}
 
 	return err
 }
 
-func (ps postgresStore) GetByKey(key string) (Configuration, error) {
+func (ps postgresStore) GetByName(name string) (Configuration, error) {
 	result := Configuration{}
 
 	db, err := ps.dbProvider.Db()
@@ -38,7 +38,7 @@ func (ps postgresStore) GetByKey(key string) (Configuration, error) {
 	}
 	defer db.Close()
 
-	err = db.QueryRow("SELECT id, config_key, value FROM configurations WHERE config_key = $1 ORDER BY id DESC LIMIT 1", key).Scan(&result.Id, &result.Key, &result.Value)
+	err = db.QueryRow("SELECT id, name, value FROM configurations WHERE name = $1 ORDER BY id DESC LIMIT 1", name).Scan(&result.Id, &result.Name, &result.Value)
 	if err == sql.ErrNoRows {
 		return result, nil
 	}
@@ -60,7 +60,7 @@ func (ps postgresStore) GetById(id string) (Configuration, error) {
 	}
 	defer db.Close()
 
-	err = db.QueryRow("SELECT id, config_key, value FROM configurations WHERE id = $1", id).Scan(&result.Id, &result.Key, &result.Value)
+	err = db.QueryRow("SELECT id, name, value FROM configurations WHERE id = $1", id).Scan(&result.Id, &result.Name, &result.Value)
 	if err == sql.ErrNoRows {
 		return result, nil
 	}
@@ -68,7 +68,7 @@ func (ps postgresStore) GetById(id string) (Configuration, error) {
 	return result, err
 }
 
-func (ps postgresStore) Delete(key string) (bool, error) {
+func (ps postgresStore) Delete(name string) (bool, error) {
 
 	db, err := ps.dbProvider.Db()
 	if err != nil {
@@ -76,7 +76,7 @@ func (ps postgresStore) Delete(key string) (bool, error) {
 	}
 	defer db.Close()
 
-	result, err := db.Exec("DELETE FROM configurations WHERE config_key = $1", key)
+	result, err := db.Exec("DELETE FROM configurations WHERE name = $1", name)
 	if (err != nil) || (result == nil) {
 		return false, err
 	}

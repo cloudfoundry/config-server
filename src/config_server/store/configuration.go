@@ -6,7 +6,7 @@ import (
 
 type Configuration struct {
 	Id    string
-	Key   string
+	Name  string
 	Value string
 }
 
@@ -16,7 +16,7 @@ func (rv Configuration) StringifiedJSON() (string, error) {
 	err := json.Unmarshal([]byte(rv.Value), &val)
 
 	val["id"] = rv.Id
-	val["path"] = rv.Key
+	val["name"] = rv.Name
 	bytes, err := json.Marshal(&val)
 
 	return string(bytes), err

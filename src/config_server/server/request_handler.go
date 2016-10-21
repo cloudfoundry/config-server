@@ -42,20 +42,20 @@ func (handler requestHandler) ServeHTTP(resWriter http.ResponseWriter, req *http
 }
 
 func (handler requestHandler) handleGet(resWriter http.ResponseWriter, req *http.Request) {
-	key, keyErr := handler.extractKeyFromURLPath(req.URL.Path)
+	name, nameErr := handler.extractNameFromURLPath(req.URL.Path)
 
 	_, idExists := req.URL.Query()["id"]
 
-	if keyErr != nil && idExists != true {
-		http.Error(resWriter, keyErr.Error(), http.StatusBadRequest)
+	if nameErr != nil && idExists != true {
+		http.Error(resWriter, nameErr.Error(), http.StatusBadRequest)
 		return
 	}
 
 	var value store.Configuration
 	var err error
 
-	if key != "" && keyErr == nil {
-		value, err = handler.store.GetByKey(key)
+	if name != "" && nameErr == nil {
+		value, err = handler.store.GetByName(name)
 	} else {
 		id := req.URL.Query().Get("id")
 		value, err = handler.store.GetById(id)
@@ -82,9 +82,9 @@ func (handler requestHandler) handlePut(resWriter http.ResponseWriter, req *http
 		return
 	}
 
-	key, keyErr := handler.extractKeyFromURLPath(req.URL.Path)
-	if keyErr != nil {
-		http.Error(resWriter, keyErr.Error(), http.StatusBadRequest)
+	name, nameErr := handler.extractNameFromURLPath(req.URL.Path)
+	if nameErr != nil {
+		http.Error(resWriter, nameErr.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -95,7 +95,7 @@ func (handler requestHandler) handlePut(resWriter http.ResponseWriter, req *http
 		return
 	}
 
-	configuration, err := handler.saveToStore(key, value)
+	configuration, err := handler.saveToStore(name, value)
 
 	if err != nil {
 		http.Error(resWriter, err.Error(), http.StatusInternalServerError)
@@ -112,9 +112,9 @@ func (handler requestHandler) handlePost(resWriter http.ResponseWriter, req *htt
 		return
 	}
 
-	key, keyErr := handler.extractKeyFromURLPath(req.URL.Path)
-	if keyErr != nil {
-		http.Error(resWriter, keyErr.Error(), http.StatusBadRequest)
+	name, nameErr := handler.extractNameFromURLPath(req.URL.Path)
+	if nameErr != nil {
+		http.Error(resWriter, nameErr.Error(), http.StatusBadRequest)
 		return
 	}
 	generationType, parameters, err := handler.readPostRequest(req)
@@ -126,7 +126,7 @@ func (handler requestHandler) handlePost(resWriter http.ResponseWriter, req *htt
 
 	emptyValue := store.Configuration{}
 
-	value, err := handler.store.GetByKey(key)
+	value, err := handler.store.GetByName(name)
 	if value != emptyValue {
 		result, _ := value.StringifiedJSON()
 		handler.respond(resWriter, result, http.StatusOK)
@@ -144,7 +144,7 @@ func (handler requestHandler) handlePost(resWriter http.ResponseWriter, req *htt
 			return
 		}
 
-		configuration, err := handler.saveToStore(key, generatedValue)
+		configuration, err := handler.saveToStore(name, generatedValue)
 		if err != nil {
 			http.Error(resWriter, err.Error(), http.StatusInternalServerError)
 			return
@@ -156,12 +156,12 @@ func (handler requestHandler) handlePost(resWriter http.ResponseWriter, req *htt
 }
 
 func (handler requestHandler) handleDelete(resWriter http.ResponseWriter, req *http.Request) {
-	key, keyErr := handler.extractKeyFromURLPath(req.URL.Path)
-	if keyErr != nil {
-		http.Error(resWriter, keyErr.Error(), http.StatusBadRequest)
+	name, nameErr := handler.extractNameFromURLPath(req.URL.Path)
+	if nameErr != nil {
+		http.Error(resWriter, nameErr.Error(), http.StatusBadRequest)
 		return
 	}
-	deleted, err := handler.store.Delete(key)
+	deleted, err := handler.store.Delete(name)
 
 	if err == nil {
 		if deleted {
@@ -174,7 +174,7 @@ func (handler requestHandler) handleDelete(resWriter http.ResponseWriter, req *h
 	}
 }
 
-func (handler requestHandler) saveToStore(key string, value interface{}) (store.Configuration, error) {
+func (handler requestHandler) saveToStore(name string, value interface{}) (store.Configuration, error) {
 	configValue := make(map[string]interface{})
 	configValue["value"] = value
 
@@ -184,12 +184,12 @@ func (handler requestHandler) saveToStore(key string, value interface{}) (store.
 		return store.Configuration{}, err
 	}
 
-	err = handler.store.Put(key, string(bytes))
+	err = handler.store.Put(name, string(bytes))
 	if err != nil {
 		return store.Configuration{}, err
 	}
 
-	configuration, err := handler.store.GetByKey(key)
+	configuration, err := handler.store.GetByName(name)
 	if err != nil {
 		return store.Configuration{}, err
 	}
@@ -213,8 +213,8 @@ func (handler requestHandler) readPutRequest(req *http.Request) (interface{}, er
 		return nil, err
 	}
 
-	value, keyExist := jsonMap["value"]
-	if !keyExist {
+	value, keyExists := jsonMap["value"]
+	if !keyExists {
 		return nil, errors.Error("JSON request body shoud contain the key 'value'")
 	}
 
@@ -253,20 +253,20 @@ func (handler requestHandler) readJSONBody(req *http.Request) (map[string]interf
 	return f.(map[string]interface{}), nil
 }
 
-func (handler requestHandler) extractKeyFromURLPath(path string) (string, error) {
+func (handler requestHandler) extractNameFromURLPath(path string) (string, error) {
 	paths := strings.Split(strings.Trim(path, "/"), "/")
 
 	if len(paths) < 3 {
-		return "", errors.Error("Request URL invalid, seems to be missing key")
+		return "", errors.Error("Request URL invalid, seems to be missing name")
 	}
 
 	tokens := paths[2:]
 
-	var validKeyToken = regexp.MustCompile(`^[a-zA-Z0-9_\-]+$`)
+	var validNameToken = regexp.MustCompile(`^[a-zA-Z0-9_\-]+$`)
 
 	for _, token := range tokens {
-		if !validKeyToken.MatchString(token) {
-			return "", errors.Error("Key must consist of alphanumeric, underscores, dashes, and forward slashes")
+		if !validNameToken.MatchString(token) {
+			return "", errors.Error("Name must consist of alphanumeric, underscores, dashes, and forward slashes")
 		}
 	}
 

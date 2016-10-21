@@ -12,7 +12,7 @@ func NewMysqlStore(dbProvider DbProvider) Store {
 	return mysqlStore{dbProvider}
 }
 
-func (ms mysqlStore) Put(key string, value string) error {
+func (ms mysqlStore) Put(name string, value string) error {
 
 	db, err := ms.dbProvider.Db()
 	if err != nil {
@@ -20,16 +20,16 @@ func (ms mysqlStore) Put(key string, value string) error {
 	}
 	defer db.Close()
 
-	_, err = db.Exec("INSERT INTO configurations (config_key, value) VALUES(?,?)", key, value)
+	_, err = db.Exec("INSERT INTO configurations (name, value) VALUES(?,?)", name, value)
 
 	if err != nil {
-		_, err = db.Exec("UPDATE configurations SET value = ? WHERE config_key = ?", value, key)
+		_, err = db.Exec("UPDATE configurations SET value = ? WHERE name = ?", value, name)
 	}
 
 	return err
 }
 
-func (ms mysqlStore) GetByKey(key string) (Configuration, error) {
+func (ms mysqlStore) GetByName(name string) (Configuration, error) {
 	result := Configuration{}
 
 	db, err := ms.dbProvider.Db()
@@ -38,7 +38,7 @@ func (ms mysqlStore) GetByKey(key string) (Configuration, error) {
 	}
 	defer db.Close()
 
-	err = db.QueryRow("SELECT id, config_key, value FROM configurations WHERE config_key = ? ORDER BY id DESC LIMIT 1", key).Scan(&result.Id, &result.Key, &result.Value)
+	err = db.QueryRow("SELECT id, name, value FROM configurations WHERE name = ? ORDER BY id DESC LIMIT 1", name).Scan(&result.Id, &result.Name, &result.Value)
 	if err == sql.ErrNoRows {
 		return result, nil
 	}
@@ -46,7 +46,7 @@ func (ms mysqlStore) GetByKey(key string) (Configuration, error) {
 	return result, err
 }
 
-func (ms mysqlStore) GetById(key string) (Configuration, error) {
+func (ms mysqlStore) GetById(id string) (Configuration, error) {
 	result := Configuration{}
 
 	db, err := ms.dbProvider.Db()
@@ -55,7 +55,7 @@ func (ms mysqlStore) GetById(key string) (Configuration, error) {
 	}
 	defer db.Close()
 
-	err = db.QueryRow("SELECT id, config_key, value FROM configurations WHERE id = ?", key).Scan(&result.Id, &result.Key, &result.Value)
+	err = db.QueryRow("SELECT id, name, value FROM configurations WHERE id = ?", id).Scan(&result.Id, &result.Name, &result.Value)
 	if err == sql.ErrNoRows {
 		return result, nil
 	}
@@ -63,7 +63,7 @@ func (ms mysqlStore) GetById(key string) (Configuration, error) {
 	return result, err
 }
 
-func (ms mysqlStore) Delete(key string) (bool, error) {
+func (ms mysqlStore) Delete(name string) (bool, error) {
 
 	db, err := ms.dbProvider.Db()
 	if err != nil {
@@ -71,7 +71,7 @@ func (ms mysqlStore) Delete(key string) (bool, error) {
 	}
 	defer db.Close()
 
-	result, err := db.Exec("DELETE FROM configurations WHERE config_key = ?", key)
+	result, err := db.Exec("DELETE FROM configurations WHERE name = ?", name)
 	if (err != nil) || (result == nil) {
 		return false, err
 	}

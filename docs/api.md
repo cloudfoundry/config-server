@@ -1,14 +1,14 @@
 ## API Docs (WIP)
 This document describes the APIs exposed by the **Config Server**.
 
-### 1 - Get Key Value
+### 1 - Get Name Value
 ```
-GET /v1/data/:key-path
+GET /v1/data/:name
 ```
 
 | Name | Description |
 | ---- | ----------- |
-| key-path | Full path to key |
+| name | Full path |
 
 ##### Response Body
 `Content-Type: application/json`
@@ -16,7 +16,7 @@ GET /v1/data/:key-path
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | id | string | Unique Id |
-| path | string | Full path to key |
+| path | string | Full path |
 | value | JSON Object | Any valid JSON object |
 
 ##### Response Codes
@@ -25,7 +25,7 @@ GET /v1/data/:key-path
 | 200 | Status OK |
 | 400 | Bad Request |
 | 401 | Not Authorized |
-| 404 | Key not found |
+| 404 | Name not found |
 | 500 | Server Error |
 
 ##### Sample Requests/Responses
@@ -36,7 +36,7 @@ Response:
 ``` JSON
 {
   "id": "some_id",
-  "path": "color",
+  "name": "color",
   "value": "blue"
 }
 ```
@@ -49,7 +49,7 @@ Response:
 ``` JSON
 {
   "id": "some_id",
-  "path": "server/tomcat/port",
+  "name": "server/tomcat/port",
   "value": 8080
 }
 ```
@@ -62,7 +62,7 @@ Response:
 ``` JSON
 {
   "id": "some_id",
-  "path": "server/tomcat/port",
+  "name": "server/tomcat/port",
   "value": {
     "cert": "my-cert",
     "private-key": "my private key"
@@ -72,14 +72,14 @@ Response:
 
 ---
 
-### 2 - Set Key Value
+### 2 - Set Name Value
 ```
-PUT /v1/data/:key-path
+PUT /v1/data/:name
 ```
 
 | Name | Description |
 | ---- | ----------- |
-| key-path | Full path to key |
+| name | Full path |
 
 ##### Request Body
 `Content-Type: application/json`
@@ -90,7 +90,7 @@ PUT /v1/data/:key-path
 
 ##### Sample Request
 
-`PUT /v1/data/full/path/to/key`
+`PUT /v1/data/full/path/to/name`
 
 Request Body:
 ```
@@ -105,13 +105,13 @@ Request Body:
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | id | string | Unique Id |
-| path | string | Full path to key |
+| path | string | Full path |
 | value | JSON Object | Any valid JSON object |
 
 ##### Response Codes
 | Code | Description |
 | ---- | ----------- |
-| 200 | Call successful - key value was added |
+| 200 | Call successful - name value was added |
 | 400 | Bad Request |
 | 401 | Not Authorized |
 | 415 | Unsupported Media Type |
@@ -122,12 +122,12 @@ Request Body:
 ### 3 - Generate password/certificate
 
 ```
-POST /v1/data/:key-path
+POST /v1/data/:name
 ```
 
 | Name | Description |
 | ---- | ----------- |
-| key-path | Full path to key |
+| name | Full path |
 
 ##### Request Body
 `Content-Type: application/json`
@@ -177,7 +177,7 @@ It returns an array of the following object:
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | id | string | Unique Id |
-| path | string | key  |
+| name | string | Full path  |
 | value | JSON Object | value generated |
 
 ##### Response Codes
@@ -194,7 +194,7 @@ It returns an array of the following object:
 ```
 {
   "id": "some_id",
-  "path": "/mypasswd",
+  "name": "/mypasswd",
   "value":"49cek4ow75ev5zw4t3v3"
 }
 ```
@@ -202,7 +202,7 @@ It returns an array of the following object:
 ``` 
 {
   "id": "some_id",
-  "path":"/mycert",
+  "name":"/mycert",
   "value": {
     "ca" : "---- Root CA Certificate ----",
     "certificate": "---- Generated Certificate. Signed by rootCA ----",
@@ -211,24 +211,24 @@ It returns an array of the following object:
 }
 ```
 
-### 4 - Delete Key
+### 4 - Delete Name
 ```
-DELETE /v1/data/:key-path
+DELETE /v1/data/:name
 ```
 
 | Name | Description |
 | ---- | ----------- |
-| key-path | Full path to key |
+| name | Full path |
 
 
 ##### Sample Request
 
-`DELETE /v1/data/full/path/to/key`
+`DELETE /v1/data/full/path/to/name`
 
 ##### Response Codes
 | Code | Description |
 | ---- | ----------- |
-| 204 | Call successful - key was deleted |
+| 204 | Call successful - name was deleted |
 | 400 | Bad Request |
 | 401 | Not Authorized |
 | 404 | Not Found |

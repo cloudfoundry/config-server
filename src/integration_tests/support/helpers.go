@@ -79,7 +79,7 @@ func SetupDB() {
 
 func waitForServerToStart() {
 	for i := 0; i < SECONDS_WAIT_FOR_SERVER_TO_START; i++ {
-		resp, err := SendGetRequestByKey("key")
+		resp, err := SendGetRequestByName("some_name")
 
 		if err == nil && resp.StatusCode == 404 {
 			break
@@ -95,7 +95,7 @@ func waitForServerToStart() {
 
 func waitForServerToStop() {
 	for i := 0; i < SECONDS_WAIT_FOR_SERVER_TO_START; i++ {
-		_, err := SendGetRequestByKey("key")
+		_, err := SendGetRequestByName("some_name")
 
 		if err != nil {
 			break

@@ -24,23 +24,23 @@ var _ = Describe("MemoryStore", func() {
 
 			It("generates a unique id for new record", func() {
 				store.Put("key1", "value1")
-				value1, _ := store.GetByKey("key1")
+				value1, _ := store.GetByName("key1")
 				store.Put("key2", "value2")
-				value2, _ := store.GetByKey("key2")
+				value2, _ := store.GetByName("key2")
 
 				Expect(value1.Id).To(Equal("0"))
 				Expect(value2.Id).To(Equal("1"))
 			})
 		})
 
-		Context("GetByKey", func() {
+		Context("GetByName", func() {
 			It("should return associated value", func() {
-				store.Put("some_key", "some_value")
-				returnedValue, err := store.GetByKey("some_key")
+				store.Put("some_name", "some_value")
+				returnedValue, err := store.GetByName("some_name")
 				Expect(err).To(BeNil())
 				Expect(returnedValue).To(Equal(Configuration{
 					Id:    "0",
-					Key:   "some_key",
+					Name:  "some_name",
 					Value: "some_value",
 				}))
 			})
@@ -48,47 +48,47 @@ var _ = Describe("MemoryStore", func() {
 
 		Context("GetById", func() {
 			It("should return associated value", func() {
-				store.Put("some_key", "some_value")
+				store.Put("some_name", "some_value")
 
 				configuration, err := store.GetById("0")
 				Expect(err).To(BeNil())
 				Expect(configuration).To(Equal(Configuration{
 					Id:    "0",
-					Key:   "some_key",
+					Name:  "some_name",
 					Value: "some_value",
 				}))
 			})
 		})
 
 		Context("Delete", func() {
-			Context("Key exists", func() {
+			Context("Name exists", func() {
 				BeforeEach(func() {
-					store.Put("some_key", "some_value")
-					value, err := store.GetByKey("some_key")
+					store.Put("some_name", "some_value")
+					value, err := store.GetByName("some_name")
 					Expect(err).To(BeNil())
 					Expect(value).To(Equal(Configuration{
 						Id:    "0",
-						Key:   "some_key",
+						Name:  "some_name",
 						Value: "some_value",
 					}))
 				})
 
 				It("removes value", func() {
-					store.Delete("some_key")
+					store.Delete("some_name")
 
-					value, err := store.GetByKey("some_key")
+					value, err := store.GetByName("some_name")
 					Expect(err).To(BeNil())
 					Expect(value).To(Equal(Configuration{}))
 				})
 
 				It("returns true", func() {
-					deleted, err := store.Delete("some_key")
+					deleted, err := store.Delete("some_name")
 					Expect(err).To(BeNil())
 					Expect(deleted).To(BeTrue())
 				})
 			})
 
-			Context("Key does not exist", func() {
+			Context("Name does not exist", func() {
 				It("returns false", func() {
 					deleted, err := store.Delete("fake_key")
 					Expect(deleted).To(BeFalse())

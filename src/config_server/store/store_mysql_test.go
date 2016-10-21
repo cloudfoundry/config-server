@@ -31,25 +31,25 @@ var _ = Describe("StoreMysql", func() {
 		store = NewMysqlStore(fakeDbProvider)
 	})
 
-	Describe("GetByKey", func() {
+	Describe("GetByName", func() {
 
 		It("closes db connection on exit", func() {
 			fakeDb.QueryRowReturns(&fakes.FakeIRow{})
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
-			store.GetByKey("Luke")
+			store.GetByName("Luke")
 			Expect(fakeDb.CloseCallCount()).To(Equal(1))
 		})
 
-		It("queries the database for the latest entry for a given key", func() {
+		It("queries the database for the latest entry for a given name", func() {
 			fakeDb.QueryRowReturns(&fakes.FakeIRow{})
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
-			_, err := store.GetByKey("Luke")
+			_, err := store.GetByName("Luke")
 			Expect(err).To(BeNil())
 			query, _ := fakeDb.QueryRowArgsForCall(0)
 
-			Expect(query).To(Equal("SELECT id, config_key, value FROM configurations WHERE config_key = ? ORDER BY id DESC LIMIT 1"))
+			Expect(query).To(Equal("SELECT id, name, value FROM configurations WHERE name = ? ORDER BY id DESC LIMIT 1"))
 			Expect(fakeDb.CloseCallCount()).To(Equal(1))
 		})
 
@@ -58,7 +58,7 @@ var _ = Describe("StoreMysql", func() {
 				idPtr, ok := dest[0].(*string)
 				Expect(ok).To(BeTrue())
 
-				keyPtr, ok := dest[1].(*string)
+				namePtr, ok := dest[1].(*string)
 				Expect(ok).To(BeTrue())
 
 				valuePtr, ok := dest[2].(*string)
@@ -66,7 +66,7 @@ var _ = Describe("StoreMysql", func() {
 
 				*idPtr = "some_id"
 				*valuePtr = "Skywalker"
-				*keyPtr = "Luke"
+				*namePtr = "Luke"
 
 				return nil
 			}
@@ -74,12 +74,12 @@ var _ = Describe("StoreMysql", func() {
 			fakeDb.QueryRowReturns(fakeRow)
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
-			value, err := store.GetByKey("Luke")
+			value, err := store.GetByName("Luke")
 			Expect(err).To(BeNil())
 			Expect(value).To(Equal(Configuration{
 				Id:    "some_id",
 				Value: "Skywalker",
-				Key:   "Luke",
+				Name:  "Luke",
 			}))
 		})
 
@@ -89,7 +89,7 @@ var _ = Describe("StoreMysql", func() {
 			fakeDb.QueryRowReturns(fakeRow)
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
-			value, err := store.GetByKey("luke")
+			value, err := store.GetByName("luke")
 			Expect(err).To(BeNil())
 			Expect(value).To(Equal(Configuration{}))
 		})
@@ -98,7 +98,7 @@ var _ = Describe("StoreMysql", func() {
 			dbError := errors.New("connection failure")
 			fakeDbProvider.DbReturns(nil, dbError)
 
-			_, err := store.GetByKey("luke")
+			_, err := store.GetByName("luke")
 			Expect(err).ToNot(BeNil())
 			Expect(err).To(Equal(dbError))
 		})
@@ -110,7 +110,7 @@ var _ = Describe("StoreMysql", func() {
 			fakeDb.QueryRowReturns(fakeRow)
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
-			_, err := store.GetByKey("luke")
+			_, err := store.GetByName("luke")
 			Expect(err).ToNot(BeNil())
 			Expect(err).To(Equal(scanError))
 		})
@@ -134,7 +134,7 @@ var _ = Describe("StoreMysql", func() {
 			Expect(err).To(BeNil())
 			query, _ := fakeDb.QueryRowArgsForCall(0)
 
-			Expect(query).To(Equal("SELECT id, config_key, value FROM configurations WHERE id = ?"))
+			Expect(query).To(Equal("SELECT id, name, value FROM configurations WHERE id = ?"))
 			Expect(fakeDb.CloseCallCount()).To(Equal(1))
 		})
 
@@ -143,7 +143,7 @@ var _ = Describe("StoreMysql", func() {
 				idPtr, ok := dest[0].(*string)
 				Expect(ok).To(BeTrue())
 
-				keyPtr, ok := dest[1].(*string)
+				namePtr, ok := dest[1].(*string)
 				Expect(ok).To(BeTrue())
 
 				valuePtr, ok := dest[2].(*string)
@@ -151,7 +151,7 @@ var _ = Describe("StoreMysql", func() {
 
 				*idPtr = "54"
 				*valuePtr = "Skywalker"
-				*keyPtr = "Luke"
+				*namePtr = "Luke"
 
 				return nil
 			}
@@ -164,7 +164,7 @@ var _ = Describe("StoreMysql", func() {
 			Expect(value).To(Equal(Configuration{
 				Id:    "54",
 				Value: "Skywalker",
-				Key:   "Luke",
+				Name:  "Luke",
 			}))
 		})
 
@@ -210,7 +210,7 @@ var _ = Describe("StoreMysql", func() {
 			Expect(fakeDb.CloseCallCount()).To(Equal(1))
 		})
 
-		It("does an insert when key does not exist in database", func() {
+		It("does an insert when name does not exist in database", func() {
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
 			err := store.Put("Luke", "Skywalker")
@@ -219,13 +219,13 @@ var _ = Describe("StoreMysql", func() {
 			Expect(fakeDb.ExecCallCount()).To(Equal(1))
 
 			query, values := fakeDb.ExecArgsForCall(0)
-			Expect(query).To(Equal("INSERT INTO configurations (config_key, value) VALUES(?,?)"))
+			Expect(query).To(Equal("INSERT INTO configurations (name, value) VALUES(?,?)"))
 
 			Expect(values[0]).To(Equal("Luke"))
 			Expect(values[1]).To(Equal("Skywalker"))
 		})
 
-		It("does an update when key exists in database", func() {
+		It("does an update when name exists in database", func() {
 			fakeDb.ExecReturns(nil, errors.New("duplicate"))
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
@@ -234,12 +234,12 @@ var _ = Describe("StoreMysql", func() {
 			Expect(fakeDb.ExecCallCount()).To(Equal(2))
 
 			query, values := fakeDb.ExecArgsForCall(0)
-			Expect(query).To(Equal("INSERT INTO configurations (config_key, value) VALUES(?,?)"))
+			Expect(query).To(Equal("INSERT INTO configurations (name, value) VALUES(?,?)"))
 			Expect(values[0]).To(Equal("Luke"))
 			Expect(values[1]).To(Equal("Skywalker"))
 
 			query, values = fakeDb.ExecArgsForCall(1)
-			Expect(query).To(Equal("UPDATE configurations SET value = ? WHERE config_key = ?"))
+			Expect(query).To(Equal("UPDATE configurations SET value = ? WHERE name = ?"))
 			Expect(values[0]).To(Equal("Skywalker"))
 			Expect(values[1]).To(Equal("Luke"))
 		})
@@ -253,7 +253,7 @@ var _ = Describe("StoreMysql", func() {
 			Expect(fakeDb.CloseCallCount()).To(Equal(1))
 		})
 
-		Context("Key exists", func() {
+		Context("Name exists", func() {
 
 			BeforeEach(func() {
 				fakeDbProvider.DbReturns(fakeDb, nil)
@@ -267,7 +267,7 @@ var _ = Describe("StoreMysql", func() {
 
 				Expect(fakeDb.ExecCallCount()).To(Equal(1))
 				query, value := fakeDb.ExecArgsForCall(0)
-				Expect(query).To(Equal("DELETE FROM configurations WHERE config_key = ?"))
+				Expect(query).To(Equal("DELETE FROM configurations WHERE name = ?"))
 				Expect(value[0]).To(Equal("Luke"))
 			})
 
@@ -279,7 +279,7 @@ var _ = Describe("StoreMysql", func() {
 			})
 		})
 
-		Context("Key does not exist", func() {
+		Context("Name does not exist", func() {
 
 			BeforeEach(func() {
 				fakeDbProvider.DbReturns(fakeDb, nil)
@@ -289,7 +289,7 @@ var _ = Describe("StoreMysql", func() {
 			})
 
 			It("returns false", func() {
-				deleted, err := store.Delete("key")
+				deleted, err := store.Delete("name")
 				Expect(deleted).To(BeFalse())
 				Expect(err).To(BeNil())
 			})

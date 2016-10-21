@@ -24,60 +24,60 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 	Describe("GET", func() {
 
-		Describe("Lookup by key", func() {
-			It("errors when key has invalid characters", func() {
-				resp, err := SendGetRequestByKey("sm!urf/garg$amel/cat")
+		Describe("Lookup by name", func() {
+			It("errors when name has invalid characters", func() {
+				resp, err := SendGetRequestByName("sm!urf/garg$amel/cat")
 
 				Expect(err).To(BeNil())
 				Expect(resp.StatusCode).To(Equal(400))
 
 				body, _ := ioutil.ReadAll(resp.Body)
-				Expect(string(body)).To(ContainSubstring("Key must consist of alphanumeric, underscores, dashes, and forward slashes"))
+				Expect(string(body)).To(ContainSubstring("Name must consist of alphanumeric, underscores, dashes, and forward slashes"))
 			})
 
-			Context("when key does not exist in server", func() {
+			Context("when name does not exist in server", func() {
 				It("responds with status 404", func() {
-					resp, err := SendGetRequestByKey("smurf")
+					resp, err := SendGetRequestByName("smurf")
 
 					Expect(err).To(BeNil())
 					Expect(resp.StatusCode).To(Equal(404))
 				})
 			})
 
-			Context("when key exists in server", func() {
+			Context("when name exists in server", func() {
 				It("responds with status 200", func() {
 					SendPutRequest("smurf", "blue")
 
-					resp, err := SendGetRequestByKey("smurf")
+					resp, err := SendGetRequestByName("smurf")
 
 					Expect(err).To(BeNil())
 					Expect(resp.StatusCode).To(Equal(200))
 				})
 
-				It("sends back value along with key as json", func() {
+				It("sends back value along with name as json", func() {
 					SendPutRequest("smurf", "blue")
 
-					resp, err := SendGetRequestByKey("smurf")
+					resp, err := SendGetRequestByName("smurf")
 
 					Expect(err).To(BeNil())
 
 					resultMap := UnmarshalJsonString(resp.Body)
 
-					Expect(resultMap["path"]).To(Equal("smurf"))
+					Expect(resultMap["name"]).To(Equal("smurf"))
 					Expect(resultMap["value"]).To(Equal("blue"))
 				})
 
-				It("handles keys with forward slashes", func() {
-					key := "smurf/gar_gamel/c-at"
+				It("handles names with forward slashes", func() {
+					name := "smurf/gar_gamel/c-at"
 
-					SendPutRequest(key, "vroom")
+					SendPutRequest(name, "vroom")
 
-					resp, err := SendGetRequestByKey(key)
+					resp, err := SendGetRequestByName(name)
 
 					Expect(err).To(BeNil())
 
 					resultMap := UnmarshalJsonString(resp.Body)
-					Expect(resultMap["path"]).To(Equal(key))
+					Expect(resultMap["name"]).To(Equal(name))
 					Expect(resultMap["value"]).To(Equal("vroom"))
 				})
 			})
@@ -105,7 +105,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 					Expect(resp.StatusCode).To(Equal(200))
 				})
 
-				It("sends back value along with key as json", func() {
+				It("sends back value along with name as json", func() {
 					putResponse, _ := SendPutRequest("annie", "diane")
 					config := UnmarshalJsonString(putResponse.Body)
 					id := config["id"].(string)
@@ -116,7 +116,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 					resultMap := UnmarshalJsonString(resp.Body)
 
-					Expect(resultMap["path"]).To(Equal("annie"))
+					Expect(resultMap["name"]).To(Equal("annie"))
 					Expect(resultMap["value"]).To(Equal("diane"))
 				})
 			})
@@ -137,17 +137,17 @@ var _ = Describe("Supported HTTP Methods", func() {
 			Expect(string(body)).To(ContainSubstring("Unsupported Media Type - Accepts application/json only"))
 		})
 
-		It("errors when key has invalid characters", func() {
+		It("errors when name has invalid characters", func() {
 			resp, err := SendPutRequest("sm!urf/garg$amel/cat", "value")
 
 			Expect(err).To(BeNil())
 			Expect(resp.StatusCode).To(Equal(400))
 
 			body, _ := ioutil.ReadAll(resp.Body)
-			Expect(string(body)).To(ContainSubstring("Key must consist of alphanumeric, underscores, dashes, and forward slashes"))
+			Expect(string(body)).To(ContainSubstring("Name must consist of alphanumeric, underscores, dashes, and forward slashes"))
 		})
 
-		Context("when key does NOT exist in server", func() {
+		Context("when name does NOT exist in server", func() {
 			It("responds with value & id", func() {
 				resp, err := SendPutRequest("cross", "fit")
 
@@ -155,7 +155,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 				Expect(resp.StatusCode).To(Equal(200))
 
 				resultMap := UnmarshalJsonString(resp.Body)
-				Expect(resultMap["path"]).To(Equal("cross"))
+				Expect(resultMap["name"]).To(Equal("cross"))
 				Expect(resultMap["value"]).To(Equal("fit"))
 			})
 
@@ -166,7 +166,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 				Expect(resp.StatusCode).To(Equal(200))
 			})
 
-			Context("when key is empty string", func() {
+			Context("when name is empty string", func() {
 				It("is stored and responds with value & id", func() {
 					resp, err := SendPutRequest("crossfit", "")
 
@@ -174,11 +174,11 @@ var _ = Describe("Supported HTTP Methods", func() {
 					Expect(resp.StatusCode).To(Equal(200))
 
 					resultMap := UnmarshalJsonString(resp.Body)
-					Expect(resultMap["path"]).To(Equal("crossfit"))
+					Expect(resultMap["name"]).To(Equal("crossfit"))
 					Expect(resultMap["value"]).To(Equal(""))
 				})
 			})
-			Context("when key is nil", func() {
+			Context("when name is nil", func() {
 				It("is stored and responds with value & id", func() {
 					resp, err := SendPutRequest("crossfit", nil)
 
@@ -186,27 +186,27 @@ var _ = Describe("Supported HTTP Methods", func() {
 					Expect(resp.StatusCode).To(Equal(200))
 
 					resultMap := UnmarshalJsonString(resp.Body)
-					Expect(resultMap["path"]).To(Equal("crossfit"))
+					Expect(resultMap["name"]).To(Equal("crossfit"))
 					Expect(resultMap["value"]).To(BeNil())
 				})
 			})
 		})
 
-		Context("when key exists in server", func() {
+		Context("when name exists in server", func() {
 			It("updates the value", func() {
 				SendPutRequest("smurf", "blue")
 
-				getResp, _ := SendGetRequestByKey("smurf")
+				getResp, _ := SendGetRequestByName("smurf")
 
 				resultMap := UnmarshalJsonString(getResp.Body)
-				Expect(resultMap["path"]).To(Equal("smurf"))
+				Expect(resultMap["name"]).To(Equal("smurf"))
 				Expect(resultMap["value"]).To(Equal("blue"))
 
 				SendPutRequest("smurf", "red")
-				getResp, _ = SendGetRequestByKey("smurf")
+				getResp, _ = SendGetRequestByName("smurf")
 
 				resultMap = UnmarshalJsonString(getResp.Body)
-				Expect(resultMap["path"]).To(Equal("smurf"))
+				Expect(resultMap["name"]).To(Equal("smurf"))
 				Expect(resultMap["value"]).To(Equal("red"))
 			})
 		})
@@ -226,21 +226,21 @@ var _ = Describe("Supported HTTP Methods", func() {
 			Expect(string(body)).To(ContainSubstring("Unsupported Media Type - Accepts application/json only"))
 		})
 
-		It("generates a new id and password for a new key", func() {
-			resp, _ := SendPostRequest("password-key", "password")
+		It("generates a new id and password for a new name", func() {
+			resp, _ := SendPostRequest("password-name", "password")
 			result := UnmarshalJsonString(resp.Body)
 
 			Expect(result["id"]).ToNot(BeNil())
-			Expect(result["path"]).To(Equal("password-key"))
+			Expect(result["name"]).To(Equal("password-name"))
 			Expect(result["value"]).To(MatchRegexp("[a-z0-9]{20}"))
 		})
 
-		It("generates a new id and certificate for a new key", func() {
-			resp, _ := SendPostRequest("certificate-key", "certificate")
+		It("generates a new id and certificate for a new name", func() {
+			resp, _ := SendPostRequest("certificate-name", "certificate")
 			result := UnmarshalJsonString(resp.Body)
 
 			Expect(result["id"]).ToNot(BeNil())
-			Expect(result["path"]).To(Equal("certificate-key"))
+			Expect(result["name"]).To(Equal("certificate-name"))
 
 			value := result["value"].(map[string]interface{})
 			cert, _ := ParseCertString(value["certificate"].(string))

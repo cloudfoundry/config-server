@@ -16,12 +16,12 @@ type FakeStore struct {
 	putReturns struct {
 		result1 error
 	}
-	GetByKeyStub        func(key string) (store.Configuration, error)
-	getByKeyMutex       sync.RWMutex
-	getByKeyArgsForCall []struct {
-		key string
+	GetByNameStub        func(name string) (store.Configuration, error)
+	getByNameMutex       sync.RWMutex
+	getByNameArgsForCall []struct {
+		name string
 	}
-	getByKeyReturns struct {
+	getByNameReturns struct {
 		result1 store.Configuration
 		result2 error
 	}
@@ -81,35 +81,35 @@ func (fake *FakeStore) PutReturns(result1 error) {
 	}{result1}
 }
 
-func (fake *FakeStore) GetByKey(key string) (store.Configuration, error) {
-	fake.getByKeyMutex.Lock()
-	fake.getByKeyArgsForCall = append(fake.getByKeyArgsForCall, struct {
-		key string
-	}{key})
-	fake.recordInvocation("GetByKey", []interface{}{key})
-	fake.getByKeyMutex.Unlock()
-	if fake.GetByKeyStub != nil {
-		return fake.GetByKeyStub(key)
+func (fake *FakeStore) GetByName(name string) (store.Configuration, error) {
+	fake.getByNameMutex.Lock()
+	fake.getByNameArgsForCall = append(fake.getByNameArgsForCall, struct {
+		name string
+	}{name})
+	fake.recordInvocation("GetByName", []interface{}{name})
+	fake.getByNameMutex.Unlock()
+	if fake.GetByNameStub != nil {
+		return fake.GetByNameStub(name)
 	} else {
-		return fake.getByKeyReturns.result1, fake.getByKeyReturns.result2
+		return fake.getByNameReturns.result1, fake.getByNameReturns.result2
 	}
 }
 
-func (fake *FakeStore) GetByKeyCallCount() int {
-	fake.getByKeyMutex.RLock()
-	defer fake.getByKeyMutex.RUnlock()
-	return len(fake.getByKeyArgsForCall)
+func (fake *FakeStore) GetByNameCallCount() int {
+	fake.getByNameMutex.RLock()
+	defer fake.getByNameMutex.RUnlock()
+	return len(fake.getByNameArgsForCall)
 }
 
-func (fake *FakeStore) GetByKeyArgsForCall(i int) string {
-	fake.getByKeyMutex.RLock()
-	defer fake.getByKeyMutex.RUnlock()
-	return fake.getByKeyArgsForCall[i].key
+func (fake *FakeStore) GetByNameArgsForCall(i int) string {
+	fake.getByNameMutex.RLock()
+	defer fake.getByNameMutex.RUnlock()
+	return fake.getByNameArgsForCall[i].name
 }
 
-func (fake *FakeStore) GetByKeyReturns(result1 store.Configuration, result2 error) {
-	fake.GetByKeyStub = nil
-	fake.getByKeyReturns = struct {
+func (fake *FakeStore) GetByNameReturns(result1 store.Configuration, result2 error) {
+	fake.GetByNameStub = nil
+	fake.getByNameReturns = struct {
 		result1 store.Configuration
 		result2 error
 	}{result1, result2}
@@ -188,8 +188,8 @@ func (fake *FakeStore) Invocations() map[string][][]interface{} {
 	defer fake.invocationsMutex.RUnlock()
 	fake.putMutex.RLock()
 	defer fake.putMutex.RUnlock()
-	fake.getByKeyMutex.RLock()
-	defer fake.getByKeyMutex.RUnlock()
+	fake.getByNameMutex.RLock()
+	defer fake.getByNameMutex.RUnlock()
 	fake.getByIdMutex.RLock()
 	defer fake.getByIdMutex.RUnlock()
 	fake.deleteMutex.RLock()

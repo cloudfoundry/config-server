@@ -14,13 +14,13 @@ var _ = Describe("Configuration", func() {
 			It("returns json string from the given db result", func() {
 				configuration := store.Configuration{
 					Id:    "123",
-					Key:   "smurf",
+					Name:  "smurf",
 					Value: `{"value": "blue"}`,
 				}
 
 				jsonString, _ := configuration.StringifiedJSON()
 
-				Expect(jsonString).To(Equal(`{"id":"123","path":"smurf","value":"blue"}`))
+				Expect(jsonString).To(Equal(`{"id":"123","name":"smurf","value":"blue"}`))
 			})
 		})
 
@@ -28,13 +28,13 @@ var _ = Describe("Configuration", func() {
 			It("returns json string from the given db result", func() {
 				configuration := store.Configuration{
 					Id:    "123",
-					Key:   "smurf",
+					Name:  "smurf",
 					Value: `{"value": 123}`,
 				}
 
 				jsonString, _ := configuration.StringifiedJSON()
 
-				Expect(jsonString).To(Equal(`{"id":"123","path":"smurf","value":123}`))
+				Expect(jsonString).To(Equal(`{"id":"123","name":"smurf","value":123}`))
 			})
 		})
 
@@ -42,13 +42,13 @@ var _ = Describe("Configuration", func() {
 			It("returns json string from the given db result", func() {
 				configuration := store.Configuration{
 					Id:    "123",
-					Key:   "smurf",
+					Name:  "smurf",
 					Value: `{"value": {"smurf":"gargamel"}}`,
 				}
 
 				jsonString, _ := configuration.StringifiedJSON()
 
-				Expect(jsonString).To(Equal(`{"id":"123","path":"smurf","value":{"smurf":"gargamel"}}`))
+				Expect(jsonString).To(Equal(`{"id":"123","name":"smurf","value":{"smurf":"gargamel"}}`))
 			})
 		})
 
