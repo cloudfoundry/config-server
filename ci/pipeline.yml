@@ -1,3 +1,4 @@
+#fly -t production set-pipeline -p config-server -c ci/pipeline.yml --load-vars-from <(lpass show -G "config-server concourse secrets" --notes)
 ---
 jobs:
   - name: test-gofmt
