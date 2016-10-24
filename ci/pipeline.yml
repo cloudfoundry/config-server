@@ -13,6 +13,15 @@ jobs:
             icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
             text: {{slack_failure_message}}
 
+  - name: test-golint
+    public: true
+    plan:
+      - {get: config-server, trigger: true}
+      - task: test-golint
+        file: config-server/ci/tasks/test-golint.yml
+        on_failure:
+          <<: *slack-alert
+
   - name: test-unit
     public: true
     plan:

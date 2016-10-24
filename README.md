@@ -9,6 +9,7 @@ Integration tests Mysql  | [![bosh-ci.cf-app.com](https://main.bosh-ci.cf-app.co
 Integration tests Postgresql  | [![bosh-ci.cf-app.com](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-integration-postgresql/badge)](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-integration-postgresql)
 BOSH Release   | [![bosh-ci.cf-app.com](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/bosh-release/badge)](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/bosh-release)
 Go Formatting| [![bosh-ci.cf-app.com](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-gofmt/badge)](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-gofmt)
+Go Lint      | [![bosh-ci.cf-app.com](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-golint/badge)](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-golint)
 
 __CI :__ <https://main.bosh-ci.cf-app.com/teams/main/pipelines/config-server> <br>
 
