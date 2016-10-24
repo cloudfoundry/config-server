@@ -12,12 +12,12 @@ import (
 var _ = Describe("DbProviderConcrete", func() {
 
 	var fakeDb *fakes.FakeIDb
-	var fakeSql *fakes.FakeISql
+	var fakeSQL *fakes.FakeISql
 
 	BeforeEach(func() {
 		fakeDb = &fakes.FakeIDb{}
-		fakeSql = &fakes.FakeISql{}
-		fakeSql.OpenReturns(fakeDb, nil)
+		fakeSQL = &fakes.FakeISql{}
+		fakeSQL.OpenReturns(fakeDb, nil)
 	})
 
 	It("configures max open/idle connections", func() {
@@ -25,7 +25,7 @@ var _ = Describe("DbProviderConcrete", func() {
 		dbConfig := config.DBConfig{
 			Adapter:  "mysql",
 			User:     "bosh",
-			Password: "bosh-password",
+			Password: "somethingsafe",
 			Host:     "host",
 			Port:     0,
 			Name:     "dbconfig",
@@ -35,9 +35,9 @@ var _ = Describe("DbProviderConcrete", func() {
 			},
 		}
 
-		_, err := NewConcreteDbProvider(fakeSql, dbConfig).Db()
+		_, err := NewConcreteDbProvider(fakeSQL, dbConfig).Db()
 		Expect(err).To(BeNil())
-		Expect(fakeSql.OpenCallCount()).To(Equal(1))
+		Expect(fakeSQL.OpenCallCount()).To(Equal(1))
 
 		Expect(fakeDb.SetMaxOpenConnsCallCount()).To(Equal(1))
 		Expect(fakeDb.SetMaxOpenConnsArgsForCall(0)).To(Equal(12))
@@ -51,19 +51,19 @@ var _ = Describe("DbProviderConcrete", func() {
 		dbConfig := config.DBConfig{
 			Adapter:  "mysql",
 			User:     "bosh",
-			Password: "bosh-password",
+			Password: "somethingsafe",
 			Host:     "host",
 			Port:     0,
 			Name:     "dbconfig",
 		}
 
-		_, err := NewConcreteDbProvider(fakeSql, dbConfig).Db()
+		_, err := NewConcreteDbProvider(fakeSQL, dbConfig).Db()
 		Expect(err).To(BeNil())
-		Expect(fakeSql.OpenCallCount()).To(Equal(1))
+		Expect(fakeSQL.OpenCallCount()).To(Equal(1))
 
-		driverName, dataSourceName, _ := fakeSql.OpenArgsForCall(0)
+		driverName, dataSourceName, _ := fakeSQL.OpenArgsForCall(0)
 		Expect(driverName).To(Equal(dbConfig.Adapter))
-		Expect(dataSourceName).To(Equal("bosh:bosh-password@tcp(host:0)/dbconfig"))
+		Expect(dataSourceName).To(Equal("bosh:somethingsafe@tcp(host:0)/dbconfig"))
 	})
 
 	It("returns correct connection string for postgres", func() {
@@ -71,19 +71,19 @@ var _ = Describe("DbProviderConcrete", func() {
 		dbConfig := config.DBConfig{
 			Adapter:  "postgres",
 			User:     "bosh",
-			Password: "bosh-password",
+			Password: "somethingsafe",
 			Host:     "host",
 			Port:     0,
 			Name:     "dbconfig",
 		}
 
-		_, err := NewConcreteDbProvider(fakeSql, dbConfig).Db()
+		_, err := NewConcreteDbProvider(fakeSQL, dbConfig).Db()
 		Expect(err).To(BeNil())
-		Expect(fakeSql.OpenCallCount()).To(Equal(1))
+		Expect(fakeSQL.OpenCallCount()).To(Equal(1))
 
-		driverName, dataSourceName, _ := fakeSql.OpenArgsForCall(0)
+		driverName, dataSourceName, _ := fakeSQL.OpenArgsForCall(0)
 		Expect(driverName).To(Equal(dbConfig.Adapter))
-		Expect(dataSourceName).To(Equal("user=bosh password=bosh-password dbname=dbconfig sslmode=disable"))
+		Expect(dataSourceName).To(Equal("user=bosh password=somethingsafe dbname=dbconfig sslmode=disable"))
 	})
 
 	It("returns error for unsupported adapater", func() {
@@ -91,15 +91,15 @@ var _ = Describe("DbProviderConcrete", func() {
 		dbConfig := config.DBConfig{
 			Adapter:  "mongo",
 			User:     "bosh",
-			Password: "bosh-password",
+			Password: "somethingsafe",
 			Host:     "host",
 			Port:     0,
 			Name:     "dbconfig",
 		}
 
-		_, err := NewConcreteDbProvider(fakeSql, dbConfig).Db()
+		_, err := NewConcreteDbProvider(fakeSQL, dbConfig).Db()
 		Expect(err).ToNot(BeNil())
 		Expect(err.Error()).To(Equal("Failed to generate DB connection string: Unsupported adapter: mongo"))
-		Expect(fakeSql.OpenCallCount()).To(Equal(0))
+		Expect(fakeSQL.OpenCallCount()).To(Equal(0))
 	})
 })

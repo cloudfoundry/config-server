@@ -2,13 +2,14 @@ package store
 
 import (
 	"fmt"
-
 	"github.com/cloudfoundry/bosh-utils/errors"
+
+	// blank import to load database drivers
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
 
 	"config_server/config"
-	. "config_server/store/db_migrations"
+	"config_server/store/db_migrations"
 )
 
 type concreteDbProvider struct {
@@ -29,7 +30,7 @@ func (p concreteDbProvider) Db() (IDb, error) {
 		return db, errors.WrapError(err, "Failed to generate DB connection string")
 	}
 
-	db, err = p.sql.Open(p.config.Adapter, connectionString, GetMigrations(p.config.Adapter))
+	db, err = p.sql.Open(p.config.Adapter, connectionString, db_migrations.GetMigrations(p.config.Adapter))
 	if err != nil {
 		return db, errors.WrapError(err, "Failed to open connection to DB")
 	}

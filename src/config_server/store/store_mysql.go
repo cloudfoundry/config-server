@@ -38,7 +38,7 @@ func (ms mysqlStore) GetByName(name string) (Configuration, error) {
 	}
 	defer db.Close()
 
-	err = db.QueryRow("SELECT id, name, value FROM configurations WHERE name = ? ORDER BY id DESC LIMIT 1", name).Scan(&result.Id, &result.Name, &result.Value)
+	err = db.QueryRow("SELECT id, name, value FROM configurations WHERE name = ? ORDER BY id DESC LIMIT 1", name).Scan(&result.ID, &result.Name, &result.Value)
 	if err == sql.ErrNoRows {
 		return result, nil
 	}
@@ -46,7 +46,7 @@ func (ms mysqlStore) GetByName(name string) (Configuration, error) {
 	return result, err
 }
 
-func (ms mysqlStore) GetById(id string) (Configuration, error) {
+func (ms mysqlStore) GetByID(id string) (Configuration, error) {
 	result := Configuration{}
 
 	db, err := ms.dbProvider.Db()
@@ -55,7 +55,7 @@ func (ms mysqlStore) GetById(id string) (Configuration, error) {
 	}
 	defer db.Close()
 
-	err = db.QueryRow("SELECT id, name, value FROM configurations WHERE id = ?", id).Scan(&result.Id, &result.Name, &result.Value)
+	err = db.QueryRow("SELECT id, name, value FROM configurations WHERE id = ?", id).Scan(&result.ID, &result.Name, &result.Value)
 	if err == sql.ErrNoRows {
 		return result, nil
 	}

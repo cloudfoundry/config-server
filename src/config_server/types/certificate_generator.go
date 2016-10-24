@@ -13,7 +13,7 @@ import (
 	"github.com/cloudfoundry/bosh-utils/errors"
 )
 
-type certificateGenerator struct {
+type CertificateGenerator struct {
 	config config.ServerConfig
 	loader CertsLoader
 }
@@ -29,11 +29,11 @@ type CertParams struct {
 	AlternativeName []string
 }
 
-func NewCertificateGenerator(config config.ServerConfig, loader CertsLoader) certificateGenerator {
-	return certificateGenerator{config: config, loader: loader}
+func NewCertificateGenerator(config config.ServerConfig, loader CertsLoader) CertificateGenerator {
+	return CertificateGenerator{config: config, loader: loader}
 }
 
-func (cfg certificateGenerator) Generate(parameters interface{}) (interface{}, error) {
+func (cfg CertificateGenerator) Generate(parameters interface{}) (interface{}, error) {
 	params := parameters.(map[string]interface{})
 	commonName := params["common_name"].(string)
 	alternativeNames := []string{}
@@ -48,7 +48,7 @@ func (cfg certificateGenerator) Generate(parameters interface{}) (interface{}, e
 	return cfg.generateCert(cParams)
 }
 
-func (cfg certificateGenerator) generateCert(cParams CertParams) (CertResponse, error) {
+func (cfg CertificateGenerator) generateCert(cParams CertParams) (CertResponse, error) {
 	var certResponse CertResponse
 
 	rootCA, rootCAKey, err := cfg.loader.LoadCerts(cfg.config.CACertificateFilePath, cfg.config.CAPrivateKeyFilePath)

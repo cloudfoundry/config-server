@@ -38,7 +38,7 @@ func (ps postgresStore) GetByName(name string) (Configuration, error) {
 	}
 	defer db.Close()
 
-	err = db.QueryRow("SELECT id, name, value FROM configurations WHERE name = $1 ORDER BY id DESC LIMIT 1", name).Scan(&result.Id, &result.Name, &result.Value)
+	err = db.QueryRow("SELECT id, name, value FROM configurations WHERE name = $1 ORDER BY id DESC LIMIT 1", name).Scan(&result.ID, &result.Name, &result.Value)
 	if err == sql.ErrNoRows {
 		return result, nil
 	}
@@ -46,7 +46,7 @@ func (ps postgresStore) GetByName(name string) (Configuration, error) {
 	return result, err
 }
 
-func (ps postgresStore) GetById(id string) (Configuration, error) {
+func (ps postgresStore) GetByID(id string) (Configuration, error) {
 	result := Configuration{}
 
 	_, err := strconv.Atoi(id)
@@ -60,7 +60,7 @@ func (ps postgresStore) GetById(id string) (Configuration, error) {
 	}
 	defer db.Close()
 
-	err = db.QueryRow("SELECT id, name, value FROM configurations WHERE id = $1", id).Scan(&result.Id, &result.Name, &result.Value)
+	err = db.QueryRow("SELECT id, name, value FROM configurations WHERE id = $1", id).Scan(&result.ID, &result.Name, &result.Value)
 	if err == sql.ErrNoRows {
 		return result, nil
 	}

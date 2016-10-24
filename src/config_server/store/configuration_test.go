@@ -13,7 +13,7 @@ var _ = Describe("Configuration", func() {
 		Context("When value is a string", func() {
 			It("returns json string from the given db result", func() {
 				configuration := store.Configuration{
-					Id:    "123",
+					ID:    "123",
 					Name:  "smurf",
 					Value: `{"value": "blue"}`,
 				}
@@ -27,7 +27,7 @@ var _ = Describe("Configuration", func() {
 		Context("When value is a number", func() {
 			It("returns json string from the given db result", func() {
 				configuration := store.Configuration{
-					Id:    "123",
+					ID:    "123",
 					Name:  "smurf",
 					Value: `{"value": 123}`,
 				}
@@ -41,7 +41,7 @@ var _ = Describe("Configuration", func() {
 		Context("When value is complex", func() {
 			It("returns json string from the given db result", func() {
 				configuration := store.Configuration{
-					Id:    "123",
+					ID:    "123",
 					Name:  "smurf",
 					Value: `{"value": {"smurf":"gargamel"}}`,
 				}

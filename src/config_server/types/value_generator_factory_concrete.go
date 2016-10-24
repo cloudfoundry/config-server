@@ -6,15 +6,15 @@ import (
 	"github.com/cloudfoundry/bosh-utils/errors"
 )
 
-type valueGeneratorConcrete struct {
+type ValueGeneratorConcrete struct {
 	config config.ServerConfig
 }
 
-func NewValueGeneratorConcrete(config config.ServerConfig) valueGeneratorConcrete {
-	return valueGeneratorConcrete{config: config}
+func NewValueGeneratorConcrete(config config.ServerConfig) ValueGeneratorConcrete {
+	return ValueGeneratorConcrete{config: config}
 }
 
-func (vgc valueGeneratorConcrete) GetGenerator(valueType string) (ValueGenerator, error) {
+func (vgc ValueGeneratorConcrete) GetGenerator(valueType string) (ValueGenerator, error) {
 	switch valueType {
 	case "password":
 		return NewPasswordGenerator(), nil

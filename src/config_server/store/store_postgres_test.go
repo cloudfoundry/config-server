@@ -77,7 +77,7 @@ var _ = Describe("StorePostgres", func() {
 			value, err := store.GetByName("Luke")
 			Expect(err).To(BeNil())
 			Expect(value).To(Equal(Configuration{
-				Id:    "some_id",
+				ID:    "some_id",
 				Value: "Skywalker",
 				Name:  "Luke",
 			}))
@@ -122,7 +122,7 @@ var _ = Describe("StorePostgres", func() {
 			fakeDb.QueryRowReturns(&fakes.FakeIRow{})
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
-			store.GetById("1")
+			store.GetByID("1")
 			Expect(fakeDb.CloseCallCount()).To(Equal(1))
 		})
 
@@ -130,7 +130,7 @@ var _ = Describe("StorePostgres", func() {
 			fakeDb.QueryRowReturns(&fakes.FakeIRow{})
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
-			_, err := store.GetById("1")
+			_, err := store.GetByID("1")
 			Expect(err).To(BeNil())
 			query, _ := fakeDb.QueryRowArgsForCall(0)
 
@@ -159,10 +159,10 @@ var _ = Describe("StorePostgres", func() {
 			fakeDb.QueryRowReturns(fakeRow)
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
-			value, err := store.GetById("54")
+			value, err := store.GetByID("54")
 			Expect(err).To(BeNil())
 			Expect(value).To(Equal(Configuration{
-				Id:    "54",
+				ID:    "54",
 				Value: "Skywalker",
 				Name:  "Luke",
 			}))
@@ -174,7 +174,7 @@ var _ = Describe("StorePostgres", func() {
 			fakeDb.QueryRowReturns(fakeRow)
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
-			value, err := store.GetById("54")
+			value, err := store.GetByID("54")
 			Expect(err).To(BeNil())
 			Expect(value).To(Equal(Configuration{}))
 		})
@@ -185,7 +185,7 @@ var _ = Describe("StorePostgres", func() {
 			fakeDb.QueryRowReturns(fakeRow)
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
-			value, err := store.GetById("fake_id")
+			value, err := store.GetByID("fake_id")
 			Expect(err).To(BeNil())
 			Expect(value).To(Equal(Configuration{}))
 		})
@@ -194,7 +194,7 @@ var _ = Describe("StorePostgres", func() {
 			dbError := errors.New("connection failure")
 			fakeDbProvider.DbReturns(nil, dbError)
 
-			_, err := store.GetById("2")
+			_, err := store.GetByID("2")
 			Expect(err).ToNot(BeNil())
 			Expect(err).To(Equal(dbError))
 		})
@@ -206,7 +206,7 @@ var _ = Describe("StorePostgres", func() {
 			fakeDb.QueryRowReturns(fakeRow)
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
-			_, err := store.GetById("7")
+			_, err := store.GetByID("7")
 			Expect(err).ToNot(BeNil())
 			Expect(err).To(Equal(scanError))
 		})

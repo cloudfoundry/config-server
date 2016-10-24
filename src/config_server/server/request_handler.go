@@ -58,7 +58,7 @@ func (handler requestHandler) handleGet(resWriter http.ResponseWriter, req *http
 		value, err = handler.store.GetByName(name)
 	} else {
 		id := req.URL.Query().Get("id")
-		value, err = handler.store.GetById(id)
+		value, err = handler.store.GetByID(id)
 	}
 
 	if err != nil {

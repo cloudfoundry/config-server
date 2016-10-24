@@ -4,14 +4,14 @@ import (
 	"github.com/BurntSushi/migration"
 )
 
-type sqlWrapper struct {
+type SQLWrapper struct {
 }
 
-func NewSqlWrapper() sqlWrapper {
-	return sqlWrapper{}
+func NewSQLWrapper() SQLWrapper {
+	return SQLWrapper{}
 }
 
-func (w sqlWrapper) Open(driverName, dataSourceName string, migrations []migration.Migrator) (IDb, error) {
+func (w SQLWrapper) Open(driverName, dataSourceName string, migrations []migration.Migrator) (IDb, error) {
 	db, err := migration.Open(driverName, dataSourceName, migrations)
 	return NewDbWrapper(db), err
 }

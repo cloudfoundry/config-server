@@ -33,11 +33,12 @@ func (handler authenticationHandler) authenticate(req *http.Request) error {
 		return errors.Error("Missing Token")
 	}
 
-	if jwtToken, err := handler.checkTokenFormat(authHeader); err == nil {
-		return handler.tokenValidator.Validate(jwtToken)
-	} else {
+	jwtToken, err := handler.checkTokenFormat(authHeader)
+	if err != nil {
 		return err
 	}
+
+	return handler.tokenValidator.Validate(jwtToken)
 }
 
 func (handler authenticationHandler) checkTokenFormat(token string) (string, error) {

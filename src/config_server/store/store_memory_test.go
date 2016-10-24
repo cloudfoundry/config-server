@@ -28,8 +28,8 @@ var _ = Describe("MemoryStore", func() {
 				store.Put("key2", "value2")
 				value2, _ := store.GetByName("key2")
 
-				Expect(value1.Id).To(Equal("0"))
-				Expect(value2.Id).To(Equal("1"))
+				Expect(value1.ID).To(Equal("0"))
+				Expect(value2.ID).To(Equal("1"))
 			})
 		})
 
@@ -39,7 +39,7 @@ var _ = Describe("MemoryStore", func() {
 				returnedValue, err := store.GetByName("some_name")
 				Expect(err).To(BeNil())
 				Expect(returnedValue).To(Equal(Configuration{
-					Id:    "0",
+					ID:    "0",
 					Name:  "some_name",
 					Value: "some_value",
 				}))
@@ -50,10 +50,10 @@ var _ = Describe("MemoryStore", func() {
 			It("should return associated value", func() {
 				store.Put("some_name", "some_value")
 
-				configuration, err := store.GetById("0")
+				configuration, err := store.GetByID("0")
 				Expect(err).To(BeNil())
 				Expect(configuration).To(Equal(Configuration{
-					Id:    "0",
+					ID:    "0",
 					Name:  "some_name",
 					Value: "some_value",
 				}))
@@ -67,7 +67,7 @@ var _ = Describe("MemoryStore", func() {
 					value, err := store.GetByName("some_name")
 					Expect(err).To(BeNil())
 					Expect(value).To(Equal(Configuration{
-						Id:    "0",
+						ID:    "0",
 						Name:  "some_name",
 						Value: "some_value",
 					}))

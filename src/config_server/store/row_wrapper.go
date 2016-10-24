@@ -2,14 +2,14 @@ package store
 
 import "database/sql"
 
-type rowWrapper struct {
+type RowWrapper struct {
 	row *sql.Row
 }
 
-func NewRowWrapper(row *sql.Row) rowWrapper {
-	return rowWrapper{row}
+func NewRowWrapper(row *sql.Row) RowWrapper {
+	return RowWrapper{row}
 }
 
-func (w rowWrapper) Scan(dest ...interface{}) error {
+func (w RowWrapper) Scan(dest ...interface{}) error {
 	return w.row.Scan(dest...)
 }

@@ -20,7 +20,7 @@ func (store MemoryStore) Put(name string, value string) error {
 		store.db[name] = Configuration{
 			Name:  name,
 			Value: value,
-			Id:    strconv.Itoa(dbCounter),
+			ID:    strconv.Itoa(dbCounter),
 		}
 		dbCounter++
 	} else {
@@ -35,11 +35,11 @@ func (store MemoryStore) GetByName(name string) (Configuration, error) {
 	return store.db[name], nil
 }
 
-func (store MemoryStore) GetById(id string) (Configuration, error) {
+func (store MemoryStore) GetByID(id string) (Configuration, error) {
 	result := Configuration{}
 
 	for _, config := range store.db {
-		if config.Id == id {
+		if config.ID == id {
 			result = config
 			break
 		}

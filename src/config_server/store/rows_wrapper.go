@@ -4,14 +4,14 @@ import (
 	"database/sql"
 )
 
-type rowsWrapper struct {
+type RowsWrapper struct {
 	rows *sql.Rows
 }
 
-func NewRowsWrapper(rows *sql.Rows) rowsWrapper {
-	return rowsWrapper{rows}
+func NewRowsWrapper(rows *sql.Rows) RowsWrapper {
+	return RowsWrapper{rows}
 }
 
-func (w rowsWrapper) Next() bool {
+func (w RowsWrapper) Next() bool {
 	return w.rows.Next()
 }
