@@ -7,23 +7,22 @@ import (
 )
 
 type FakeStore struct {
-	PutStub        func(key string, value string) (string, error)
+	PutStub        func(key string, value string) error
 	putMutex       sync.RWMutex
 	putArgsForCall []struct {
 		key   string
 		value string
 	}
 	putReturns struct {
-		result1 string
-		result2 error
+		result1 error
 	}
-	GetByNameStub        func(name string) (store.Configurations, error)
+	GetByNameStub        func(name string) (store.Configuration, error)
 	getByNameMutex       sync.RWMutex
 	getByNameArgsForCall []struct {
 		name string
 	}
 	getByNameReturns struct {
-		result1 store.Configurations
+		result1 store.Configuration
 		result2 error
 	}
 	GetByIDStub        func(id string) (store.Configuration, error)
@@ -35,20 +34,20 @@ type FakeStore struct {
 		result1 store.Configuration
 		result2 error
 	}
-	DeleteStub        func(key string) (int, error)
+	DeleteStub        func(key string) (bool, error)
 	deleteMutex       sync.RWMutex
 	deleteArgsForCall []struct {
 		key string
 	}
 	deleteReturns struct {
-		result1 int
+		result1 bool
 		result2 error
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeStore) Put(key string, value string) (string, error) {
+func (fake *FakeStore) Put(key string, value string) error {
 	fake.putMutex.Lock()
 	fake.putArgsForCall = append(fake.putArgsForCall, struct {
 		key   string
@@ -59,7 +58,7 @@ func (fake *FakeStore) Put(key string, value string) (string, error) {
 	if fake.PutStub != nil {
 		return fake.PutStub(key, value)
 	} else {
-		return fake.putReturns.result1, fake.putReturns.result2
+		return fake.putReturns.result1
 	}
 }
 
@@ -75,15 +74,14 @@ func (fake *FakeStore) PutArgsForCall(i int) (string, string) {
 	return fake.putArgsForCall[i].key, fake.putArgsForCall[i].value
 }
 
-func (fake *FakeStore) PutReturns(result1 string, result2 error) {
+func (fake *FakeStore) PutReturns(result1 error) {
 	fake.PutStub = nil
 	fake.putReturns = struct {
-		result1 string
-		result2 error
-	}{result1, result2}
+		result1 error
+	}{result1}
 }
 
-func (fake *FakeStore) GetByName(name string) (store.Configurations, error) {
+func (fake *FakeStore) GetByName(name string) (store.Configuration, error) {
 	fake.getByNameMutex.Lock()
 	fake.getByNameArgsForCall = append(fake.getByNameArgsForCall, struct {
 		name string
@@ -109,10 +107,10 @@ func (fake *FakeStore) GetByNameArgsForCall(i int) string {
 	return fake.getByNameArgsForCall[i].name
 }
 
-func (fake *FakeStore) GetByNameReturns(result1 store.Configurations, result2 error) {
+func (fake *FakeStore) GetByNameReturns(result1 store.Configuration, result2 error) {
 	fake.GetByNameStub = nil
 	fake.getByNameReturns = struct {
-		result1 store.Configurations
+		result1 store.Configuration
 		result2 error
 	}{result1, result2}
 }
@@ -151,7 +149,7 @@ func (fake *FakeStore) GetByIDReturns(result1 store.Configuration, result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeStore) Delete(key string) (int, error) {
+func (fake *FakeStore) Delete(key string) (bool, error) {
 	fake.deleteMutex.Lock()
 	fake.deleteArgsForCall = append(fake.deleteArgsForCall, struct {
 		key string
@@ -177,10 +175,10 @@ func (fake *FakeStore) DeleteArgsForCall(i int) string {
 	return fake.deleteArgsForCall[i].key
 }
 
-func (fake *FakeStore) DeleteReturns(result1 int, result2 error) {
+func (fake *FakeStore) DeleteReturns(result1 bool, result2 error) {
 	fake.DeleteStub = nil
 	fake.deleteReturns = struct {
-		result1 int
+		result1 bool
 		result2 error
 	}{result1, result2}
 }

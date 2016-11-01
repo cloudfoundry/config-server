@@ -17,7 +17,6 @@ var _ = Describe("StoreMysql", func() {
 		fakeDbProvider *fakes.FakeDbProvider
 		fakeDb         *fakes.FakeIDb
 		fakeRow        *fakes.FakeIRow
-		fakeRows       *fakes.FakeIRows
 		fakeResult     *fakes.FakeResult
 
 		store Store
@@ -27,7 +26,6 @@ var _ = Describe("StoreMysql", func() {
 		fakeDbProvider = &fakes.FakeDbProvider{}
 		fakeDb = &fakes.FakeIDb{}
 		fakeRow = &fakes.FakeIRow{}
-		fakeRows = &fakes.FakeIRows{}
 		fakeResult = &fakes.FakeResult{}
 
 		store = NewMysqlStore(fakeDbProvider)
@@ -36,7 +34,7 @@ var _ = Describe("StoreMysql", func() {
 	Describe("GetByName", func() {
 
 		It("closes db connection on exit", func() {
-			fakeDb.QueryReturns(fakeRows, nil)
+			fakeDb.QueryRowReturns(&fakes.FakeIRow{})
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
 			store.GetByName("Luke")
@@ -44,72 +42,56 @@ var _ = Describe("StoreMysql", func() {
 		})
 
 		It("queries the database for the latest entry for a given name", func() {
-			fakeDb.QueryReturns(fakeRows, nil)
+			fakeDb.QueryRowReturns(&fakes.FakeIRow{})
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
 			_, err := store.GetByName("Luke")
 			Expect(err).To(BeNil())
-			query, _ := fakeDb.QueryArgsForCall(0)
+			query, _ := fakeDb.QueryRowArgsForCall(0)
 
-			Expect(query).To(Equal("SELECT id, name, value FROM configurations WHERE name = ? ORDER BY id DESC"))
+			Expect(query).To(Equal("SELECT id, name, value FROM configurations WHERE name = ? ORDER BY id DESC LIMIT 1"))
 			Expect(fakeDb.CloseCallCount()).To(Equal(1))
 		})
 
-		It("returns ALL values from db query", func() {
-			var rawConfigs = []Configuration{
-				{
-					ID:    "6",
-					Name:  "someName",
-					Value: "someOtherValue",
-				},
-				{
-					ID:    "5",
-					Name:  "someName",
-					Value: "someValue",
-				},
-			}
-			var index int = -1
-
-			fakeRows.NextStub = func() bool {
-				index++
-				return index < len(rawConfigs)
-			}
-
-			fakeRows.ScanStub = func(dest ...interface{}) error {
+		It("returns value from db query", func() {
+			fakeRow.ScanStub = func(dest ...interface{}) error {
 				idPtr, ok := dest[0].(*string)
 				Expect(ok).To(BeTrue())
 
-				*idPtr = rawConfigs[index].ID
 				namePtr, ok := dest[1].(*string)
 				Expect(ok).To(BeTrue())
 
-				*namePtr = rawConfigs[index].Name
 				valuePtr, ok := dest[2].(*string)
-
 				Expect(ok).To(BeTrue())
-				*valuePtr = rawConfigs[index].Value
+
+				*idPtr = "some_id"
+				*valuePtr = "Skywalker"
+				*namePtr = "Luke"
 
 				return nil
 			}
 
-			fakeDb.QueryReturns(fakeRows, nil)
+			fakeDb.QueryRowReturns(fakeRow)
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
-			values, err := store.GetByName("someName")
+			value, err := store.GetByName("Luke")
 			Expect(err).To(BeNil())
-			Expect(values[0]).To(Equal(rawConfigs[0]))
-			Expect(values[1]).To(Equal(rawConfigs[1]))
+			Expect(value).To(Equal(Configuration{
+				ID:    "some_id",
+				Value: "Skywalker",
+				Name:  "Luke",
+			}))
 		})
 
-		It("returns empty configuration array when no result is found", func() {
+		It("returns empty configuration when no result is found", func() {
 			fakeRow.ScanReturns(sql.ErrNoRows)
 
-			fakeDb.QueryReturns(fakeRows, nil)
+			fakeDb.QueryRowReturns(fakeRow)
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
-			values, err := store.GetByName("luke")
+			value, err := store.GetByName("luke")
 			Expect(err).To(BeNil())
-			Expect(len(values)).To(Equal(0))
+			Expect(value).To(Equal(Configuration{}))
 		})
 
 		It("returns an error when db provider fails to return db", func() {
@@ -122,14 +104,15 @@ var _ = Describe("StoreMysql", func() {
 		})
 
 		It("returns an error when db query fails", func() {
-			queryError := errors.New("query failure")
+			scanError := errors.New("query failure")
+			fakeRow.ScanReturns(scanError)
 
-			fakeDb.QueryReturns(fakeRows, queryError)
+			fakeDb.QueryRowReturns(fakeRow)
 			fakeDbProvider.DbReturns(fakeDb, nil)
 
 			_, err := store.GetByName("luke")
 			Expect(err).ToNot(BeNil())
-			Expect(err).To(Equal(queryError))
+			Expect(err).To(Equal(scanError))
 		})
 	})
 
@@ -222,18 +205,15 @@ var _ = Describe("StoreMysql", func() {
 
 		It("closes db connection on exit", func() {
 			fakeDbProvider.DbReturns(fakeDb, nil)
-			fakeDb.ExecReturns(fakeResult, nil)
-			fakeResult.LastInsertIdReturns(9, nil)
 
 			store.Put("Luke", "Skywalker")
 			Expect(fakeDb.CloseCallCount()).To(Equal(1))
 		})
 
-		It("does an insert to the database", func() {
+		It("does an insert when name does not exist in database", func() {
 			fakeDbProvider.DbReturns(fakeDb, nil)
-			fakeDb.ExecReturns(fakeResult, nil)
 
-			_, err := store.Put("Luke", "Skywalker")
+			err := store.Put("Luke", "Skywalker")
 			Expect(err).To(BeNil())
 
 			Expect(fakeDb.ExecCallCount()).To(Equal(1))
@@ -245,14 +225,23 @@ var _ = Describe("StoreMysql", func() {
 			Expect(values[1]).To(Equal("Skywalker"))
 		})
 
-		It("returns id of new record", func() {
+		It("does an update when name exists in database", func() {
+			fakeDb.ExecReturns(nil, errors.New("duplicate"))
 			fakeDbProvider.DbReturns(fakeDb, nil)
-			fakeDb.ExecReturns(fakeResult, nil)
-			fakeResult.LastInsertIdReturns(9, nil)
 
-			id, err := store.Put("Luke", "Skywalker")
-			Expect(err).To(BeNil())
-			Expect(id).To(Equal("9"))
+			store.Put("Luke", "Skywalker")
+
+			Expect(fakeDb.ExecCallCount()).To(Equal(2))
+
+			query, values := fakeDb.ExecArgsForCall(0)
+			Expect(query).To(Equal("INSERT INTO configurations (name, value) VALUES(?,?)"))
+			Expect(values[0]).To(Equal("Luke"))
+			Expect(values[1]).To(Equal("Skywalker"))
+
+			query, values = fakeDb.ExecArgsForCall(1)
+			Expect(query).To(Equal("UPDATE configurations SET value = ? WHERE name = ?"))
+			Expect(values[0]).To(Equal("Skywalker"))
+			Expect(values[1]).To(Equal("Luke"))
 		})
 	})
 
@@ -282,10 +271,10 @@ var _ = Describe("StoreMysql", func() {
 				Expect(value[0]).To(Equal("Luke"))
 			})
 
-			It("returns count of deleted rows", func() {
+			It("returns true", func() {
 				deleted, err := store.Delete("Luke")
 
-				Expect(deleted).To(Equal(1))
+				Expect(deleted).To(BeTrue())
 				Expect(err).To(BeNil())
 			})
 		})
@@ -299,9 +288,9 @@ var _ = Describe("StoreMysql", func() {
 				fakeResult.RowsAffectedReturns(0, nil)
 			})
 
-			It("returns count of deleted rows", func() {
+			It("returns false", func() {
 				deleted, err := store.Delete("name")
-				Expect(deleted).To(Equal(0))
+				Expect(deleted).To(BeFalse())
 				Expect(err).To(BeNil())
 			})
 		})

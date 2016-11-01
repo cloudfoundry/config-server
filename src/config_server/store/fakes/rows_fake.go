@@ -13,20 +13,6 @@ type FakeIRows struct {
 	nextReturns     struct {
 		result1 bool
 	}
-	CloseStub        func() error
-	closeMutex       sync.RWMutex
-	closeArgsForCall []struct{}
-	closeReturns     struct {
-		result1 error
-	}
-	ScanStub        func(dest ...interface{}) error
-	scanMutex       sync.RWMutex
-	scanArgsForCall []struct {
-		dest []interface{}
-	}
-	scanReturns struct {
-		result1 error
-	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
@@ -56,73 +42,11 @@ func (fake *FakeIRows) NextReturns(result1 bool) {
 	}{result1}
 }
 
-func (fake *FakeIRows) Close() error {
-	fake.closeMutex.Lock()
-	fake.closeArgsForCall = append(fake.closeArgsForCall, struct{}{})
-	fake.recordInvocation("Close", []interface{}{})
-	fake.closeMutex.Unlock()
-	if fake.CloseStub != nil {
-		return fake.CloseStub()
-	} else {
-		return fake.closeReturns.result1
-	}
-}
-
-func (fake *FakeIRows) CloseCallCount() int {
-	fake.closeMutex.RLock()
-	defer fake.closeMutex.RUnlock()
-	return len(fake.closeArgsForCall)
-}
-
-func (fake *FakeIRows) CloseReturns(result1 error) {
-	fake.CloseStub = nil
-	fake.closeReturns = struct {
-		result1 error
-	}{result1}
-}
-
-func (fake *FakeIRows) Scan(dest ...interface{}) error {
-	fake.scanMutex.Lock()
-	fake.scanArgsForCall = append(fake.scanArgsForCall, struct {
-		dest []interface{}
-	}{dest})
-	fake.recordInvocation("Scan", []interface{}{dest})
-	fake.scanMutex.Unlock()
-	if fake.ScanStub != nil {
-		return fake.ScanStub(dest...)
-	} else {
-		return fake.scanReturns.result1
-	}
-}
-
-func (fake *FakeIRows) ScanCallCount() int {
-	fake.scanMutex.RLock()
-	defer fake.scanMutex.RUnlock()
-	return len(fake.scanArgsForCall)
-}
-
-func (fake *FakeIRows) ScanArgsForCall(i int) []interface{} {
-	fake.scanMutex.RLock()
-	defer fake.scanMutex.RUnlock()
-	return fake.scanArgsForCall[i].dest
-}
-
-func (fake *FakeIRows) ScanReturns(result1 error) {
-	fake.ScanStub = nil
-	fake.scanReturns = struct {
-		result1 error
-	}{result1}
-}
-
 func (fake *FakeIRows) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
 	fake.nextMutex.RLock()
 	defer fake.nextMutex.RUnlock()
-	fake.closeMutex.RLock()
-	defer fake.closeMutex.RUnlock()
-	fake.scanMutex.RLock()
-	defer fake.scanMutex.RUnlock()
 	return fake.invocations
 }
 

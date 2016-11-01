@@ -15,11 +15,3 @@ func NewRowsWrapper(rows *sql.Rows) RowsWrapper {
 func (w RowsWrapper) Next() bool {
 	return w.rows.Next()
 }
-
-func (w RowsWrapper) Scan(dest ...interface{}) error {
-	return w.rows.Scan(dest...)
-}
-
-func (w RowsWrapper) Close() error {
-	return w.rows.Close()
-}

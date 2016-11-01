@@ -1,9 +1,6 @@
 package store
 
-import (
-	"sort"
-	"strconv"
-)
+import "strconv"
 
 type MemoryStore struct {
 	db map[string]Configuration
@@ -16,45 +13,50 @@ func NewMemoryStore() MemoryStore {
 	return MemoryStore{db: make(map[string]Configuration)}
 }
 
-func (store MemoryStore) Put(name string, value string) (string, error) {
-	config := Configuration{
-		Name:  name,
-		Value: value,
-		ID:    strconv.Itoa(dbCounter),
-	}
-	dbCounter++
+func (store MemoryStore) Put(name string, value string) error {
+	val, ok := store.db[name]
 
-	store.db[config.ID] = config
-	return config.ID, nil
+	if ok == false {
+		store.db[name] = Configuration{
+			Name:  name,
+			Value: value,
+			ID:    strconv.Itoa(dbCounter),
+		}
+		dbCounter++
+	} else {
+		val.Value = value
+		store.db[name] = val
+	}
+
+	return nil
 }
 
-func (store MemoryStore) GetByName(name string) (Configurations, error) {
-	var results Configurations
-
-	for _, config := range store.db {
-		if config.Name == name {
-			results = append(results, config)
-		}
-	}
-
-	sort.Sort(results)
-
-	return results, nil
+func (store MemoryStore) GetByName(name string) (Configuration, error) {
+	return store.db[name], nil
 }
 
 func (store MemoryStore) GetByID(id string) (Configuration, error) {
-	return store.db[id], nil
-}
-
-func (store MemoryStore) Delete(name string) (int, error) {
-	deletedCount := 0
+	result := Configuration{}
 
 	for _, config := range store.db {
-		if config.Name == name {
-			delete(store.db, config.ID)
-			deletedCount++
+		if config.ID == id {
+			result = config
+			break
 		}
 	}
 
-	return deletedCount, nil
+	return result, nil
+}
+
+func (store MemoryStore) Delete(name string) (bool, error) {
+	deleted := false
+	result, _ := store.GetByName(name)
+
+	// map contains name, delete
+	if len(result.Value) > 0 {
+		delete(store.db, name)
+		deleted = true
+	}
+
+	return deleted, nil
 }

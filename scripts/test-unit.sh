@@ -7,4 +7,4 @@ echo -e "\n Formatting Go files..."
 gofmt -l -w src/config_server/
 
 echo -e "\n Testing package..."
-ginkgo -r --keepGoing src/config_server/
+ginkgo -r src/config_server/

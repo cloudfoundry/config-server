@@ -2,7 +2,6 @@ package store
 
 import (
 	"database/sql"
-	"strconv"
 )
 
 type mysqlStore struct {
@@ -13,52 +12,38 @@ func NewMysqlStore(dbProvider DbProvider) Store {
 	return mysqlStore{dbProvider}
 }
 
-func (ms mysqlStore) Put(name string, value string) (string, error) {
+func (ms mysqlStore) Put(name string, value string) error {
 
 	db, err := ms.dbProvider.Db()
 	if err != nil {
-		return "", err
+		return err
 	}
 	defer db.Close()
 
-	result, err := db.Exec("INSERT INTO configurations (name, value) VALUES(?,?)", name, value)
+	_, err = db.Exec("INSERT INTO configurations (name, value) VALUES(?,?)", name, value)
 
-	id, err := result.LastInsertId()
 	if err != nil {
-		return "", err
+		_, err = db.Exec("UPDATE configurations SET value = ? WHERE name = ?", value, name)
 	}
 
-	return strconv.Itoa(int(id)), err
+	return err
 }
 
-func (ms mysqlStore) GetByName(name string) (Configurations, error) {
-	var results Configurations
+func (ms mysqlStore) GetByName(name string) (Configuration, error) {
+	result := Configuration{}
 
 	db, err := ms.dbProvider.Db()
 	if err != nil {
-		return results, err
+		return result, err
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT id, name, value FROM configurations WHERE name = ? ORDER BY id DESC", name)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return results, nil
-		}
-		return results, err
+	err = db.QueryRow("SELECT id, name, value FROM configurations WHERE name = ? ORDER BY id DESC LIMIT 1", name).Scan(&result.ID, &result.Name, &result.Value)
+	if err == sql.ErrNoRows {
+		return result, nil
 	}
 
-	defer rows.Close()
-
-	for rows.Next() {
-		var config Configuration
-		if err := rows.Scan(&config.ID, &config.Name, &config.Value); err != nil {
-			return results, err
-		}
-		results = append(results, config)
-	}
-
-	return results, err
+	return result, err
 }
 
 func (ms mysqlStore) GetByID(id string) (Configuration, error) {
@@ -78,24 +63,24 @@ func (ms mysqlStore) GetByID(id string) (Configuration, error) {
 	return result, err
 }
 
-func (ms mysqlStore) Delete(name string) (int, error) {
-	deletedCount := 0
+func (ms mysqlStore) Delete(name string) (bool, error) {
 
 	db, err := ms.dbProvider.Db()
 	if err != nil {
-		return deletedCount, err
+		return false, err
 	}
 	defer db.Close()
 
 	result, err := db.Exec("DELETE FROM configurations WHERE name = ?", name)
+	if (err != nil) || (result == nil) {
+		return false, err
+	}
+
+	rows, err := result.RowsAffected()
 	if err != nil {
-		return 0, err
+		return false, err
 	}
 
-	if result != nil {
-		rows, err := result.RowsAffected()
-		return int(rows), err
-	}
-
-	return 0, err
+	deleted := rows > 0
+	return deleted, err
 }
