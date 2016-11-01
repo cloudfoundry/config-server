@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"fmt"
 	"github.com/cloudfoundry/bosh-utils/errors"
 	"regexp"
 )
@@ -42,24 +43,22 @@ func (handler requestHandler) ServeHTTP(resWriter http.ResponseWriter, req *http
 }
 
 func (handler requestHandler) handleGet(resWriter http.ResponseWriter, req *http.Request) {
-	name, nameErr := handler.extractNameFromURLPath(req.URL.Path)
-
-	_, idExists := req.URL.Query()["id"]
-
-	if nameErr != nil && idExists != true {
-		http.Error(resWriter, nameErr.Error(), http.StatusBadRequest)
-		return
-	}
-
-	var value store.Configuration
-	var err error
-
-	if name != "" && nameErr == nil {
-		value, err = handler.store.GetByName(name)
+	id, idErr := extractIDFromURLPath(req.URL.Path)
+	if idErr == nil {
+		handler.handleGetByID(id, resWriter)
 	} else {
-		id := req.URL.Query().Get("id")
-		value, err = handler.store.GetByID(id)
+		name := req.URL.Query().Get("name")
+		if len(name) == 0 {
+			http.Error(resWriter, idErr.Error(), http.StatusBadRequest)
+		} else {
+			handler.handleGetByName(name, resWriter)
+		}
 	}
+}
+
+func (handler requestHandler) handleGetByID(id string, resWriter http.ResponseWriter) {
+
+	value, err := handler.store.GetByID(id)
 
 	if err != nil {
 		http.Error(resWriter, err.Error(), http.StatusInternalServerError)
@@ -72,23 +71,40 @@ func (handler requestHandler) handleGet(resWriter http.ResponseWriter, req *http
 		http.Error(resWriter, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	} else {
 		result, _ := value.StringifiedJSON()
-		handler.respond(resWriter, result, http.StatusOK)
+		respond(resWriter, result, http.StatusOK)
+	}
+}
+
+func (handler requestHandler) handleGetByName(name string, resWriter http.ResponseWriter) {
+
+	if isNameValid, nameError := isValidName(name); isNameValid == false {
+		http.Error(resWriter, nameError.Error(), http.StatusBadRequest)
+		return
+	}
+
+	values, err := handler.store.GetByName(name)
+	if err != nil {
+		http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if len(values) == 0 {
+		http.Error(resWriter, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+	} else {
+		result, err := store.Configurations(values).StringifiedJSON()
+		if err == nil {
+			respond(resWriter, result, http.StatusOK)
+		}
 	}
 }
 
 func (handler requestHandler) handlePut(resWriter http.ResponseWriter, req *http.Request) {
-	if contentTypeErr := handler.validateRequestContentType(req); contentTypeErr != nil {
+	if contentTypeErr := validateRequestContentType(req); contentTypeErr != nil {
 		http.Error(resWriter, contentTypeErr.Error(), http.StatusUnsupportedMediaType)
 		return
 	}
 
-	name, nameErr := handler.extractNameFromURLPath(req.URL.Path)
-	if nameErr != nil {
-		http.Error(resWriter, nameErr.Error(), http.StatusBadRequest)
-		return
-	}
-
-	value, err := handler.readPutRequest(req)
+	name, value, err := readPutRequest(req)
 
 	if err != nil {
 		http.Error(resWriter, err.Error(), http.StatusBadRequest)
@@ -101,40 +117,41 @@ func (handler requestHandler) handlePut(resWriter http.ResponseWriter, req *http
 		http.Error(resWriter, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	result, _ := configuration.StringifiedJSON()
-	handler.respond(resWriter, result, http.StatusOK)
+	respond(resWriter, result, http.StatusOK)
 }
 
 func (handler requestHandler) handlePost(resWriter http.ResponseWriter, req *http.Request) {
-	if contentTypeErr := handler.validateRequestContentType(req); contentTypeErr != nil {
+	if contentTypeErr := validateRequestContentType(req); contentTypeErr != nil {
 		http.Error(resWriter, contentTypeErr.Error(), http.StatusUnsupportedMediaType)
 		return
 	}
 
-	name, nameErr := handler.extractNameFromURLPath(req.URL.Path)
-	if nameErr != nil {
-		http.Error(resWriter, nameErr.Error(), http.StatusBadRequest)
-		return
-	}
-	generationType, parameters, err := handler.readPostRequest(req)
+	name, generatorType, parameters, err := readPostRequest(req)
 
 	if err != nil {
 		http.Error(resWriter, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	emptyValue := store.Configuration{}
+	values, err := handler.store.GetByName(name)
+	if err != nil {
+		http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	value, err := handler.store.GetByName(name)
-	if value != emptyValue {
-		result, _ := value.StringifiedJSON()
-		handler.respond(resWriter, result, http.StatusOK)
+	if len(values) != 0 {
+		result, err := values[0].StringifiedJSON()
+		if err != nil {
+			http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+		} else {
+			respond(resWriter, result, http.StatusOK)
+		}
 
 	} else {
-		generator, err := handler.valueGeneratorFactory.GetGenerator(generationType)
+		generator, err := handler.valueGeneratorFactory.GetGenerator(generatorType)
 		if err != nil {
-			http.Error(resWriter, "Unsupport type {put type here}", http.StatusBadRequest)
+			http.Error(resWriter, err.Error(), http.StatusBadRequest)
 			return
 		}
 
@@ -151,23 +168,24 @@ func (handler requestHandler) handlePost(resWriter http.ResponseWriter, req *htt
 		}
 
 		result, _ := configuration.StringifiedJSON()
-		handler.respond(resWriter, result, http.StatusCreated)
+		respond(resWriter, result, http.StatusCreated)
 	}
 }
 
 func (handler requestHandler) handleDelete(resWriter http.ResponseWriter, req *http.Request) {
-	name, nameErr := handler.extractNameFromURLPath(req.URL.Path)
-	if nameErr != nil {
-		http.Error(resWriter, nameErr.Error(), http.StatusBadRequest)
+	name := req.URL.Query().Get("name")
+	if isNameValid, nameError := isValidName(name); isNameValid == false {
+		http.Error(resWriter, nameError.Error(), http.StatusBadRequest)
 		return
 	}
+
 	deleted, err := handler.store.Delete(name)
 
 	if err == nil {
-		if deleted {
-			handler.respond(resWriter, "", http.StatusNoContent)
+		if deleted == 0 {
+			respond(resWriter, "", http.StatusNotFound)
 		} else {
-			handler.respond(resWriter, "", http.StatusNotFound)
+			respond(resWriter, "", http.StatusNoContent)
 		}
 	} else {
 		http.Error(resWriter, err.Error(), http.StatusInternalServerError)
@@ -184,20 +202,16 @@ func (handler requestHandler) saveToStore(name string, value interface{}) (store
 		return store.Configuration{}, err
 	}
 
-	err = handler.store.Put(name, string(bytes))
+	id, err := handler.store.Put(name, string(bytes))
 	if err != nil {
 		return store.Configuration{}, err
 	}
 
-	configuration, err := handler.store.GetByName(name)
-	if err != nil {
-		return store.Configuration{}, err
-	}
-
-	return configuration, nil
+	configuration, err := handler.store.GetByID(id)
+	return configuration, err
 }
 
-func (handler requestHandler) respond(res http.ResponseWriter, message string, status int) {
+func respond(res http.ResponseWriter, message string, status int) {
 	res.WriteHeader(status)
 
 	_, err := res.Write([]byte(message))
@@ -206,37 +220,66 @@ func (handler requestHandler) respond(res http.ResponseWriter, message string, s
 	}
 }
 
-func (handler requestHandler) readPutRequest(req *http.Request) (interface{}, error) {
-	jsonMap, err := handler.readJSONBody(req)
+func readPutRequest(req *http.Request) (string, interface{}, error) {
 
-	if err != nil {
-		return nil, err
-	}
-
-	value, keyExists := jsonMap["value"]
-	if !keyExists {
-		return nil, errors.Error("JSON request body shoud contain the key 'value'")
-	}
-
-	return value, nil
-}
-
-func (handler requestHandler) readPostRequest(req *http.Request) (string, interface{}, error) {
-	jsonMap, err := handler.readJSONBody(req)
-
+	jsonMap, err := readJSONBody(req)
 	if err != nil {
 		return "", nil, err
 	}
 
-	generationType, keyExist := jsonMap["type"]
-	if !keyExist {
-		return "", nil, errors.Error("JSON request body shoud contain the key 'type'")
+	name, err := getStringValueFromJSONBody(jsonMap, "name")
+	if err != nil {
+		return "", nil, err
 	}
 
-	return generationType.(string), jsonMap["parameters"], nil
+	if isNameValid, nameError := isValidName(name); isNameValid == false {
+		return "", nil, nameError
+	}
+
+	value, keyExists := jsonMap["value"]
+	if !keyExists {
+		return "", nil, errors.Error("JSON request body should contain the key 'value'")
+	}
+
+	return name, value, nil
 }
 
-func (handler requestHandler) readJSONBody(req *http.Request) (map[string]interface{}, error) {
+func readPostRequest(req *http.Request) (string, string, interface{}, error) {
+
+	jsonMap, err := readJSONBody(req)
+	if err != nil {
+		return "", "", nil, err
+	}
+
+	name, err := getStringValueFromJSONBody(jsonMap, "name")
+	if err != nil {
+		return name, "", nil, err
+	}
+
+	generatorType, err := getStringValueFromJSONBody(jsonMap, "type")
+	if err != nil {
+		return name, generatorType, nil, err
+	}
+
+	return name, generatorType, jsonMap["parameters"], nil
+}
+
+func getStringValueFromJSONBody(jsonMap map[string]interface{}, keyName string) (string, error) {
+
+	value, keyExists := jsonMap[keyName]
+	if !keyExists {
+		return "", errors.Error(fmt.Sprintf("JSON request body should contain the key '%s'", keyName))
+	}
+
+	switch value.(type) {
+	case string:
+		return value.(string), nil
+	default:
+		return "", errors.Error(fmt.Sprintf("JSON request body key '%s' must be of type string", keyName))
+	}
+}
+
+func readJSONBody(req *http.Request) (map[string]interface{}, error) {
 	if req == nil {
 		return nil, errors.Error("Request can't be nil")
 	}
@@ -253,27 +296,33 @@ func (handler requestHandler) readJSONBody(req *http.Request) (map[string]interf
 	return f.(map[string]interface{}), nil
 }
 
-func (handler requestHandler) extractNameFromURLPath(path string) (string, error) {
+func extractIDFromURLPath(path string) (string, error) {
 	paths := strings.Split(strings.Trim(path, "/"), "/")
 
 	if len(paths) < 3 {
-		return "", errors.Error("Request URL invalid, seems to be missing name")
+		return "", errors.Error("Request URL invalid, seems to be missing ID")
 	}
 
-	tokens := paths[2:]
+	id := paths[len(paths)-1]
+	if len(id) == 0 {
+		return "", errors.Error("Request URL invalid, seems to be missing ID")
+	}
+	return id, nil
+}
 
+func isValidName(name string) (bool, error) {
+	tokens := strings.Split(name, "/")
 	var validNameToken = regexp.MustCompile(`^[a-zA-Z0-9_\-]+$`)
 
 	for _, token := range tokens {
 		if !validNameToken.MatchString(token) {
-			return "", errors.Error("Name must consist of alphanumeric, underscores, dashes, and forward slashes")
+			return false, errors.Error("Name must consist of alphanumeric, underscores, dashes, and forward slashes")
 		}
 	}
-
-	return strings.Join(tokens, "/"), nil
+	return true, nil
 }
 
-func (handler requestHandler) validateRequestContentType(req *http.Request) error {
+func validateRequestContentType(req *http.Request) error {
 	if !strings.EqualFold(req.Header.Get("content-type"), "application/json") {
 		return errors.Error("Unsupported Media Type - Accepts application/json only")
 	}
