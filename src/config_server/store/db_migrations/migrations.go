@@ -2,7 +2,7 @@ package db_migrations
 
 func PostgresMigrations() []string {
 	migrations := []string{
-		"CREATE TABLE configurations (id SERIAL NOT NULL PRIMARY KEY, name VARCHAR(255) NOT NULL UNIQUE, value TEXT NOT NULL)",
+		"CREATE TABLE configurations (id SERIAL NOT NULL PRIMARY KEY, name VARCHAR(255) NOT NULL, value TEXT NOT NULL)",
 	}
 
 	return migrations
@@ -10,7 +10,7 @@ func PostgresMigrations() []string {
 
 func MysqlMigrations() []string {
 	migrations := []string{
-		"CREATE TABLE configurations (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255) NOT NULL UNIQUE, value TEXT NOT NULL)",
+		"CREATE TABLE configurations (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255) NOT NULL, value TEXT NOT NULL)",
 	}
 
 	return migrations

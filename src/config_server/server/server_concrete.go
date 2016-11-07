@@ -45,6 +45,7 @@ func (cs configServer) configureHandler() error {
 	}
 	authenticationHandler := NewAuthenticationHandler(jwtTokenValidator, requestHandler)
 
+	http.Handle("/v1/data", authenticationHandler)
 	http.Handle("/v1/data/", authenticationHandler)
 
 	return nil

@@ -73,13 +73,12 @@ func SetupDB() {
 	err := exec.Command(SETUP_DB_SCRIPT, db).Run()
 	if err != nil {
 		panic("Failed to setup DB: " + err.Error())
-
 	}
 }
 
 func waitForServerToStart() {
 	for i := 0; i < SECONDS_WAIT_FOR_SERVER_TO_START; i++ {
-		resp, err := SendGetRequestByName("some_name")
+		resp, err := SendGetRequestByID("1")
 
 		if err == nil && resp.StatusCode == 404 {
 			break

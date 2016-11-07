@@ -46,7 +46,8 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 			Context("when name exists in server", func() {
 				It("responds with status 200", func() {
-					SendPutRequest("smurf", "blue")
+					_, err := SendPutRequest("smurf", "blue")
+					Expect(err).To(BeNil())
 
 					resp, err := SendGetRequestByName("smurf")
 
@@ -54,7 +55,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 					Expect(resp.StatusCode).To(Equal(200))
 				})
 
-				It("sends back value along with name as json", func() {
+				It("sends back id, name and value as json", func() {
 					SendPutRequest("smurf", "blue")
 
 					resp, err := SendGetRequestByName("smurf")
@@ -63,8 +64,38 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 					resultMap := UnmarshalJsonString(resp.Body)
 
-					Expect(resultMap["name"]).To(Equal("smurf"))
-					Expect(resultMap["value"]).To(Equal("blue"))
+					data := resultMap["data"].([]interface{})
+					entry := data[0].(map[string]interface{})
+
+					Expect(entry["id"]).ToNot(BeNil())
+					Expect(entry["name"]).To(Equal("smurf"))
+					Expect(entry["value"]).To(Equal("blue"))
+				})
+
+				It("sends back ALL values sorted by ID", func() {
+					SendPutRequest("smurf", "red")
+					SendPutRequest("smurf", "green")
+					SendPutRequest("smurf", "blue")
+
+					resp, err := SendGetRequestByName("smurf")
+
+					Expect(err).To(BeNil())
+
+					resultMap := UnmarshalJsonString(resp.Body)
+
+					data := resultMap["data"].([]interface{})
+					entry1 := data[0].(map[string]interface{})
+					entry2 := data[1].(map[string]interface{})
+					entry3 := data[2].(map[string]interface{})
+
+					Expect(entry1["name"]).To(Equal("smurf"))
+					Expect(entry1["value"]).To(Equal("blue"))
+
+					Expect(entry2["name"]).To(Equal("smurf"))
+					Expect(entry2["value"]).To(Equal("green"))
+
+					Expect(entry3["name"]).To(Equal("smurf"))
+					Expect(entry3["value"]).To(Equal("red"))
 				})
 
 				It("handles names with forward slashes", func() {
@@ -77,8 +108,12 @@ var _ = Describe("Supported HTTP Methods", func() {
 					Expect(err).To(BeNil())
 
 					resultMap := UnmarshalJsonString(resp.Body)
-					Expect(resultMap["name"]).To(Equal(name))
-					Expect(resultMap["value"]).To(Equal("vroom"))
+
+					data := resultMap["data"].([]interface{})
+					entry := data[0].(map[string]interface{})
+
+					Expect(entry["name"]).To(Equal(name))
+					Expect(entry["value"]).To(Equal("vroom"))
 				})
 			})
 		})
@@ -118,6 +153,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 					Expect(resultMap["name"]).To(Equal("annie"))
 					Expect(resultMap["value"]).To(Equal("diane"))
+					Expect(resultMap["id"]).To(Equal(id))
 				})
 			})
 		})
@@ -125,8 +161,8 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 	Describe("PUT", func() {
 		It("fails if content-type in the header is not set to application/json", func() {
-			requestBytes := bytes.NewReader([]byte(`{"value":"smurf"`))
-			req, _ := http.NewRequest("PUT", SERVER_URL+"/v1/data/blah", requestBytes)
+			requestBytes := bytes.NewReader([]byte(`{"name":"blah", "value":"smurf"`))
+			req, _ := http.NewRequest("PUT", SERVER_URL+"/v1/data/", requestBytes)
 			req.Header.Add("Authorization", "bearer "+ValidToken())
 
 			resp, err := HTTPSClient.Do(req)
@@ -166,7 +202,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 				Expect(resp.StatusCode).To(Equal(200))
 			})
 
-			Context("when name is empty string", func() {
+			Context("when value is empty string", func() {
 				It("is stored and responds with value & id", func() {
 					resp, err := SendPutRequest("crossfit", "")
 
@@ -178,7 +214,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 					Expect(resultMap["value"]).To(Equal(""))
 				})
 			})
-			Context("when name is nil", func() {
+			Context("when value is nil", func() {
 				It("is stored and responds with value & id", func() {
 					resp, err := SendPutRequest("crossfit", nil)
 
@@ -199,23 +235,29 @@ var _ = Describe("Supported HTTP Methods", func() {
 				getResp, _ := SendGetRequestByName("smurf")
 
 				resultMap := UnmarshalJsonString(getResp.Body)
-				Expect(resultMap["name"]).To(Equal("smurf"))
-				Expect(resultMap["value"]).To(Equal("blue"))
+				data := resultMap["data"].([]interface{})
+				entry := data[0].(map[string]interface{})
+
+				Expect(entry["name"]).To(Equal("smurf"))
+				Expect(entry["value"]).To(Equal("blue"))
 
 				SendPutRequest("smurf", "red")
 				getResp, _ = SendGetRequestByName("smurf")
 
 				resultMap = UnmarshalJsonString(getResp.Body)
-				Expect(resultMap["name"]).To(Equal("smurf"))
-				Expect(resultMap["value"]).To(Equal("red"))
+				data = resultMap["data"].([]interface{})
+				entry = data[0].(map[string]interface{})
+
+				Expect(entry["name"]).To(Equal("smurf"))
+				Expect(entry["value"]).To(Equal("red"))
 			})
 		})
 	})
 
 	Describe("POST", func() {
 		It("fails if content-type in the header is not set to application/json", func() {
-			requestBytes := bytes.NewReader([]byte(`{"type":"password","parameters":{}}`))
-			req, _ := http.NewRequest("POST", SERVER_URL+"/v1/data/blah", requestBytes)
+			requestBytes := bytes.NewReader([]byte(`{"name":"blah", "type":"password","parameters":{}}`))
+			req, _ := http.NewRequest("POST", SERVER_URL+"/v1/data/", requestBytes)
 			req.Header.Add("Authorization", "bearer "+ValidToken())
 
 			resp, err := HTTPSClient.Do(req)
@@ -252,6 +294,42 @@ var _ = Describe("Supported HTTP Methods", func() {
 			Expect(cert.Issuer.Organization).To(ContainElement("Internet Widgits Pty Ltd"))
 			Expect(cert.Issuer.Country).To(ContainElement("AU"))
 			Expect(cert.Issuer.Province).To(ContainElement("Some-State"))
+		})
+	})
+
+	Describe("DELETE", func() {
+
+		It("deletes ALL entries for for the name", func() {
+			SendPutRequest("smurf", "green")
+			SendPutRequest("smurf", "blue")
+
+			resp, err := SendGetRequestByName("smurf")
+			resultMap := UnmarshalJsonString(resp.Body)
+
+			data := resultMap["data"].([]interface{})
+			Expect(len(data)).To(Equal(2))
+
+			SendDeleteRequest("smurf")
+
+			resp, err = SendGetRequestByName("smurf")
+			Expect(err).To(BeNil())
+			Expect(resp.StatusCode).To(Equal(http.StatusNotFound))
+		})
+
+		It("returns 204 No Content when deletion is successful", func() {
+			SendPutRequest("smurf", "blue")
+
+			resp, err := SendDeleteRequest("smurf")
+
+			Expect(err).To(BeNil())
+			Expect(resp.StatusCode).To(Equal(http.StatusNoContent))
+		})
+
+		It("returns 404 Not found when configuration with name does not exist", func() {
+			resp, err := SendDeleteRequest("smurf")
+
+			Expect(err).To(BeNil())
+			Expect(resp.StatusCode).To(Equal(http.StatusNotFound))
 		})
 	})
 })
