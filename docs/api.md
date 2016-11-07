@@ -1,22 +1,22 @@
 ## API Docs (WIP)
 This document describes the APIs exposed by the **Config Server**.
 
-### 1 - Get Name Value
+### 1 - Get By ID
 ```
-GET /v1/data/:name
+GET /v1/data/:id
 ```
 
-| Name | Description |
+| Id  | Description |
 | ---- | ----------- |
-| name | Full path |
+| id | string unique id   |
 
 ##### Response Body
 `Content-Type: application/json`
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Id| Type | Description |
+| ----| ---- | ---- | ----------- |
 | id | string | Unique Id |
-| path | string | Full path |
+| name | string | Full path |
 | value | JSON Object | Any valid JSON object |
 
 ##### Response Codes
@@ -30,7 +30,7 @@ GET /v1/data/:name
 
 ##### Sample Requests/Responses
 
-`GET /v1/data/color`
+`GET /v1/data/:id`
 
 Response:
 ``` JSON
@@ -43,30 +43,40 @@ Response:
 
 --
 
-`GET /v1/data/server/tomcat/port`
+### 1 - Get By Name
+
+`GET /v1/data?name="/server/tomcat/port"`
 
 Response:
 ``` JSON
 {
-  "id": "some_id",
-  "name": "server/tomcat/port",
-  "value": 8080
-}
+  "data": [
+    {
+      "id": "some_id",
+      "name": "server/tomcat/port",
+      "value": 8080
+    }
+  ]
+
 ```
 
 --
 
-`GET /v1/data/server/tomcat/cert`
+`GET /v1/data?name="/server/tomcat/cert"`
 
 Response:
 ``` JSON
 {
-  "id": "some_id",
-  "name": "server/tomcat/port",
-  "value": {
-    "cert": "my-cert",
-    "private-key": "my private key"
-  }
+  "data": [
+    {
+      "id": "some_id",
+      "name": "server/tomcat/port",
+      "value": {
+        "cert": "my-cert",
+        "private-key": "my private key"
+      }
+    }
+  ]
 }
 ```
 
@@ -74,27 +84,25 @@ Response:
 
 ### 2 - Set Name Value
 ```
-PUT /v1/data/:name
+PUT /v1/data
 ```
-
-| Name | Description |
-| ---- | ----------- |
-| name | Full path |
 
 ##### Request Body
 `Content-Type: application/json`
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
+| name| string | name of key | 
 | value | JSON Object | Any valid JSON object |
 
 ##### Sample Request
 
-`PUT /v1/data/full/path/to/name`
+`PUT /v1/data`
 
 Request Body:
 ```
 {
+  "name": "full/path/to/name",
   "value": "happy value"
 }
 ```
@@ -105,7 +113,7 @@ Request Body:
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | id | string | Unique Id |
-| path | string | Full path |
+| name | string | Full path |
 | value | JSON Object | Any valid JSON object |
 
 ##### Response Codes
@@ -122,18 +130,15 @@ Request Body:
 ### 3 - Generate password/certificate
 
 ```
-POST /v1/data/:name
+POST /v1/data/
 ```
-
-| Name | Description |
-| ---- | ----------- |
-| name | Full path |
 
 ##### Request Body
 `Content-Type: application/json`
 
 | Name | Type | Valid Values | Description |
 | ---- | ---- | ------------ | ----------- |
+| name | String | alphanumeric | name of key |
 | type | String | password, certificate | The type of data to generate |
 | parameters | JSON Object | | See below for valid parameters |
 
@@ -146,21 +151,23 @@ POST /v1/data/:name
 ##### Sample Requests
 
 ###### Password Generation
-`POST /v1/data/mypasswd`
+`POST /v1/data`
 
 Request Body:
 ``` JSON
 {
+  "name": "mypasswd",
   "type": "password"
 }
 ```
 
 ###### Certificate Generation
-`POST /v1/data/mycert`
+`POST /v1/data`
 
 Request Body:
 ``` JSON
 {
+  "name": "mycert",
   "type": "certificate",
   "parameters": {
     "common_name": "bosh.io",
@@ -176,6 +183,7 @@ It returns an array of the following object:
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
+| name | string | Name of key |
 | id | string | Unique Id |
 | name | string | Full path  |
 | value | JSON Object | value generated |
@@ -213,7 +221,7 @@ It returns an array of the following object:
 
 ### 4 - Delete Name
 ```
-DELETE /v1/data/:name
+DELETE /v1/data?name="name"
 ```
 
 | Name | Description |
@@ -223,7 +231,7 @@ DELETE /v1/data/:name
 
 ##### Sample Request
 
-`DELETE /v1/data/full/path/to/name`
+`DELETE /v1/data?name="full/path/to/name"`
 
 ##### Response Codes
 | Code | Description |
