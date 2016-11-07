@@ -43,7 +43,7 @@ Response:
 
 --
 
-### 1 - Get By Name
+### 2 - Get By Name
 
 `GET /v1/data?name="/server/tomcat/port"`
 
@@ -82,7 +82,7 @@ Response:
 
 ---
 
-### 2 - Set Name Value
+### 3 - Set Name Value
 ```
 PUT /v1/data
 ```
@@ -127,7 +127,7 @@ Request Body:
 
 ---
 
-### 3 - Generate password/certificate
+### 4 - Generate password/certificate
 
 ```
 POST /v1/data/
@@ -219,7 +219,7 @@ It returns an array of the following object:
 }
 ```
 
-### 4 - Delete Name
+### 5 - Delete Name
 ```
 DELETE /v1/data?name="name"
 ```
