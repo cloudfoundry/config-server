@@ -4,7 +4,8 @@ jobs:
   - name: test-gofmt
     public: true
     plan:
-      - {get: config-server, trigger: true}
+      - get: config-server
+        trigger: true
       - task: test-gofmt
         file: config-server/ci/tasks/test-gofmt.yml
         on_failure: &slack-alert
@@ -17,16 +18,28 @@ jobs:
   - name: test-golint
     public: true
     plan:
-      - {get: config-server, trigger: true}
+      - get: config-server
+        trigger: true
       - task: test-golint
         file: config-server/ci/tasks/test-golint.yml
+        on_failure:
+          <<: *slack-alert
+
+  - name: test-govet
+    public: true
+    plan:
+      - get: config-server
+        trigger: true
+      - task: test-govet
+        file: config-server/ci/tasks/test-govet.yml
         on_failure:
           <<: *slack-alert
 
   - name: test-unit
     public: true
     plan:
-      - {get: config-server, trigger: true}
+      - get: config-server
+        trigger: true
       - task: test-unit
         file: config-server/ci/tasks/test-unit.yml
         on_failure:
@@ -35,7 +48,8 @@ jobs:
   - name: test-integration-in-memory
     public: true
     plan:
-      - {get: config-server, trigger: true}
+      - get: config-server
+        trigger: true
       - task: test-integration
         privileged: true
         file: config-server/ci/tasks/test-integration.yml
@@ -47,7 +61,8 @@ jobs:
   - name: test-integration-mysql
     public: true
     plan:
-      - {get: config-server, trigger: true}
+      - get: config-server
+        trigger: true
       - task: test-integration
         privileged: true
         file: config-server/ci/tasks/test-integration.yml
@@ -60,7 +75,8 @@ jobs:
   - name: test-integration-postgresql
     public: true
     plan:
-      - {get: config-server, trigger: true}
+      - get: config-server
+        trigger: true
       - task: test-integration
         privileged: true
         file: config-server/ci/tasks/test-integration.yml
