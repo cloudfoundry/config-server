@@ -15,15 +15,15 @@ import (
 	"time"
 )
 
-const ASSETS_DIR string = "assets"
-const SECONDS_WAIT_FOR_SERVER_TO_START int = 10
-const START_SCRIPT string = "./start_server.sh"
-const STOP_SCRIPT string = "./stop_server.sh"
-const SETUP_DB_SCRIPT string = "./setup_db.sh"
+const AssetsDir string = "assetsdghdfgh"
+const ServerStartTimeout int = 10
+const StartScript string = "./start_server.sh"
+const StopScript string = "./stop_server.sh"
+const DbSetupScript string = "./setup_db.sh"
 
-var HTTPSClient *http.Client = createHTTPSClient()
+var HTTPSClient = createHTTPSClient()
 
-func UnmarshalJsonString(requestBody io.ReadCloser) map[string]interface{} {
+func UnmarshalJSONString(requestBody io.ReadCloser) map[string]interface{} {
 	var f interface{}
 
 	if err := json.NewDecoder(requestBody).Decode(&f); err != nil {
@@ -36,7 +36,6 @@ func UnmarshalJsonString(requestBody io.ReadCloser) map[string]interface{} {
 func ParseCertString(certString string) (*x509.Certificate, error) {
 	block, _ := pem.Decode([]byte(certString))
 	crt, err := x509.ParseCertificate(block.Bytes)
-
 	return crt, err
 }
 
@@ -52,7 +51,7 @@ func ValidToken() string {
 }
 
 func StartServer() {
-	err := exec.Command(START_SCRIPT).Start()
+	err := exec.Command(StartScript).Start()
 	if err != nil {
 		fmt.Println("Failed to start Config Server: ", err.Error())
 	}
@@ -60,7 +59,7 @@ func StartServer() {
 }
 
 func StopServer() {
-	err := exec.Command(STOP_SCRIPT).Start()
+	err := exec.Command(StopScript).Start()
 	if err != nil {
 		fmt.Println("Failed to start Config Server: ", err.Error())
 	}
@@ -70,22 +69,22 @@ func StopServer() {
 
 func SetupDB() {
 	db := os.Getenv("DB")
-	err := exec.Command(SETUP_DB_SCRIPT, db).Run()
+	err := exec.Command(DbSetupScript, db).Run()
 	if err != nil {
 		panic("Failed to setup DB: " + err.Error())
 	}
 }
 
 func waitForServerToStart() {
-	for i := 0; i < SECONDS_WAIT_FOR_SERVER_TO_START; i++ {
+	for i := 0; i < ServerStartTimeout; i++ {
 		resp, err := SendGetRequestByID("1")
 
 		if err == nil && resp.StatusCode == 404 {
 			break
 		}
 
-		if i == SECONDS_WAIT_FOR_SERVER_TO_START-1 {
-			panic("Could not start config server in " + string(SECONDS_WAIT_FOR_SERVER_TO_START) + " seconds")
+		if i == ServerStartTimeout-1 {
+			panic("Could not start config server in " + string(ServerStartTimeout) + " seconds")
 		}
 
 		time.Sleep(time.Second)
@@ -93,15 +92,15 @@ func waitForServerToStart() {
 }
 
 func waitForServerToStop() {
-	for i := 0; i < SECONDS_WAIT_FOR_SERVER_TO_START; i++ {
+	for i := 0; i < ServerStartTimeout; i++ {
 		_, err := SendGetRequestByName("some_name")
 
 		if err != nil {
 			break
 		}
 
-		if i == SECONDS_WAIT_FOR_SERVER_TO_START-1 {
-			panic("Could not stop config server in " + string(SECONDS_WAIT_FOR_SERVER_TO_START) + " seconds")
+		if i == ServerStartTimeout-1 {
+			panic("Could not stop config server in " + string(ServerStartTimeout) + " seconds")
 		}
 
 		time.Sleep(time.Second)
@@ -116,7 +115,7 @@ func pathForAsset(fileName string) string {
 		panic(err.Error())
 	}
 
-	path = filepath.Join(rootDir, ASSETS_DIR, fileName)
+	path = filepath.Join(rootDir, AssetsDir, fileName)
 
 	return path
 }

@@ -62,7 +62,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 					Expect(err).To(BeNil())
 
-					resultMap := UnmarshalJsonString(resp.Body)
+					resultMap := UnmarshalJSONString(resp.Body)
 
 					data := resultMap["data"].([]interface{})
 					entry := data[0].(map[string]interface{})
@@ -81,7 +81,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 					Expect(err).To(BeNil())
 
-					resultMap := UnmarshalJsonString(resp.Body)
+					resultMap := UnmarshalJSONString(resp.Body)
 
 					data := resultMap["data"].([]interface{})
 					entry1 := data[0].(map[string]interface{})
@@ -107,7 +107,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 					Expect(err).To(BeNil())
 
-					resultMap := UnmarshalJsonString(resp.Body)
+					resultMap := UnmarshalJSONString(resp.Body)
 
 					data := resultMap["data"].([]interface{})
 					entry := data[0].(map[string]interface{})
@@ -131,7 +131,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 			Context("when id exists in server", func() {
 				It("responds with status 200", func() {
 					putResponse, _ := SendPutRequest("smurf", "blue")
-					config := UnmarshalJsonString(putResponse.Body)
+					config := UnmarshalJSONString(putResponse.Body)
 					id := config["id"].(string)
 
 					resp, err := SendGetRequestByID(id)
@@ -142,14 +142,14 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 				It("sends back value along with name as json", func() {
 					putResponse, _ := SendPutRequest("annie", "diane")
-					config := UnmarshalJsonString(putResponse.Body)
+					config := UnmarshalJSONString(putResponse.Body)
 					id := config["id"].(string)
 
 					resp, err := SendGetRequestByID(id)
 
 					Expect(err).To(BeNil())
 
-					resultMap := UnmarshalJsonString(resp.Body)
+					resultMap := UnmarshalJSONString(resp.Body)
 
 					Expect(resultMap["name"]).To(Equal("annie"))
 					Expect(resultMap["value"]).To(Equal("diane"))
@@ -162,7 +162,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 	Describe("PUT", func() {
 		It("fails if content-type in the header is not set to application/json", func() {
 			requestBytes := bytes.NewReader([]byte(`{"name":"blah", "value":"smurf"`))
-			req, _ := http.NewRequest("PUT", SERVER_URL+"/v1/data/", requestBytes)
+			req, _ := http.NewRequest("PUT", ServerURL+"/v1/data/", requestBytes)
 			req.Header.Add("Authorization", "bearer "+ValidToken())
 
 			resp, err := HTTPSClient.Do(req)
@@ -190,7 +190,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 				Expect(err).To(BeNil())
 				Expect(resp.StatusCode).To(Equal(200))
 
-				resultMap := UnmarshalJsonString(resp.Body)
+				resultMap := UnmarshalJSONString(resp.Body)
 				Expect(resultMap["name"]).To(Equal("cross"))
 				Expect(resultMap["value"]).To(Equal("fit"))
 			})
@@ -209,7 +209,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 					Expect(err).To(BeNil())
 					Expect(resp.StatusCode).To(Equal(200))
 
-					resultMap := UnmarshalJsonString(resp.Body)
+					resultMap := UnmarshalJSONString(resp.Body)
 					Expect(resultMap["name"]).To(Equal("crossfit"))
 					Expect(resultMap["value"]).To(Equal(""))
 				})
@@ -221,7 +221,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 					Expect(err).To(BeNil())
 					Expect(resp.StatusCode).To(Equal(200))
 
-					resultMap := UnmarshalJsonString(resp.Body)
+					resultMap := UnmarshalJSONString(resp.Body)
 					Expect(resultMap["name"]).To(Equal("crossfit"))
 					Expect(resultMap["value"]).To(BeNil())
 				})
@@ -234,7 +234,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 				getResp, _ := SendGetRequestByName("smurf")
 
-				resultMap := UnmarshalJsonString(getResp.Body)
+				resultMap := UnmarshalJSONString(getResp.Body)
 				data := resultMap["data"].([]interface{})
 				entry := data[0].(map[string]interface{})
 
@@ -244,7 +244,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 				SendPutRequest("smurf", "red")
 				getResp, _ = SendGetRequestByName("smurf")
 
-				resultMap = UnmarshalJsonString(getResp.Body)
+				resultMap = UnmarshalJSONString(getResp.Body)
 				data = resultMap["data"].([]interface{})
 				entry = data[0].(map[string]interface{})
 
@@ -257,7 +257,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 	Describe("POST", func() {
 		It("fails if content-type in the header is not set to application/json", func() {
 			requestBytes := bytes.NewReader([]byte(`{"name":"blah", "type":"password","parameters":{}}`))
-			req, _ := http.NewRequest("POST", SERVER_URL+"/v1/data/", requestBytes)
+			req, _ := http.NewRequest("POST", ServerURL+"/v1/data/", requestBytes)
 			req.Header.Add("Authorization", "bearer "+ValidToken())
 
 			resp, err := HTTPSClient.Do(req)
@@ -270,7 +270,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 		It("generates a new id and password for a new name", func() {
 			resp, _ := SendPostRequest("password-name", "password")
-			result := UnmarshalJsonString(resp.Body)
+			result := UnmarshalJSONString(resp.Body)
 
 			Expect(result["id"]).ToNot(BeNil())
 			Expect(result["name"]).To(Equal("password-name"))
@@ -279,7 +279,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 		It("generates a new id and certificate for a new name", func() {
 			resp, _ := SendPostRequest("certificate-name", "certificate")
-			result := UnmarshalJsonString(resp.Body)
+			result := UnmarshalJSONString(resp.Body)
 
 			Expect(result["id"]).ToNot(BeNil())
 			Expect(result["name"]).To(Equal("certificate-name"))
@@ -304,7 +304,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 			SendPutRequest("smurf", "blue")
 
 			resp, err := SendGetRequestByName("smurf")
-			resultMap := UnmarshalJsonString(resp.Body)
+			resultMap := UnmarshalJSONString(resp.Body)
 
 			data := resultMap["data"].([]interface{})
 			Expect(len(data)).To(Equal(2))

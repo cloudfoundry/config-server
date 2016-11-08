@@ -21,7 +21,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 	Describe("PUT", func() {
 		It("generates new id for a name when adding new value", func() {
 			response, _ := SendPutRequest("Dale", "Wick")
-			resultMap := UnmarshalJsonString(response.Body)
+			resultMap := UnmarshalJSONString(response.Body)
 
 			Expect(resultMap["id"]).ToNot(BeNil())
 			Expect(len((resultMap["id"].(string))) > 0).To(BeTrue())
@@ -31,12 +31,12 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 		It("generates new id for different names", func() {
 			response1, _ := SendPutRequest("Dale", "Wick")
-			resultMap1 := UnmarshalJsonString(response1.Body)
+			resultMap1 := UnmarshalJSONString(response1.Body)
 			Expect(resultMap1["id"]).ToNot(BeNil())
 			Expect(len((resultMap1["id"].(string))) > 0).To(BeTrue())
 
 			response2, _ := SendPutRequest("Alan", "Donovan")
-			resultMap2 := UnmarshalJsonString(response2.Body)
+			resultMap2 := UnmarshalJSONString(response2.Body)
 			Expect(resultMap2["id"]).ToNot(BeNil())
 			Expect(len((resultMap2["id"].(string))) > 0).To(BeTrue())
 
@@ -45,10 +45,10 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 		It("generates new id for existing name", func() {
 			response1, _ := SendPutRequest("Dale", "Wick")
-			resultMap1 := UnmarshalJsonString(response1.Body)
+			resultMap1 := UnmarshalJSONString(response1.Body)
 
 			response2, _ := SendPutRequest("Dale", "Wick")
-			resultMap2 := UnmarshalJsonString(response2.Body)
+			resultMap2 := UnmarshalJSONString(response2.Body)
 
 			Expect(resultMap1["id"]).ToNot(Equal(resultMap2["id"]))
 			Expect(resultMap1["name"]).To(Equal(resultMap2["name"]))
@@ -59,7 +59,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 	Describe("POST", func() {
 		It("generates a new id and password for a new name", func() {
 			resp, _ := SendPostRequest("pass", "password")
-			result := UnmarshalJsonString(resp.Body)
+			result := UnmarshalJSONString(resp.Body)
 
 			Expect(result["id"]).ToNot(BeNil())
 			Expect(result["value"]).ToNot(BeNil())
@@ -67,7 +67,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 		It("generates a new id and certificate for a new name", func() {
 			resp, _ := SendPostRequest("cert", "certificate")
-			result := UnmarshalJsonString(resp.Body)
+			result := UnmarshalJSONString(resp.Body)
 
 			Expect(result["id"]).ToNot(BeNil())
 			Expect(result["value"]).ToNot(BeNil())

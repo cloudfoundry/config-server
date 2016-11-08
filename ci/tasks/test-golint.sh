@@ -6,4 +6,4 @@ export PATH=/usr/local/go/bin:$GOPATH/bin:$PATH
 
 cd config-server
 
-scripts/golint.sh
+./scripts/check_golint.sh
