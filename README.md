@@ -11,6 +11,6 @@ Go Formatting| [![bosh-ci.cf-app.com](https://main.bosh-ci.cf-app.com/api/v1/tea
 Go Lint      | [![bosh-ci.cf-app.com](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-golint/badge)](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-golint)
 
 * CI: <https://main.bosh-ci.cf-app.com/teams/main/pipelines/config-server>
-* API Docs: <docs/api.md>
+* [API Docs](docs/api.md)
 
 See [bosh-notes](https://github.com/cloudfoundry/bosh-notes/blob/master/config-server.md) for more information
