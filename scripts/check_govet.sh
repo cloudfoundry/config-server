@@ -8,7 +8,8 @@ errors=$(
     | grep -v 'github.com/' \
     | grep -v 'gopkg.in/'\
     | xargs -L 1 go vet 2>&1 \
-    | grep -v 'exit status'
+    | grep -v 'exit status' \
+    | xargs # If grep returns no results, it exits with exit code 1
 )
 
 [ -z "${errors}" ] && exit 0
