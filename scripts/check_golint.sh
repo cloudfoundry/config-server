@@ -15,12 +15,12 @@ errors=$(
     | grep -v 'should have comment.* or be unexported' \
     | grep -v 'should not be capitalized' \
     | grep -v 'underscore in package name' \
-    | true # If grep returns no results, it exits with exit code 1
+    | xargs # If grep returns no results, it exits with exit code 1
 )
 
 [ -z "${errors}" ] && exit 0
 
-echo -e "\nGolint failed with errors... "
+echo -e "\ngolint failed with errors... "
 for err in "${errors}"; do
 	echo "${err}"
 done

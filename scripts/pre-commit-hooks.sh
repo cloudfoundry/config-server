@@ -11,4 +11,7 @@ success=0
 ./scripts/check_golint.sh "${staged_files}"
 [ $? -ne 0 ] && success=1
 
+./scripts/check_govet.sh
+[ $? -ne 0 ] && success=1
+
 exit ${success}
