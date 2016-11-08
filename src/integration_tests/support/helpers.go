@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-const AssetsDir string = "assetsdghdfgh"
+const AssetsDir string = "assets"
 const ServerStartTimeout int = 10
 const StartScript string = "./start_server.sh"
 const StopScript string = "./stop_server.sh"
