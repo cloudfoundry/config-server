@@ -114,9 +114,8 @@ var _ = Describe("RequestHandlerConcrete", func() {
 			Context("when name format is invalid", func() {
 				It("should return 400 Bad Request", func() {
 					inValidURLPaths := []string{
-						"/v1/data?name=name%2F%2Fpath%2F%2F", // /v1/data/name//path//
-						"/v1/data?name=name%2F%7B%2F*",       // /v1/data/name/{/*
-						"/v1/data?name=name%2F%40%3F%2F",     // /v1/data/name/@?/
+						"/v1/data?name=name%2F%7B%2F*",   // /v1/data/name/{/*
+						"/v1/data?name=name%2F%40%3F%2F", // /v1/data/name/@?/
 					}
 
 					validMethods := []string{"GET", "DELETE"}

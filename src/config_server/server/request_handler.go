@@ -311,14 +311,11 @@ func extractIDFromURLPath(path string) (string, error) {
 }
 
 func isValidName(name string) (bool, error) {
-	tokens := strings.Split(name, "/")
-	var validNameToken = regexp.MustCompile(`^[a-zA-Z0-9_\-]+$`)
-
-	for _, token := range tokens {
-		if !validNameToken.MatchString(token) {
-			return false, errors.Error("Name must consist of alphanumeric, underscores, dashes, and forward slashes")
-		}
+	var validNameToken = regexp.MustCompile(`^[a-zA-Z0-9_\-\/]+$`)
+	if !validNameToken.MatchString(name) {
+		return false, errors.Error("Name must consist of alphanumeric, underscores, dashes, and forward slashes")
 	}
+
 	return true, nil
 }
 
