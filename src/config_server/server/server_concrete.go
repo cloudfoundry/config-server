@@ -39,7 +39,8 @@ func (cs configServer) configureHandler() error {
 		return errors.WrapError(err, "Failed to create data store")
 	}
 
-	requestHandler, err := NewRequestHandler(store, types.NewValueGeneratorConcrete(cs.config))
+	x509Loader := types.NewX509Loader(cs.config.CACertificateFilePath, cs.config.CAPrivateKeyFilePath)
+	requestHandler, err := NewRequestHandler(store, types.NewValueGeneratorConcrete(x509Loader))
 	if err != nil {
 		return errors.WrapError(err, "Failed to create Request Handler")
 	}

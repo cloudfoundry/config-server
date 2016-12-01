@@ -6,5 +6,5 @@ import (
 )
 
 type CertsLoader interface {
-	LoadCerts(certFile, keyFile string) (*x509.Certificate, *rsa.PrivateKey, error)
+	LoadCerts(string) (*x509.Certificate, *rsa.PrivateKey, error)
 }

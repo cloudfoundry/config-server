@@ -50,6 +50,8 @@ func SendPostRequest(name string, valueType string) (*http.Response, error) {
 		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"password","parameters":{}}`))
 	case "certificate":
 		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"certificate","parameters":{"common_name": "burpees", "alternative_names":["cnj", "deadlift"]}}`))
+	case "certificate-ca":
+		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"certificate","parameters":{"is_ca": true, "common_name": "burpees", "alternative_names":["cnj", "deadlift"]}}`))
 	}
 
 	req, _ := http.NewRequest(http.MethodPost, ServerURL+"/v1/data", requestBytes)

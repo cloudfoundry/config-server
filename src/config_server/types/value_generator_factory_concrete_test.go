@@ -3,8 +3,7 @@ package types_test
 import (
 	. "config_server/types"
 
-	"config_server/config"
-
+	"config_server/types/fakes"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -15,7 +14,7 @@ var _ = Describe("ValueGeneratorFactoryConcrete", func() {
 	Context("GetGenerator", func() {
 		BeforeEach(func() {
 
-			valueGeneratorFactory = NewValueGeneratorConcrete(config.ServerConfig{})
+			valueGeneratorFactory = NewValueGeneratorConcrete(&fakes.FakeCertsLoader{})
 		})
 
 		It("throws an error for unsupported value types", func() {
@@ -32,6 +31,18 @@ var _ = Describe("ValueGeneratorFactoryConcrete", func() {
 
 		It("supports the certificate type", func() {
 			generator, err := valueGeneratorFactory.GetGenerator("certificate")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(generator).ToNot(BeNil())
+		})
+
+		It("supports the ssh type", func() {
+			generator, err := valueGeneratorFactory.GetGenerator("ssh")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(generator).ToNot(BeNil())
+		})
+
+		It("supports the rsa type", func() {
+			generator, err := valueGeneratorFactory.GetGenerator("rsa")
 			Expect(err).ToNot(HaveOccurred())
 			Expect(generator).ToNot(BeNil())
 		})

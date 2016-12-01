@@ -9,19 +9,21 @@ import (
 	"github.com/cloudfoundry/bosh-utils/errors"
 )
 
-type x509Loader struct{}
-
-func NewX509Loader() CertsLoader {
-	return x509Loader{}
+type x509Loader struct {
+	certFilePath, keyFilePath string
 }
 
-func (l x509Loader) LoadCerts(certFilePath, keyFilePath string) (*x509.Certificate, *rsa.PrivateKey, error) {
-	crt, err := l.parseCertificate(certFilePath)
+func NewX509Loader(certFilePath, keyFilePath string) CertsLoader {
+	return x509Loader{certFilePath, keyFilePath}
+}
+
+func (l x509Loader) LoadCerts(_ string) (*x509.Certificate, *rsa.PrivateKey, error) {
+	crt, err := l.parseCertificate(l.certFilePath)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	key, err := l.parsePrivateKey(keyFilePath)
+	key, err := l.parsePrivateKey(l.keyFilePath)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -29,8 +31,8 @@ func (l x509Loader) LoadCerts(certFilePath, keyFilePath string) (*x509.Certifica
 	return crt, key, nil
 }
 
-func (x509Loader) parseCertificate(certFilePath string) (*x509.Certificate, error) {
-	cf, e := ioutil.ReadFile(certFilePath)
+func (l x509Loader) parseCertificate(certFilePath string) (*x509.Certificate, error) {
+	cf, e := ioutil.ReadFile(l.certFilePath)
 	if e != nil {
 		return nil, errors.Error("Failed to load certificate file")
 	}
@@ -45,8 +47,8 @@ func (x509Loader) parseCertificate(certFilePath string) (*x509.Certificate, erro
 	return crt, nil
 }
 
-func (x509Loader) parsePrivateKey(keyFilePath string) (*rsa.PrivateKey, error) {
-	kf, e := ioutil.ReadFile(keyFilePath)
+func (l x509Loader) parsePrivateKey(keyFilePath string) (*rsa.PrivateKey, error) {
+	kf, e := ioutil.ReadFile(l.keyFilePath)
 	if e != nil {
 		return nil, errors.Error("Failed to load private key file")
 	}

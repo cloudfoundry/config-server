@@ -13,7 +13,6 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"config_server/config"
 	"config_server/store"
 	"config_server/types"
 	"encoding/json"
@@ -60,14 +59,13 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 		Context("creating the requestHandler", func() {
 			It("should return an error", func() {
-				_, err := NewRequestHandler(nil, types.NewValueGeneratorConcrete(config.ServerConfig{}))
+				_, err := NewRequestHandler(nil, types.NewValueGeneratorConcrete(&FakeCertsLoader{}))
 				Expect(err.Error()).To(Equal("Data store must be set"))
 			})
 		})
 	})
 
 	Describe("Given a server with store", func() {
-
 		var requestHandler http.Handler
 		var mockTokenValidator *FakeTokenValidator
 		var mockStore *FakeStore
@@ -513,7 +511,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 								Context("when value does NOT exist", func() {
 									It("should return generated password", func() {
-										requestHandler, _ = NewRequestHandler(store.NewMemoryStore(), types.NewValueGeneratorConcrete(config.ServerConfig{}))
+										requestHandler, _ = NewRequestHandler(store.NewMemoryStore(), types.NewValueGeneratorConcrete(&FakeCertsLoader{}))
 
 										postReq, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bla","type":"password","parameters":{}}`))
 

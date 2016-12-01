@@ -3,11 +3,9 @@ package types_test
 import (
 	. "config_server/types"
 
-	"config_server/config"
 	"config_server/types/fakes"
 	"crypto/x509"
 	"encoding/pem"
-	"strings"
 	"time"
 
 	. "github.com/onsi/ginkgo"
@@ -21,7 +19,7 @@ func parseCertString(certString string) (*x509.Certificate, error) {
 	return crt, err
 }
 
-func getCertResp(generator ValueGenerator, certParams map[string]interface{}) CertResponse {
+func getCertResp(generator ValueGenerator, certParams map[interface{}]interface{}) CertResponse {
 	certResp, err := generator.Generate(certParams)
 	Expect(err).To(BeNil())
 
@@ -88,10 +86,8 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
 -----END RSA PRIVATE KEY-----`
 
 		BeforeEach(func() {
-			config := config.ServerConfig{CertificateFilePath: "blah",
-				PrivateKeyFilePath: "blah"}
 			fakeLoader = new(fakes.FakeCertsLoader)
-			generator = NewCertificateGenerator(config, fakeLoader)
+			generator = NewCertificateGenerator(fakeLoader)
 
 			cpb, _ := pem.Decode([]byte(mockCertValue))
 			kpb, _ := pem.Decode([]byte(mockKeyValue))
@@ -102,9 +98,38 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
 		})
 
 		Context("Generate", func() {
-			Context("Certificate", func() {
+			var params map[interface{}]interface{}
+			BeforeEach(func() {
+				params = map[interface{}]interface{}{"common_name": "bosh.io"}
+			})
+
+			Context("When any param is not of expected type", func() {
+				It("returns an error when CommonName is not of type string", func() {
+					params["common_name"] = []int{1}
+					_, err := generator.Generate(params)
+					Expect(err).ToNot(BeNil())
+					Expect(err.Error()).To(Equal("Failed to generate certificate, parameters are invalid."))
+				})
+
+				It("returns an error when AlternativeName is not of type []string", func() {
+					params["alternative_names"] = "smurf"
+					_, err := generator.Generate(params)
+					Expect(err).ToNot(BeNil())
+					Expect(err.Error()).To(Equal("Failed to generate certificate, parameters are invalid."))
+				})
+
+				It("returns an error when ca is not of type string", func() {
+					params["ca"] = []int{1}
+					_, err := generator.Generate(params)
+					Expect(err).ToNot(BeNil())
+					Expect(err.Error()).To(Equal("Failed to generate certificate, parameters are invalid."))
+				})
+			})
+
+			Context("When is_ca is undefined/false", func() {
+
 				It("generates a certificate", func() {
-					certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
+					certResp := getCertResp(generator, params)
 					certificate, err := parseCertString(certResp.Certificate)
 
 					Expect(err).To(BeNil())
@@ -113,8 +138,8 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
 
 				It("sets common name and alternative name as passed in", func() {
 					altNames := []interface{}{"cloudfoundry.com", "example.com"}
-					certResp := getCertResp(generator, map[string]interface{}{"common_name": "bosh.io",
-						"alternative_names": altNames})
+					params["alternative_names"] = altNames
+					certResp := getCertResp(generator, params)
 					certificate, _ := parseCertString(certResp.Certificate)
 
 					Expect(certificate.Subject.CommonName).Should(Equal("bosh.io"))
@@ -126,8 +151,8 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
 
 				It("should work if CN was also included in SAN", func() {
 					altNames := []interface{}{"bosh.io", "cloudfoundry.com", "example.com"}
-					certResp := getCertResp(generator, map[string]interface{}{"common_name": "bosh.io",
-						"alternative_names": altNames})
+					params["alternative_names"] = altNames
+					certResp := getCertResp(generator, params)
 					certificate, _ := parseCertString(certResp.Certificate)
 
 					Expect(certificate.Subject.CommonName).Should(Equal("bosh.io"))
@@ -138,7 +163,7 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
 				})
 
 				It("should set expiry for the cert in 1 year", func() {
-					certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
+					certResp := getCertResp(generator, params)
 					certificate, _ := parseCertString(certResp.Certificate)
 
 					oneYearFromToday := time.Now().UTC().Add(365 * 24 * time.Hour)
@@ -147,7 +172,7 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
 				})
 
 				It("should be signed by the parent CA", func() {
-					certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
+					certResp := getCertResp(generator, params)
 					certString := certResp.Certificate
 
 					roots := x509.NewCertPool()
@@ -170,22 +195,20 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
 				})
 
 				It("is not a CA", func() {
-					certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
+					certResp := getCertResp(generator, params)
 					certificate, _ := parseCertString(certResp.Certificate)
 
 					Expect(certificate.IsCA).To(BeFalse())
 				})
-			})
 
-			Context("Private Key", func() {
 				It("generates a private key", func() {
-					certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
+					certResp := getCertResp(generator, params)
 
 					Expect(certResp.PrivateKey).NotTo(BeEmpty())
 				})
 
 				It("should have the public keys of the private key and certificate match", func() {
-					certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
+					certResp := getCertResp(generator, params)
 					certificate, _ := parseCertString(certResp.Certificate)
 
 					block, _ := pem.Decode([]byte(certResp.PrivateKey))
@@ -195,16 +218,15 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
 				})
 			})
 
-			Context("Root CA", func() {
-				It("returns a Root CA", func() {
-					certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
-
-					Expect(certResp.CA).NotTo(BeEmpty())
+			Context("When is_ca is true", func() {
+				BeforeEach(func() {
+					params["is_ca"] = true
 				})
 
-				It("is the same RootCA as passed in through job spec", func() {
-					certResp := getCertResp(generator, map[string]interface{}{"common_name": "test"})
-					Expect(strings.Trim(certResp.CA, "\n")).To(Equal(strings.Trim(mockCertValue, "\n")))
+				It("returns a Root CA", func() {
+					certResp := getCertResp(generator, params)
+					certificate, _ := parseCertString(certResp.Certificate)
+					Expect(certificate.IsCA).To(BeTrue())
 				})
 			})
 		})

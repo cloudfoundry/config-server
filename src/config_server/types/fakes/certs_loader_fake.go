@@ -9,11 +9,10 @@ import (
 )
 
 type FakeCertsLoader struct {
-	LoadCertsStub        func(certFile, keyFile string) (*x509.Certificate, *rsa.PrivateKey, error)
+	LoadCertsStub        func(string) (*x509.Certificate, *rsa.PrivateKey, error)
 	loadCertsMutex       sync.RWMutex
 	loadCertsArgsForCall []struct {
-		certFile string
-		keyFile  string
+		arg1 string
 	}
 	loadCertsReturns struct {
 		result1 *x509.Certificate
@@ -24,16 +23,15 @@ type FakeCertsLoader struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeCertsLoader) LoadCerts(certFile string, keyFile string) (*x509.Certificate, *rsa.PrivateKey, error) {
+func (fake *FakeCertsLoader) LoadCerts(arg1 string) (*x509.Certificate, *rsa.PrivateKey, error) {
 	fake.loadCertsMutex.Lock()
 	fake.loadCertsArgsForCall = append(fake.loadCertsArgsForCall, struct {
-		certFile string
-		keyFile  string
-	}{certFile, keyFile})
-	fake.recordInvocation("LoadCerts", []interface{}{certFile, keyFile})
+		arg1 string
+	}{arg1})
+	fake.recordInvocation("LoadCerts", []interface{}{arg1})
 	fake.loadCertsMutex.Unlock()
 	if fake.LoadCertsStub != nil {
-		return fake.LoadCertsStub(certFile, keyFile)
+		return fake.LoadCertsStub(arg1)
 	} else {
 		return fake.loadCertsReturns.result1, fake.loadCertsReturns.result2, fake.loadCertsReturns.result3
 	}
@@ -45,10 +43,10 @@ func (fake *FakeCertsLoader) LoadCertsCallCount() int {
 	return len(fake.loadCertsArgsForCall)
 }
 
-func (fake *FakeCertsLoader) LoadCertsArgsForCall(i int) (string, string) {
+func (fake *FakeCertsLoader) LoadCertsArgsForCall(i int) string {
 	fake.loadCertsMutex.RLock()
 	defer fake.loadCertsMutex.RUnlock()
-	return fake.loadCertsArgsForCall[i].certFile, fake.loadCertsArgsForCall[i].keyFile
+	return fake.loadCertsArgsForCall[i].arg1
 }
 
 func (fake *FakeCertsLoader) LoadCertsReturns(result1 *x509.Certificate, result2 *rsa.PrivateKey, result3 error) {

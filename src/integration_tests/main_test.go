@@ -295,6 +295,25 @@ var _ = Describe("Supported HTTP Methods", func() {
 			Expect(cert.Issuer.Country).To(ContainElement("AU"))
 			Expect(cert.Issuer.Province).To(ContainElement("Some-State"))
 		})
+
+		It("generates a new id and root ca certificate for a new name", func() {
+			resp, _ := SendPostRequest("certificate-name", "certificate-ca")
+			result := UnmarshalJSONString(resp.Body)
+
+			Expect(result["id"]).ToNot(BeNil())
+			Expect(result["name"]).To(Equal("certificate-name"))
+
+			value := result["value"].(map[string]interface{})
+			cert, _ := ParseCertString(value["certificate"].(string))
+
+			Expect(cert.DNSNames).Should(BeEmpty())
+			Expect(cert.IPAddresses).Should(BeEmpty())
+			Expect(cert.IsCA).Should(BeTrue())
+			Expect(cert.Subject.CommonName).To(Equal("burpees"))
+
+			Expect(cert.Issuer.Organization).To(ContainElement("Cloud Foundry"))
+			Expect(cert.Issuer.Country).To(ContainElement("USA"))
+		})
 	})
 
 	Describe("DELETE", func() {
