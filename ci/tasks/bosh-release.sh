@@ -1,12 +1,7 @@
 #!/bin/sh
 set -e -x
 
-gem install bosh_cli --no-ri --no-rdoc
+install bosh-cli/bosh-cli* /usr/local/bin/bosh
 
 cd config-server
-bosh create release --force --with-tarball --name config-server --version acceptance
-
-#cd ..
-#cp config-server/dev_releases/config-server/config-server-acceptance.tgz bosh-release/
-#
-#ls -al bosh-release
+bosh create-release --force --tarball --name config-server --version acceptance
