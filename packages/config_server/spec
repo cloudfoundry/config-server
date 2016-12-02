@@ -5,4 +5,4 @@ dependencies:
   - golang
 files:
   - config_server/**/*.go
-  - vendor/**/*.go
+  - vendor/**/*
