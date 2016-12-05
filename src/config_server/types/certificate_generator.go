@@ -71,8 +71,6 @@ func (cfg CertificateGenerator) generateCertificate(cParams certParams) (CertRes
 		},
 		NotBefore:             now,
 		NotAfter:              notAfter,
-		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 		BasicConstraintsValid: true,
 		IsCA: cParams.IsCA,
 	}
@@ -81,6 +79,8 @@ func (cfg CertificateGenerator) generateCertificate(cParams certParams) (CertRes
 	var rootCARaw []byte
 
 	if cParams.IsCA {
+		template.KeyUsage = x509.KeyUsageCertSign | x509.KeyUsageCRLSign
+
 		certificateRaw, err = x509.CreateCertificate(rand.Reader, &template, &template, &privateKey.PublicKey, privateKey)
 		if err != nil {
 			return certResponse, errors.WrapError(err, "Generating CA certificate")
@@ -88,6 +88,9 @@ func (cfg CertificateGenerator) generateCertificate(cParams certParams) (CertRes
 
 		rootCARaw = certificateRaw
 	} else {
+		template.KeyUsage = x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature
+		template.ExtKeyUsage = append(template.ExtKeyUsage, x509.ExtKeyUsageServerAuth)
+
 		if cfg.loader == nil {
 			panic("Expected CertificateGenerator to have Loader set")
 		}

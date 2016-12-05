@@ -136,6 +136,16 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
 					Expect(certificate).ToNot(BeNil())
 				})
 
+				It("sets KeyUsage and ExtKeyUsage", func() {
+					altNames := []interface{}{"cloudfoundry.com", "example.com"}
+					params["alternative_names"] = altNames
+					certResp := getCertResp(generator, params)
+					certificate, _ := parseCertString(certResp.Certificate)
+
+					Expect(certificate.KeyUsage).To(Equal(x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature))
+					Expect(certificate.ExtKeyUsage).To(Equal([]x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}))
+				})
+
 				It("sets common name and alternative name as passed in", func() {
 					altNames := []interface{}{"cloudfoundry.com", "example.com"}
 					params["alternative_names"] = altNames
@@ -219,14 +229,21 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
 			})
 
 			Context("When is_ca is true", func() {
+				var certificate *x509.Certificate
+
 				BeforeEach(func() {
 					params["is_ca"] = true
+					certResp := getCertResp(generator, params)
+					certificate, _ = parseCertString(certResp.Certificate)
 				})
 
-				It("returns a Root CA", func() {
-					certResp := getCertResp(generator, params)
-					certificate, _ := parseCertString(certResp.Certificate)
+				It("sets IsCA flag on cert", func() {
 					Expect(certificate.IsCA).To(BeTrue())
+				})
+
+				It("sets KeyUsage and ExtKeyUsage", func() {
+					Expect(certificate.KeyUsage).To(Equal(x509.KeyUsageCertSign | x509.KeyUsageCRLSign))
+					Expect(certificate.ExtKeyUsage).To(BeEmpty())
 				})
 			})
 		})
