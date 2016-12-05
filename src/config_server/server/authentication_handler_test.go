@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	. "config_server/server"
-	. "config_server/server/fakes"
+	. "config_server/server/serverfakes"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

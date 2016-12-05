@@ -2,8 +2,8 @@ package types_test
 
 import (
 	. "config_server/types"
+	"config_server/types/typesfakes"
 
-	"config_server/types/fakes"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -14,7 +14,7 @@ var _ = Describe("ValueGeneratorFactoryConcrete", func() {
 	Context("GetGenerator", func() {
 		BeforeEach(func() {
 
-			valueGeneratorFactory = NewValueGeneratorConcrete(&fakes.FakeCertsLoader{})
+			valueGeneratorFactory = NewValueGeneratorConcrete(&typesfakes.FakeCertsLoader{})
 		})
 
 		It("throws an error for unsupported value types", func() {

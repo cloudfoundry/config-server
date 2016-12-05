@@ -3,7 +3,7 @@ package types_test
 import (
 	. "config_server/types"
 
-	"config_server/types/fakes"
+	"config_server/types/typesfakes"
 	"crypto/x509"
 	"encoding/pem"
 	"time"
@@ -30,7 +30,7 @@ var _ = Describe("CertificateGenerator", func() {
 
 	Describe("certificateGenerator", func() {
 		var (
-			fakeLoader *fakes.FakeCertsLoader
+			fakeLoader *typesfakes.FakeCertsLoader
 			generator  ValueGenerator
 		)
 
@@ -86,7 +86,7 @@ JQnj8h8DPalW3Dn7oQXZhjCCeY7qK+z+KvgqDwTyv8HpP6Eetwhm
 -----END RSA PRIVATE KEY-----`
 
 		BeforeEach(func() {
-			fakeLoader = new(fakes.FakeCertsLoader)
+			fakeLoader = new(typesfakes.FakeCertsLoader)
 			generator = NewCertificateGenerator(fakeLoader)
 
 			cpb, _ := pem.Decode([]byte(mockCertValue))

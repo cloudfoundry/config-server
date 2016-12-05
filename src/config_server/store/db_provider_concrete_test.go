@@ -3,7 +3,7 @@ package store_test
 import (
 	"config_server/config"
 	. "config_server/store"
-	"config_server/store/fakes"
+	fakes "config_server/store/storefakes"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

@@ -3,7 +3,7 @@ package store_test
 import (
 	. "config_server/store"
 
-	"config_server/store/fakes"
+	fakes "config_server/store/storefakes"
 	"database/sql"
 	"errors"
 

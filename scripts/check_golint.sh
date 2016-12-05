@@ -11,7 +11,7 @@ errors=$(
   echo "${gofiles}" | xargs -L 1 golint \
     | grep -v 'vendor/' \
     | grep -v '/mocks/' \
-    | grep -v '/fakes/' \
+    | grep -v '/*fakes/' \
     | grep -v 'should have comment.* or be unexported' \
     | grep -v 'should not be capitalized' \
     | grep -v 'underscore in package name' \

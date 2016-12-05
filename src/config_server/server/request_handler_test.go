@@ -2,9 +2,9 @@ package server_test
 
 import (
 	. "config_server/server"
-	. "config_server/server/fakes"
-	. "config_server/store/fakes"
-	. "config_server/types/fakes"
+	. "config_server/server/serverfakes"
+	. "config_server/store/storefakes"
+	. "config_server/types/typesfakes"
 	"errors"
 	"net/http"
 	"net/http/httptest"
