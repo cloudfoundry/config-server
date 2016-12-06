@@ -21,7 +21,6 @@ var _ = Describe("DbProviderConcrete", func() {
 	})
 
 	It("configures max open/idle connections", func() {
-
 		dbConfig := config.DBConfig{
 			Adapter:  "mysql",
 			User:     "bosh",
@@ -35,7 +34,7 @@ var _ = Describe("DbProviderConcrete", func() {
 			},
 		}
 
-		_, err := NewConcreteDbProvider(fakeSQL, dbConfig).Db()
+		_, err := NewConcreteDbProvider(fakeSQL, dbConfig)
 		Expect(err).To(BeNil())
 		Expect(fakeSQL.OpenCallCount()).To(Equal(1))
 
@@ -47,7 +46,6 @@ var _ = Describe("DbProviderConcrete", func() {
 	})
 
 	It("returns correct connection string for mysql", func() {
-
 		dbConfig := config.DBConfig{
 			Adapter:  "mysql",
 			User:     "bosh",
@@ -57,7 +55,7 @@ var _ = Describe("DbProviderConcrete", func() {
 			Name:     "dbconfig",
 		}
 
-		_, err := NewConcreteDbProvider(fakeSQL, dbConfig).Db()
+		_, err := NewConcreteDbProvider(fakeSQL, dbConfig)
 		Expect(err).To(BeNil())
 		Expect(fakeSQL.OpenCallCount()).To(Equal(1))
 
@@ -67,7 +65,6 @@ var _ = Describe("DbProviderConcrete", func() {
 	})
 
 	It("returns correct connection string for postgres", func() {
-
 		dbConfig := config.DBConfig{
 			Adapter:  "postgres",
 			User:     "bosh",
@@ -77,7 +74,7 @@ var _ = Describe("DbProviderConcrete", func() {
 			Name:     "dbconfig",
 		}
 
-		_, err := NewConcreteDbProvider(fakeSQL, dbConfig).Db()
+		_, err := NewConcreteDbProvider(fakeSQL, dbConfig)
 		Expect(err).To(BeNil())
 		Expect(fakeSQL.OpenCallCount()).To(Equal(1))
 
@@ -87,7 +84,6 @@ var _ = Describe("DbProviderConcrete", func() {
 	})
 
 	It("returns error for unsupported adapater", func() {
-
 		dbConfig := config.DBConfig{
 			Adapter:  "mongo",
 			User:     "bosh",
@@ -97,9 +93,26 @@ var _ = Describe("DbProviderConcrete", func() {
 			Name:     "dbconfig",
 		}
 
-		_, err := NewConcreteDbProvider(fakeSQL, dbConfig).Db()
+		_, err := NewConcreteDbProvider(fakeSQL, dbConfig)
 		Expect(err).ToNot(BeNil())
 		Expect(err.Error()).To(Equal("Failed to generate DB connection string: Unsupported adapter: mongo"))
 		Expect(fakeSQL.OpenCallCount()).To(Equal(0))
+	})
+
+	Context("#Db", func() {
+		It("returns an instantiated DB", func() {
+			dbConfig := config.DBConfig{
+				Adapter:  "mysql",
+				User:     "bosh",
+				Password: "somethingsafe",
+				Host:     "host",
+				Port:     0,
+				Name:     "dbconfig",
+			}
+			provider, _ := NewConcreteDbProvider(fakeSQL, dbConfig)
+			db, err := provider.Db()
+			Expect(err).To(BeNil())
+			Expect(db).ToNot(BeNil())
+		})
 	})
 })

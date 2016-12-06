@@ -15,33 +15,35 @@ import (
 type concreteDbProvider struct {
 	config config.DBConfig
 	sql    ISql
+	db     IDb
 }
 
-func NewConcreteDbProvider(sql ISql, config config.DBConfig) DbProvider {
-	return concreteDbProvider{config, sql}
+func NewConcreteDbProvider(sql ISql, config config.DBConfig) (DbProvider, error) {
+	connectionString, err := connectionString(config)
+	if err != nil {
+		return nil, errors.WrapError(err, "Failed to generate DB connection string")
+	}
+
+	db, err := sql.Open(config.Adapter, connectionString, db_migrations.GetMigrations(config.Adapter))
+	if err != nil {
+		return nil, errors.WrapError(err, "Failed to open connection to DB")
+	}
+
+	db.SetMaxOpenConns(config.ConnectionOptions.MaxOpenConnections)
+	db.SetMaxIdleConns(config.ConnectionOptions.MaxIdleConnections)
+
+	provider := concreteDbProvider{db: db}
+	return provider, err
 }
 
 func (p concreteDbProvider) Db() (IDb, error) {
-
-	var db IDb
-
-	connectionString, err := p.connectionString(p.config)
-	if err != nil {
-		return db, errors.WrapError(err, "Failed to generate DB connection string")
+	if p.db == nil {
+		return nil, errors.Error("Database not initialized")
 	}
-
-	db, err = p.sql.Open(p.config.Adapter, connectionString, db_migrations.GetMigrations(p.config.Adapter))
-	if err != nil {
-		return db, errors.WrapError(err, "Failed to open connection to DB")
-	}
-
-	db.SetMaxOpenConns(p.config.ConnectionOptions.MaxOpenConnections)
-	db.SetMaxIdleConns(p.config.ConnectionOptions.MaxIdleConnections)
-
-	return db, nil
+	return p.db, nil
 }
 
-func (p concreteDbProvider) connectionString(config config.DBConfig) (string, error) {
+func connectionString(config config.DBConfig) (string, error) {
 
 	var connectionString string
 	var err error

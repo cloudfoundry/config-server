@@ -19,7 +19,6 @@ func (ms mysqlStore) Put(name string, value string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer db.Close()
 
 	result, err := db.Exec("INSERT INTO configurations (name, value) VALUES(?,?)", name, value)
 
@@ -38,7 +37,6 @@ func (ms mysqlStore) GetByName(name string) (Configurations, error) {
 	if err != nil {
 		return results, err
 	}
-	defer db.Close()
 
 	rows, err := db.Query("SELECT id, name, value FROM configurations WHERE name = ? ORDER BY id DESC", name)
 	if err != nil {
@@ -68,7 +66,6 @@ func (ms mysqlStore) GetByID(id string) (Configuration, error) {
 	if err != nil {
 		return result, err
 	}
-	defer db.Close()
 
 	err = db.QueryRow("SELECT id, name, value FROM configurations WHERE id = ?", id).Scan(&result.ID, &result.Name, &result.Value)
 	if err == sql.ErrNoRows {
@@ -85,7 +82,6 @@ func (ms mysqlStore) Delete(name string) (int, error) {
 	if err != nil {
 		return deletedCount, err
 	}
-	defer db.Close()
 
 	result, err := db.Exec("DELETE FROM configurations WHERE name = ?", name)
 	if err != nil {

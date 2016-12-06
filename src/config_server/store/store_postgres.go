@@ -19,7 +19,6 @@ func (ps postgresStore) Put(name string, value string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer db.Close()
 
 	var id int
 	err = db.QueryRow("INSERT INTO configurations (name, value) VALUES($1, $2) RETURNING id", name, value).Scan(&id)
@@ -38,7 +37,6 @@ func (ps postgresStore) GetByName(name string) (Configurations, error) {
 	if err != nil {
 		return results, err
 	}
-	defer db.Close()
 
 	rows, err := db.Query("SELECT id, name, value FROM configurations WHERE name = $1 ORDER BY id DESC", name)
 	if err != nil {
@@ -73,7 +71,6 @@ func (ps postgresStore) GetByID(id string) (Configuration, error) {
 	if err != nil {
 		return result, err
 	}
-	defer db.Close()
 
 	err = db.QueryRow("SELECT id, name, value FROM configurations WHERE id = $1", id).Scan(&result.ID, &result.Name, &result.Value)
 	if err == sql.ErrNoRows {
@@ -89,7 +86,6 @@ func (ps postgresStore) Delete(name string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	defer db.Close()
 
 	result, err := db.Exec("DELETE FROM configurations WHERE name = $1", name)
 	if err != nil {

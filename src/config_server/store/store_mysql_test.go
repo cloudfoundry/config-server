@@ -34,15 +34,6 @@ var _ = Describe("StoreMysql", func() {
 	})
 
 	Describe("GetByName", func() {
-
-		It("closes db connection on exit", func() {
-			fakeDb.QueryReturns(fakeRows, nil)
-			fakeDbProvider.DbReturns(fakeDb, nil)
-
-			store.GetByName("Luke")
-			Expect(fakeDb.CloseCallCount()).To(Equal(1))
-		})
-
 		It("queries the database for the latest entry for a given name", func() {
 			fakeDb.QueryReturns(fakeRows, nil)
 			fakeDbProvider.DbReturns(fakeDb, nil)
@@ -52,7 +43,6 @@ var _ = Describe("StoreMysql", func() {
 			query, _ := fakeDb.QueryArgsForCall(0)
 
 			Expect(query).To(Equal("SELECT id, name, value FROM configurations WHERE name = ? ORDER BY id DESC"))
-			Expect(fakeDb.CloseCallCount()).To(Equal(1))
 		})
 
 		It("returns ALL values from db query", func() {
@@ -134,15 +124,6 @@ var _ = Describe("StoreMysql", func() {
 	})
 
 	Describe("GetById", func() {
-
-		It("closes db connection on exit", func() {
-			fakeDb.QueryRowReturns(&fakes.FakeIRow{})
-			fakeDbProvider.DbReturns(fakeDb, nil)
-
-			store.GetByID("1")
-			Expect(fakeDb.CloseCallCount()).To(Equal(1))
-		})
-
 		It("queries the database for the latest entry for a given id", func() {
 			fakeDb.QueryRowReturns(&fakes.FakeIRow{})
 			fakeDbProvider.DbReturns(fakeDb, nil)
@@ -152,7 +133,6 @@ var _ = Describe("StoreMysql", func() {
 			query, _ := fakeDb.QueryRowArgsForCall(0)
 
 			Expect(query).To(Equal("SELECT id, name, value FROM configurations WHERE id = ?"))
-			Expect(fakeDb.CloseCallCount()).To(Equal(1))
 		})
 
 		It("returns value from db query", func() {
@@ -219,16 +199,6 @@ var _ = Describe("StoreMysql", func() {
 	})
 
 	Describe("Put", func() {
-
-		It("closes db connection on exit", func() {
-			fakeDbProvider.DbReturns(fakeDb, nil)
-			fakeDb.ExecReturns(fakeResult, nil)
-			fakeResult.LastInsertIdReturns(9, nil)
-
-			store.Put("Luke", "Skywalker")
-			Expect(fakeDb.CloseCallCount()).To(Equal(1))
-		})
-
 		It("does an insert to the database", func() {
 			fakeDbProvider.DbReturns(fakeDb, nil)
 			fakeDb.ExecReturns(fakeResult, nil)
@@ -257,13 +227,6 @@ var _ = Describe("StoreMysql", func() {
 	})
 
 	Describe("Delete", func() {
-
-		It("closes db connection on exit", func() {
-			fakeDbProvider.DbReturns(fakeDb, nil)
-			store.Delete("Luke")
-			Expect(fakeDb.CloseCallCount()).To(Equal(1))
-		})
-
 		Context("Name exists", func() {
 
 			BeforeEach(func() {

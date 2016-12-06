@@ -7,26 +7,24 @@ import (
 	"github.com/cloudfoundry/bosh-utils/errors"
 )
 
-func CreateStore(config config.ServerConfig) (Store, error) {
-	var store Store
-
+func CreateStore(config config.ServerConfig) (store Store, err error) {
 	if strings.EqualFold(config.Store, "database") {
 		dbConfig := config.Database
 
 		if strings.EqualFold(dbConfig.Adapter, "postgres") {
-			dbProvider := NewConcreteDbProvider(NewSQLWrapper(), dbConfig)
+			var dbProvider DbProvider
+			dbProvider, err = NewConcreteDbProvider(NewSQLWrapper(), dbConfig)
 			store = NewPostgresStore(dbProvider)
-
 		} else if strings.EqualFold(dbConfig.Adapter, "mysql") {
-			dbProvider := NewConcreteDbProvider(NewSQLWrapper(), dbConfig)
+			var dbProvider DbProvider
+			dbProvider, err = NewConcreteDbProvider(NewSQLWrapper(), dbConfig)
 			store = NewMysqlStore(dbProvider)
-
 		} else {
-			return nil, errors.Errorf("Unsupported adapter '%s'", dbConfig.Adapter)
+			err = errors.Errorf("Unsupported adapter '%s'", dbConfig.Adapter)
 		}
 	} else {
 		store = NewMemoryStore()
 	}
 
-	return store, nil
+	return
 }
