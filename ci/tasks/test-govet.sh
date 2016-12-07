@@ -1,9 +1,9 @@
 #!/bin/sh
 set -e -x
 
-export GOPATH=$(pwd)/config-server
+export GOPATH=$(pwd)
 export PATH=/usr/local/go/bin:$GOPATH/bin:$PATH
 
-cd config-server
+cd src/github.com/cloudfoundry/config-server
 
-./scripts/check_govet.sh
+bin/govet

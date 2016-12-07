@@ -1,14 +1,6 @@
-.blobs
 .idea
-.dev_builds
-.final_builds
 .vagrant
 .DS_Store
-blobs
-dev_releases
-config/blobs.yml
-config/private.yml
-bin
-pkg
+out
 *.coverprofile
 tmp

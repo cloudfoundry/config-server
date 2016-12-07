@@ -8,9 +8,10 @@ image_resource:
 
 inputs:
 - name: config-server
+  path: src/github.com/cloudfoundry/config-server
 
 run:
-  path: config-server/ci/tasks/test-integration.sh
+  path: src/github.com/cloudfoundry/config-server/ci/tasks/test-integration.sh
 
 params:
   DB: replace-me

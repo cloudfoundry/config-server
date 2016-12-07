@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e -x
 
-export GOPATH=$(pwd)/config-server
+export GOPATH=$(pwd)
 export PATH=/usr/local/go/bin:$GOPATH/bin:$PATH
 
 echo "Starting $DB..."
@@ -40,11 +40,11 @@ case "$DB" in
     exit 1
 esac
 
-go clean -r config_server
+go clean -r github.com/cloudfoundry/config-server
 
 go get github.com/onsi/ginkgo/ginkgo
 go get github.com/onsi/gomega
 
-cd config-server
+cd src/github.com/cloudfoundry/config-server
 
-./scripts/test-integration.sh $DB
+bin/test-integration $DB

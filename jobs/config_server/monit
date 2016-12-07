@@ -1,5 +1,0 @@
-check process config_server
-  with pidfile /var/vcap/sys/run/config_server/pid
-  start program "/var/vcap/jobs/config_server/bin/ctl start"
-  stop program "/var/vcap/jobs/config_server/bin/ctl stop"
-  group vcap
