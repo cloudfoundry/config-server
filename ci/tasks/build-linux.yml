@@ -8,6 +8,7 @@ image_resource:
 
 inputs:
 - name: config-server
+  path: src/github.com/cloudfoundry/config-server
 - name: version-semver
 
 outputs:
@@ -18,4 +19,4 @@ params:
   GOARCH: amd64
 
 run:
-  path: config-server/ci/tasks/build.sh
+  path: src/github.com/cloudfoundry/config-server/ci/tasks/build.sh
