@@ -88,11 +88,12 @@ jobs:
   - name: bosh-release
     public: true
     plan:
-      - get: config-server
+      - get: config-server-release
         trigger: true
+        params: { submodules: all }
       - get: bosh-cli
       - task: bosh-release
-        file: config-server/ci/tasks/bosh-release.yml
+        file: config-server-release/ci/tasks/bosh-release.yml
         on_failure:
           <<: *slack-alert
 
@@ -101,7 +102,7 @@ jobs:
     plan:
       - aggregate:
         - get: config-server
-          passed: [test-gofmt, test-unit, test-integration-in-memory, test-integration-mysql, test-integration-postgresql, bosh-release]
+          passed: [test-gofmt, test-unit, test-integration-in-memory, test-integration-mysql, test-integration-postgresql]
           trigger: true
         - get: version-semver
           params: {bump: patch}
@@ -136,14 +137,21 @@ resources:
     source:
       uri: git@github.com:cloudfoundry/config-server.git
       branch: develop
-      private_key: {{concourse_github_private_key}}
+      private_key: {{config_server_concourse_github_private_key}}
 
   - name: config-server-promoted
     type: git
     source:
       uri: git@github.com:cloudfoundry/config-server.git
       branch: master
-      private_key: {{concourse_github_private_key}}
+      private_key: {{config_server_concourse_github_private_key}}
+
+  - name: config-server-release
+    type: git
+    source:
+      uri: git@github.com:cloudfoundry/config-server-release.git
+      branch: develop
+      private_key: {{config_server_release_concourse_github_private_key}}
 
   - name: release-bucket-linux
     type: s3
