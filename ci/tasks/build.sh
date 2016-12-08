@@ -11,3 +11,5 @@ cd config-server
 go build config_server
 
 mv config_server ../compiled-${GOOS}/${filename}
+
+openssl sha -sha256 ../compiled-${GOOS}/${filename}
