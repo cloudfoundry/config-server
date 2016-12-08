@@ -3,9 +3,9 @@ package store_test
 import (
 	. "github.com/cloudfoundry/config-server/store"
 
-	fakes "github.com/cloudfoundry/config-server/store/storefakes"
 	"database/sql"
 	"errors"
+	fakes "github.com/cloudfoundry/config-server/store/storefakes"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

@@ -3,9 +3,9 @@ package types_test
 import (
 	. "github.com/cloudfoundry/config-server/types"
 
-	"github.com/cloudfoundry/config-server/types/typesfakes"
 	"crypto/x509"
 	"encoding/pem"
+	"github.com/cloudfoundry/config-server/types/typesfakes"
 	"time"
 
 	. "github.com/onsi/ginkgo"

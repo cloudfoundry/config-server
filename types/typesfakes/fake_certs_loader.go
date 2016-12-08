@@ -2,9 +2,9 @@
 package typesfakes
 
 import (
-	"github.com/cloudfoundry/config-server/types"
 	"crypto/rsa"
 	"crypto/x509"
+	"github.com/cloudfoundry/config-server/types"
 	"sync"
 )
 

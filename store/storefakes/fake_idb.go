@@ -2,8 +2,8 @@
 package storefakes
 
 import (
-	"github.com/cloudfoundry/config-server/store"
 	"database/sql"
+	"github.com/cloudfoundry/config-server/store"
 	"sync"
 )
 

@@ -1,9 +1,9 @@
 package server
 
 import (
+	"encoding/json"
 	"github.com/cloudfoundry/config-server/store"
 	"github.com/cloudfoundry/config-server/types"
-	"encoding/json"
 	"net/http"
 	"strings"
 

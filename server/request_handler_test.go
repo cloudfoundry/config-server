@@ -1,11 +1,11 @@
 package server_test
 
 import (
+	"errors"
 	. "github.com/cloudfoundry/config-server/server"
 	. "github.com/cloudfoundry/config-server/server/serverfakes"
 	. "github.com/cloudfoundry/config-server/store/storefakes"
 	. "github.com/cloudfoundry/config-server/types/typesfakes"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -13,9 +13,9 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"encoding/json"
 	"github.com/cloudfoundry/config-server/store"
 	"github.com/cloudfoundry/config-server/types"
-	"encoding/json"
 	"io"
 )
 
