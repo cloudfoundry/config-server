@@ -97,6 +97,20 @@ jobs:
         on_failure:
           <<: *slack-alert
 
+  - name: bump-and-build-bosh-release
+    public: true
+    plan:
+      - get: config-server-release
+        trigger: true
+        params: { submodules: all }
+      - get: config-server
+        trigger: true
+      - get: bosh-cli
+      - task: bosh-release
+        file: config-server-release/ci/tasks/bump-and-build-bosh-release.yml
+        on_failure:
+          <<: *slack-alert
+
   - name: build
     public: true
     plan:
