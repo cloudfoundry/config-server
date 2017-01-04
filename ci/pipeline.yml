@@ -91,25 +91,29 @@ jobs:
       - get: config-server-release
         trigger: true
         params: { submodules: all }
+        passed: [bump-config-server-submodule]
       - get: bosh-cli
       - task: bosh-release
         file: config-server-release/ci/tasks/bosh-release.yml
         on_failure:
           <<: *slack-alert
 
-  - name: bump-and-build-bosh-release
+  - name: bump-config-server-submodule
     public: true
     plan:
       - get: config-server-release
-        trigger: true
         params: { submodules: all }
       - get: config-server
+        passed: [build]
         trigger: true
       - get: bosh-cli
       - task: bosh-release
-        file: config-server-release/ci/tasks/bump-and-build-bosh-release.yml
+        file: config-server-release/ci/tasks/bump-submodule.yml
         on_failure:
           <<: *slack-alert
+      - put: config-server-release
+        params:
+          repository: config-server-repo/config-server-release
 
   - name: build
     public: true
