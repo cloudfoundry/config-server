@@ -85,13 +85,12 @@ jobs:
         on_failure:
           <<: *slack-alert
 
-  - name: bosh-release
+  - name: build-bosh-release
     public: true
     plan:
       - get: config-server-release
         trigger: true
         params: { submodules: all }
-        passed: [bump-config-server-submodule]
       - get: bosh-cli
       - task: bosh-release
         file: config-server-release/ci/tasks/bosh-release.yml
@@ -103,6 +102,7 @@ jobs:
     plan:
       - get: config-server-release
         params: { submodules: all }
+        passed: [build-bosh-release]
       - get: config-server
         passed: [build]
         trigger: true
