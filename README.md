@@ -8,6 +8,7 @@ Integration tests Mysql  | [![bosh-ci.cf-app.com](https://main.bosh-ci.cf-app.co
 Integration tests Postgresql  | [![bosh-ci.cf-app.com](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-integration-postgresql/badge)](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-integration-postgresql)
 Go Formatting| [![bosh-ci.cf-app.com](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-gofmt/badge)](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-gofmt)
 Go Lint      | [![bosh-ci.cf-app.com](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-golint/badge)](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-golint)
+Go Vet       | [![bosh-ci.cf-app.com](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-govet/badge)](https://main.bosh-ci.cf-app.com/api/v1/teams/main/pipelines/config-server/jobs/test-govet)
 
 * CI: <https://main.bosh-ci.cf-app.com/teams/main/pipelines/config-server>
 * [API Docs](docs/api.md)
