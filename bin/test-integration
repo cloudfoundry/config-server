@@ -23,7 +23,9 @@ setup_test_dir (){
   mv ./integration/integration.test ${testdir}
   pushd ${testdir}
 }
+
 setup_test_dir
+
 
 run_tests (){
   export DB=$1

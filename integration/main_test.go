@@ -268,6 +268,17 @@ var _ = Describe("Supported HTTP Methods", func() {
 			Expect(string(body)).To(ContainSubstring("Unsupported Media Type - Accepts application/json only"))
 		})
 
+		It("fails if is_ca is set but ca is NOT", func() {
+			response, err := SendPostRequest("certificate-name", "self-signed-certificate")
+
+			Expect(response.StatusCode).To(Equal(400))
+			Expect(err).To(BeNil())
+
+			body, _ := ioutil.ReadAll(response.Body)
+
+			Expect(string(body)).To(ContainSubstring("Missing required CA name"))
+		})
+
 		It("generates a new id and password for a new name", func() {
 			resp, _ := SendPostRequest("password-name", "password")
 			result := UnmarshalJSONString(resp.Body)
@@ -278,26 +289,53 @@ var _ = Describe("Supported HTTP Methods", func() {
 		})
 
 		It("generates a new id and certificate for a new name", func() {
-			resp, _ := SendPostRequest("certificate-name", "certificate")
+			SendPostRequest("my-ca", "root-certificate-ca")
+
+			resp, _ := SendPostRequest("some-signed-certificate-name", "certificate")
+
 			result := UnmarshalJSONString(resp.Body)
 
 			Expect(result["id"]).ToNot(BeNil())
-			Expect(result["name"]).To(Equal("certificate-name"))
+			Expect(result["name"]).To(Equal("some-signed-certificate-name"))
 
 			value := result["value"].(map[string]interface{})
 			cert, _ := ParseCertString(value["certificate"].(string))
 
-			Expect(cert.DNSNames).Should(ContainElement("cnj"))
-			Expect(cert.DNSNames).Should(ContainElement("deadlift"))
-			Expect(cert.Subject.CommonName).To(Equal("burpees"))
+			Expect(cert.DNSNames).Should(ContainElement("signed-an1"))
+			Expect(cert.DNSNames).Should(ContainElement("signed-an1"))
+			Expect(cert.Subject.CommonName).To(Equal("some-signed-cn1"))
 
-			Expect(cert.Issuer.Organization).To(ContainElement("Internet Widgits Pty Ltd"))
-			Expect(cert.Issuer.Country).To(ContainElement("AU"))
-			Expect(cert.Issuer.Province).To(ContainElement("Some-State"))
+			Expect(cert.IsCA).To(BeFalse())
+
+			Expect(cert.Issuer.Organization).To(ContainElement("Cloud Foundry"))
+			Expect(cert.Issuer.Country).To(ContainElement("USA"))
+			Expect(cert.Issuer.CommonName).To(Equal("some-root-certificate-ca-cn1"))
 		})
 
 		It("generates a new id and root ca certificate for a new name", func() {
-			resp, _ := SendPostRequest("certificate-name", "certificate-ca")
+			resp, _ := SendPostRequest("some-root-certificate-name", "root-certificate-ca")
+			result := UnmarshalJSONString(resp.Body)
+
+			Expect(result["id"]).ToNot(BeNil())
+			Expect(result["name"]).To(Equal("some-root-certificate-name"))
+
+			value := result["value"].(map[string]interface{})
+
+			cert, _ := ParseCertString(value["certificate"].(string))
+
+			Expect(cert.DNSNames).Should(BeEmpty())
+			Expect(cert.IPAddresses).Should(BeEmpty())
+			Expect(cert.IsCA).Should(BeTrue())
+			Expect(cert.Subject.CommonName).To(Equal("some-root-certificate-ca-cn1"))
+
+			Expect(cert.Issuer.Organization).To(ContainElement("Cloud Foundry"))
+			Expect(cert.Issuer.Country).To(ContainElement("USA"))
+		})
+
+		It("generates a new id and intermediate ca certificate for a new name", func() {
+			SendPostRequest("my-ca", "root-certificate-ca")
+
+			resp, _ := SendPostRequest("certificate-name", "intermediate-certificate-ca")
 			result := UnmarshalJSONString(resp.Body)
 
 			Expect(result["id"]).ToNot(BeNil())
@@ -309,10 +347,11 @@ var _ = Describe("Supported HTTP Methods", func() {
 			Expect(cert.DNSNames).Should(BeEmpty())
 			Expect(cert.IPAddresses).Should(BeEmpty())
 			Expect(cert.IsCA).Should(BeTrue())
-			Expect(cert.Subject.CommonName).To(Equal("burpees"))
+			Expect(cert.Subject.CommonName).To(Equal("some-intermediate-certificate-ca-cn1"))
 
 			Expect(cert.Issuer.Organization).To(ContainElement("Cloud Foundry"))
 			Expect(cert.Issuer.Country).To(ContainElement("USA"))
+			Expect(cert.Issuer.CommonName).To(Equal("some-root-certificate-ca-cn1"))
 		})
 	})
 

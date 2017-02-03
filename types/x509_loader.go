@@ -3,61 +3,59 @@ package types
 import (
 	"crypto/rsa"
 	"crypto/x509"
-	"encoding/pem"
-	"io/ioutil"
+	"encoding/json"
+	"github.com/cloudfoundry/config-server/store"
 
+	"encoding/pem"
 	"github.com/cloudfoundry/bosh-utils/errors"
 )
 
 type x509Loader struct {
-	certFilePath, keyFilePath string
+	store store.Store
 }
 
-func NewX509Loader(certFilePath, keyFilePath string) CertsLoader {
-	return x509Loader{certFilePath, keyFilePath}
+func NewX509Loader(store store.Store) CertsLoader {
+	return x509Loader{store}
 }
 
-func (l x509Loader) LoadCerts(_ string) (*x509.Certificate, *rsa.PrivateKey, error) {
-	crt, err := l.parseCertificate(l.certFilePath)
+func (l x509Loader) LoadCerts(name string) (*x509.Certificate, *rsa.PrivateKey, error) {
+
+	configurations, err := l.store.GetByName(name)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	key, err := l.parsePrivateKey(l.keyFilePath)
+	if len(configurations) == 0 {
+		return nil, nil, errors.Error("No certificate found")
+	}
+
+	configuration := configurations[0]
+
+	var certContainer struct {
+		CertResponse CertResponse `json:"value"`
+	}
+
+	err = json.Unmarshal([]byte(configuration.Value), &certContainer)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, errors.WrapError(err, "Failed to parse certificate value")
+	}
+	certValue := certContainer.CertResponse
+
+	if certValue.Certificate == "" || certValue.PrivateKey == "" {
+		return nil, nil, errors.Errorf("Certificate %s doesn't contain expected attributes\n", name)
 	}
 
-	return crt, key, nil
-}
-
-func (l x509Loader) parseCertificate(certFilePath string) (*x509.Certificate, error) {
-	cf, e := ioutil.ReadFile(l.certFilePath)
-	if e != nil {
-		return nil, errors.Error("Failed to load certificate file")
+	cpb, _ := pem.Decode([]byte(certValue.Certificate))
+	rootCrt, err := x509.ParseCertificate(cpb.Bytes)
+	if err != nil {
+		return nil, nil, errors.WrapError(err, "Failed to parse root certificate")
 	}
 
-	cpb, _ := pem.Decode(cf)
-	crt, e := x509.ParseCertificate(cpb.Bytes)
-
-	if e != nil {
-		return nil, errors.WrapError(e, "Failed to parse certificate")
+	kpb, _ := pem.Decode([]byte(certValue.PrivateKey))
+	rootKey, err := x509.ParsePKCS1PrivateKey(kpb.Bytes)
+	if err != nil {
+		return nil, nil, errors.WrapError(err, "Failed to parse root private key")
 	}
 
-	return crt, nil
-}
-
-func (l x509Loader) parsePrivateKey(keyFilePath string) (*rsa.PrivateKey, error) {
-	kf, e := ioutil.ReadFile(l.keyFilePath)
-	if e != nil {
-		return nil, errors.Error("Failed to load private key file")
-	}
-
-	kpb, _ := pem.Decode(kf)
-
-	key, e := x509.ParsePKCS1PrivateKey(kpb.Bytes)
-	if e != nil {
-		return nil, errors.WrapError(e, "Failed to parse private key")
-	}
-	return key, nil
+	return rootCrt, rootKey, nil
 }

@@ -48,15 +48,79 @@ func (cfg CertificateGenerator) Generate(parameters interface{}) (interface{}, e
 func (cfg CertificateGenerator) generateCertificate(cParams certParams) (CertResponse, error) {
 	var certResponse CertResponse
 
-	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
-	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
-	if err != nil {
-		return certResponse, errors.WrapError(err, "Generating Serial Number")
-	}
-
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		return certResponse, errors.WrapError(err, "Generating Key")
+	}
+
+	certTemplate, err := generateCertTemplate(cParams)
+	if err != nil {
+		return certResponse, err
+	}
+
+	var certificateRaw []byte
+	var rootCARaw []byte
+	var rootCA *x509.Certificate
+	var rootPKey *rsa.PrivateKey
+
+	if cParams.CAName != "" {
+		if cfg.loader == nil {
+			panic("Expected CertificateGenerator to have Loader set")
+		}
+		rootCA, rootPKey, err = cfg.loader.LoadCerts(cParams.CAName)
+		if err != nil {
+			return certResponse, errors.WrapError(err, "Loading certificates")
+		}
+	}
+
+	if cParams.IsCA {
+		certTemplate.KeyUsage = x509.KeyUsageCertSign | x509.KeyUsageCRLSign
+
+		signingKey := privateKey
+		signingCA := &certTemplate
+
+		if cParams.CAName != "" {
+			signingKey = rootPKey
+			signingCA = rootCA
+		}
+
+		certificateRaw, err = x509.CreateCertificate(rand.Reader, &certTemplate, signingCA, &privateKey.PublicKey, signingKey)
+		if err != nil {
+			return certResponse, errors.WrapError(err, "Generating CA certificate")
+		}
+
+		rootCARaw = certificateRaw
+	} else {
+		if cParams.CAName == "" {
+			return certResponse, errors.Error("Missing required CA name")
+		}
+		certTemplate.KeyUsage = x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature
+		certTemplate.ExtKeyUsage = append(certTemplate.ExtKeyUsage, x509.ExtKeyUsageServerAuth)
+
+		for _, altName := range cParams.AlternativeNames {
+			possibleIP := net.ParseIP(altName)
+			if possibleIP == nil {
+				certTemplate.DNSNames = append(certTemplate.DNSNames, altName)
+			} else {
+				certTemplate.IPAddresses = append(certTemplate.IPAddresses, possibleIP)
+			}
+		}
+
+		certificateRaw, err = x509.CreateCertificate(rand.Reader, &certTemplate, rootCA, &privateKey.PublicKey, rootPKey)
+		if err != nil {
+			return certResponse, errors.WrapError(err, "Generating certificate")
+		}
+		rootCARaw = rootCA.Raw
+	}
+
+	return generateCertResponse(privateKey, certificateRaw, rootCARaw), nil
+}
+
+func generateCertTemplate(cParams certParams) (x509.Certificate, error) {
+	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
+	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
+	if err != nil {
+		return x509.Certificate{}, errors.WrapError(err, "Generating Serial Number")
 	}
 
 	now := time.Now()
@@ -74,58 +138,21 @@ func (cfg CertificateGenerator) generateCertificate(cParams certParams) (CertRes
 		BasicConstraintsValid: true,
 		IsCA: cParams.IsCA,
 	}
+	return template, nil
+}
 
-	var certificateRaw []byte
-	var rootCARaw []byte
-
-	if cParams.IsCA {
-		template.KeyUsage = x509.KeyUsageCertSign | x509.KeyUsageCRLSign
-
-		certificateRaw, err = x509.CreateCertificate(rand.Reader, &template, &template, &privateKey.PublicKey, privateKey)
-		if err != nil {
-			return certResponse, errors.WrapError(err, "Generating CA certificate")
-		}
-
-		rootCARaw = certificateRaw
-	} else {
-		template.KeyUsage = x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature
-		template.ExtKeyUsage = append(template.ExtKeyUsage, x509.ExtKeyUsageServerAuth)
-
-		if cfg.loader == nil {
-			panic("Expected CertificateGenerator to have Loader set")
-		}
-		rootCA, rootPKey, err := cfg.loader.LoadCerts(cParams.CAName)
-		if err != nil {
-			return certResponse, errors.WrapError(err, "Loading certificates")
-		}
-
-		for _, altName := range cParams.AlternativeNames {
-			possibleIP := net.ParseIP(altName)
-			if possibleIP == nil {
-				template.DNSNames = append(template.DNSNames, altName)
-			} else {
-				template.IPAddresses = append(template.IPAddresses, possibleIP)
-			}
-		}
-
-		certificateRaw, err = x509.CreateCertificate(rand.Reader, &template, rootCA, &privateKey.PublicKey, rootPKey)
-		if err != nil {
-			return certResponse, errors.WrapError(err, "Generating certificate")
-		}
-		rootCARaw = rootCA.Raw
-	}
-
+func generateCertResponse(privateKey *rsa.PrivateKey, certificateRaw, rootCARaw []byte) CertResponse {
 	encodedCert := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: certificateRaw})
 	encodedPrivatekey := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(privateKey)})
 	encodedRootCACert := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: rootCARaw})
 
-	certResponse = CertResponse{
+	certResponse := CertResponse{
 		Certificate: string(encodedCert),
 		PrivateKey:  string(encodedPrivatekey),
 		CA:          string(encodedRootCACert),
 	}
 
-	return certResponse, nil
+	return certResponse
 }
 
 func objToStruct(input interface{}, str interface{}) error {

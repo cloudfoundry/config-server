@@ -157,7 +157,7 @@ func (handler requestHandler) handlePost(resWriter http.ResponseWriter, req *htt
 
 		generatedValue, err := generator.Generate(parameters)
 		if err != nil {
-			http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+			http.Error(resWriter, err.Error(), http.StatusBadRequest)
 			return
 		}
 

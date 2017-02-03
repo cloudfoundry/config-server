@@ -57,6 +57,10 @@ var _ = Describe("Supported HTTP Methods", func() {
 	})
 
 	Describe("POST", func() {
+		BeforeEach(func() {
+			SendPostRequest("my-ca", "root-certificate-ca")
+		})
+
 		It("generates a new id and password for a new name", func() {
 			resp, _ := SendPostRequest("pass", "password")
 			result := UnmarshalJSONString(resp.Body)

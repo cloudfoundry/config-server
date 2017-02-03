@@ -49,9 +49,13 @@ func SendPostRequest(name string, valueType string) (*http.Response, error) {
 	case "password":
 		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"password","parameters":{}}`))
 	case "certificate":
-		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"certificate","parameters":{"common_name": "burpees", "alternative_names":["cnj", "deadlift"]}}`))
-	case "certificate-ca":
-		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"certificate","parameters":{"is_ca": true, "common_name": "burpees", "alternative_names":["cnj", "deadlift"]}}`))
+		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"certificate","parameters":{"ca": "my-ca", "common_name": "some-signed-cn1", "alternative_names":["signed-an1", "signed-an2"]}}`))
+	case "self-signed-certificate":
+		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"certificate","parameters":{"common_name": "some-self-signed-cn1", "alternative_names":["some-self-signed-an1", "some-self-signed-an2"]}}`))
+	case "root-certificate-ca":
+		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"certificate","parameters":{"is_ca": true, "common_name": "some-root-certificate-ca-cn1", "alternative_names":["cnj", "deadlift"]}}`))
+	case "intermediate-certificate-ca":
+		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"certificate","parameters":{"is_ca": true, "ca": "my-ca", "common_name": "some-intermediate-certificate-ca-cn1", "alternative_names":["cnj", "deadlift"]}}`))
 	}
 
 	req, _ := http.NewRequest(http.MethodPost, ServerURL+"/v1/data", requestBytes)
