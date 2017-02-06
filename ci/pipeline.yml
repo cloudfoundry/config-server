@@ -71,6 +71,7 @@ jobs:
         on_failure:
           <<: *slack-alert
 
+
   - name: test-integration-postgresql
     public: true
     plan:
@@ -84,45 +85,15 @@ jobs:
         on_failure:
           <<: *slack-alert
 
-  # - name: build-bosh-release
-  #   public: true
-  #   plan:
-  #     - get: config-server-release
-  #       trigger: true
-  #       params: { submodules: all }
-  #     - get: bosh-cli
-  #     - task: bosh-release
-  #       file: config-server-release/ci/tasks/bosh-release.yml
-  #       on_failure:
-  #         <<: *slack-alert
-
-  - name: acceptance-tests
+  - name: build-bosh-release
     public: true
     plan:
-      - get: bosh-cli
-      - get: bosh-deployment
-      - get: config-server
       - get: config-server-release
         trigger: true
         params: { submodules: all }
-      - task: build-bosh-release
+      - get: bosh-cli
+      - task: bosh-release
         file: config-server-release/ci/tasks/bosh-release.yml
-        on_failure:
-          <<: *slack-alert
-      - task: run-acceptance-tests
-        file: config-server-release/ci/tasks/acceptance-tests.yml
-        params:
-          internal_cidr: {{config_server_acceptance_tests_internal_cidr}}
-          internal_gw: {{config_server_acceptance_tests_internal_gw}}
-          internal_ip: {{config_server_acceptance_tests_internal_ip}}
-          access_key_id: {{config_server_acceptance_tests_access_key_id}}
-          secret_access_key: {{config_server_acceptance_tests_secret_access_key}}
-          region: {{config_server_acceptance_tests_region}}
-          az: {{config_server_acceptance_tests_az}}
-          default_key_name: {{config_server_acceptance_tests_default_key_name}}
-          default_security_groups: {{config_server_acceptance_tests_default_security_groups}}
-          subnet_id: {{config_server_acceptance_tests_subnet_id}}
-          private_key: {{config_server_acceptance_tests_private_key}}
         on_failure:
           <<: *slack-alert
 
@@ -131,7 +102,7 @@ jobs:
     plan:
       - get: config-server-release
         params: { submodules: all }
-        passed: [acceptance-tests]
+        passed: [build-bosh-release]
       - get: config-server
         passed: [build]
         trigger: true
@@ -197,15 +168,8 @@ resources:
     type: git
     source:
       uri: git@github.com:cloudfoundry/config-server-release.git
-      branch: master
+      branch: develop
       private_key: {{config_server_release_concourse_github_private_key}}
-
-  - name: bosh-deployment
-    type: git
-    source:
-      uri: https://github.com/cloudfoundry/bosh-deployment.git
-      branch: master
-      version: f1ee4f5bdd2c4d26ae1f7e937a1cf46c1cac9b53
 
   - name: release-bucket-linux
     type: s3
