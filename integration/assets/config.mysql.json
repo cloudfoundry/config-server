@@ -15,7 +15,5 @@
   },
   "certificate_file_path":      "./assets/ssl.crt",
   "private_key_file_path":      "./assets/ssl.key",
-  "ca_certificate_file_path":   "./assets/ca.crt",
-  "ca_private_key_file_path":   "./assets/ca.key",
   "jwt_verification_key_path":  "./assets/uaa.pub"
 }

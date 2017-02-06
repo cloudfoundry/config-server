@@ -46,8 +46,6 @@ var _ = Describe("ParseConfig", func() {
    "port":9000,
    "certificate_file_path":"/path/to/cert",
    "private_key_file_path":"/path/to/key",
-   "ca_certificate_file_path" : "/path/to/ca/cert",
-   "ca_private_key_file_path": "/path/to/ca/private/key",
    "database":{
       "adapter":"postgres",
       "user":"uword",
@@ -69,8 +67,6 @@ var _ = Describe("ParseConfig", func() {
 				Expect(serverConfig.Port).To(Equal(9000))
 				Expect(serverConfig.CertificateFilePath).To(Equal("/path/to/cert"))
 				Expect(serverConfig.PrivateKeyFilePath).To(Equal("/path/to/key"))
-				Expect(serverConfig.CACertificateFilePath).To(Equal("/path/to/ca/cert"))
-				Expect(serverConfig.CAPrivateKeyFilePath).To(Equal("/path/to/ca/private/key"))
 				Expect(serverConfig.PrivateKeyFilePath).To(Equal("/path/to/key"))
 				Expect(serverConfig.Database).ToNot(BeNil())
 				Expect(serverConfig.Database.Adapter).To(Equal("postgres"))
@@ -134,58 +130,6 @@ var _ = Describe("ParseConfig", func() {
 				Expect(err.Error()).To(Equal("Certificate file path and key file path should be defined"))
 			})
 
-			It("should error when ca_certificate_file_path is missing", func() {
-				configFile.WriteString(`
-{
-   "port":9000,
-   "certificate_file_path":"/path/to/cert",
-   "private_key_file_path":"/path/to/key",
-   "ca_private_key_file_path": "/path/to/ca/private/key",
-   "database":{
-      "adapter":"postgres",
-      "user":"uword",
-      "password":"pword",
-      "host":"http://www.yahoo.com",
-      "port":4300,
-      "db_name":"db",
-      "connection_options":{
-         "max_open_connections":12,
-         "max_idle_connections":25
-      }
-   }
-}
-`)
-				_, err := ParseConfig(configFile.Name())
-				Expect(err).ToNot(BeNil())
-				Expect(err.Error()).To(Equal("CA Certificate file path and key file path should be defined"))
-			})
-
-			It("should error when ca_private_key_file_path is missing", func() {
-				configFile.WriteString(`
-{
-   "port":9000,
-   "private_key_file_path":"/path/to/key",
-   "certificate_file_path":"/path/to/cert",
-   "private_key_file_path":"/path/to/key",
-   "ca_certificate_file_path": "/path/to/ca/certificate",
-   "database":{
-      "adapter":"postgres",
-      "user":"uword",
-      "password":"pword",
-      "host":"http://www.yahoo.com",
-      "port":4300,
-      "db_name":"db",
-      "connection_options":{
-         "max_open_connections":12,
-         "max_idle_connections":25
-      }
-   }
-}
-`)
-				_, err := ParseConfig(configFile.Name())
-				Expect(err).ToNot(BeNil())
-				Expect(err.Error()).To(Equal("CA Certificate file path and key file path should be defined"))
-			})
 		})
 	})
 })

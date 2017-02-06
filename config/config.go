@@ -13,8 +13,6 @@ type ServerConfig struct {
 	CertificateFilePath    string `json:"certificate_file_path"`
 	PrivateKeyFilePath     string `json:"private_key_file_path"`
 	JwtVerificationKeyPath string `json:"jwt_verification_key_path"`
-	CACertificateFilePath  string `json:"ca_certificate_file_path"`
-	CAPrivateKeyFilePath   string `json:"ca_private_key_file_path"`
 	Store                  string
 	Database               DBConfig
 }
@@ -49,10 +47,6 @@ func ParseConfig(filename string) (ServerConfig, error) {
 
 	if config.CertificateFilePath == "" || config.PrivateKeyFilePath == "" {
 		return config, errors.Error("Certificate file path and key file path should be defined")
-	}
-
-	if config.CACertificateFilePath == "" || config.CAPrivateKeyFilePath == "" {
-		return config, errors.Error("CA Certificate file path and key file path should be defined")
 	}
 
 	if (&config.Database != nil) && (&config.Database.Adapter != nil) {
