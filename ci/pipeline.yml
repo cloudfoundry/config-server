@@ -168,7 +168,7 @@ resources:
     type: git
     source:
       uri: git@github.com:cloudfoundry/config-server-release.git
-      branch: develop
+      branch: master
       private_key: {{config_server_release_concourse_github_private_key}}
 
   - name: release-bucket-linux
