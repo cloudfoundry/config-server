@@ -67,7 +67,7 @@ func connectionString(config config.DBConfig) (string, error) {
 }
 
 func closeDBOnSignal(db IDb) {
-	c := make(chan os.Signal,1)
+	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 
 	_ = <-c

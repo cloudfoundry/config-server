@@ -1,14 +1,14 @@
 package types_test
 
 import (
-	"github.com/cloudfoundry/config-server/store"
-	"github.com/cloudfoundry/config-server/types"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	"crypto/x509"
 	"encoding/json"
 	"encoding/pem"
+	"github.com/cloudfoundry/config-server/store"
 	. "github.com/cloudfoundry/config-server/store/storefakes"
+	"github.com/cloudfoundry/config-server/types"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("x509Loader", func() {
