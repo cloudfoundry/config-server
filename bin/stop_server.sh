@@ -2,4 +2,4 @@
 
 set -e -x
 
-kill -9 `cat config_server.pid`
+kill `cat config_server.pid`

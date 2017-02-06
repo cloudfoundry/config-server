@@ -5,7 +5,6 @@ import (
 	"github.com/cloudfoundry/config-server/types"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
 	"crypto/x509"
 	"encoding/json"
 	"encoding/pem"

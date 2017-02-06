@@ -10,6 +10,9 @@ import (
 
 	"github.com/cloudfoundry/config-server/config"
 	"github.com/cloudfoundry/config-server/store/db_migrations"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 type concreteDbProvider struct {
@@ -28,6 +31,7 @@ func NewConcreteDbProvider(sql ISql, config config.DBConfig) (DbProvider, error)
 	if err != nil {
 		return nil, errors.WrapError(err, "Failed to open connection to DB")
 	}
+	go closeDBOnSignal(db)
 
 	db.SetMaxOpenConns(config.ConnectionOptions.MaxOpenConnections)
 	db.SetMaxIdleConns(config.ConnectionOptions.MaxIdleConnections)
@@ -60,4 +64,14 @@ func connectionString(config config.DBConfig) (string, error) {
 	}
 
 	return connectionString, err
+}
+
+func closeDBOnSignal(db IDb) {
+	c := make(chan os.Signal,1)
+	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+
+	_ = <-c
+	fmt.Printf("Shutting down DB connection")
+	db.Close()
+	os.Exit(1)
 }
