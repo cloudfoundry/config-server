@@ -85,15 +85,31 @@ jobs:
         on_failure:
           <<: *slack-alert
 
-  - name: build-bosh-release
+  - name: acceptance-tests
     public: true
     plan:
       - get: config-server-release
         trigger: true
         params: { submodules: all }
       - get: bosh-cli
-      - task: bosh-release
+      - task: build-bosh-release
         file: config-server-release/ci/tasks/bosh-release.yml
+        on_failure:
+          <<: *slack-alert
+      - task: run-acceptane-tests
+        file: config-server-release/ci/tasks/acceptance-tests.yml
+        params:
+          access_key_id: {{config_server_acceptance_tests_access_key_id}}
+          az: {{config_server_acceptance_tests_az}}
+          default_key_name: {{config_server_acceptance_tests_default_key_name}}
+          default_security_groups: {{config_server_acceptance_tests_default_security_groups}}
+          internal_cidr: {{config_server_acceptance_tests_internal_cidr}}
+          internal_gw: {{config_server_acceptance_tests_internal_gw}}
+          internal_ip: {{config_server_acceptance_tests_internal_ip}}
+          private_key: {{config_server_acceptance_tests_private_key}}
+          region: {{config_server_acceptance_tests_region}}
+          secret_access_key: {{config_server_acceptance_tests_secret_access_key}}
+          subnet_id: {{config_server_acceptance_tests_subnet_id}}
         on_failure:
           <<: *slack-alert
 
@@ -102,7 +118,7 @@ jobs:
     plan:
       - get: config-server-release
         params: { submodules: all }
-        passed: [build-bosh-release]
+        passed: [acceptance-tests]
       - get: config-server
         passed: [build]
         trigger: true
