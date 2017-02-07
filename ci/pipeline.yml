@@ -88,10 +88,11 @@ jobs:
   - name: acceptance-tests
     public: true
     plan:
+      - get: bosh-cli
+      - get: config-server
       - get: config-server-release
         trigger: true
         params: { submodules: all }
-      - get: bosh-cli
       - task: build-bosh-release
         file: config-server-release/ci/tasks/bosh-release.yml
         on_failure:
@@ -119,6 +120,7 @@ jobs:
       - get: config-server-release
         params: { submodules: all }
         passed: [acceptance-tests]
+        trigger: true
       - get: config-server
         passed: [build]
         trigger: true
