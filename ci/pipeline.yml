@@ -87,8 +87,10 @@ jobs:
 
   - name: acceptance-tests
     public: true
+    serial: true
     plan:
       - get: bosh-cli
+      - get: bosh-deployment
       - get: config-server
       - get: config-server-release
         trigger: true
@@ -188,6 +190,13 @@ resources:
       uri: git@github.com:cloudfoundry/config-server-release.git
       branch: master
       private_key: {{config_server_release_concourse_github_private_key}}
+
+  - name: bosh-deployment
+    type: git
+    source:
+      branch: master
+      uri: https://github.com/cloudfoundry/bosh-deployment.git
+      version: f1ee4f5bdd2c4d26ae1f7e937a1cf46c1cac9b53
 
   - name: release-bucket-linux
     type: s3
