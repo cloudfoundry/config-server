@@ -214,14 +214,13 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 						Expect(certificate).ToNot(BeNil())
 					})
 
-					It("sets KeyUsage and ExtKeyUsage", func() {
+					It("sets KeyUsage", func() {
 						altNames := []interface{}{"cloudfoundry.com", "example.com"}
 						params["alternative_names"] = altNames
 						certResp := getCertResp(generator, params)
 						certificate, _ := parseCertString(certResp.Certificate)
 
 						Expect(certificate.KeyUsage).To(Equal(x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature))
-						Expect(certificate.ExtKeyUsage).To(Equal([]x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}))
 					})
 
 					It("sets common name and alternative name as passed in", func() {
@@ -303,6 +302,67 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 						key, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
 
 						Expect(certificate.PublicKey).To(Equal(&key.PublicKey))
+					})
+
+					Context("when ExtKeyUsage is NOT empty", func() {
+						Context("when it is client_auth", func() {
+							It("should include the x509.ExtKeyUsageClientAuth flag in the key", func() {
+								altNames := []interface{}{"cloudfoundry.com", "example.com"}
+								params["alternative_names"] = altNames
+								params["ext_key_usage"] = []string{"client_auth"}
+								certResp := getCertResp(generator, params)
+								certificate, _ := parseCertString(certResp.Certificate)
+
+								Expect(certificate.ExtKeyUsage).To(Equal([]x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth}))
+							})
+						})
+
+						Context("when it is server_auth", func() {
+							It("should include the x509.ExtKeyUsageServerAuth flag in the key", func() {
+								altNames := []interface{}{"cloudfoundry.com", "example.com"}
+								params["alternative_names"] = altNames
+								params["ext_key_usage"] = []string{"server_auth"}
+								certResp := getCertResp(generator, params)
+								certificate, _ := parseCertString(certResp.Certificate)
+
+								Expect(certificate.ExtKeyUsage).To(Equal([]x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}))
+							})
+						})
+
+						Context("when multiple auth types are set", func() {
+							It("should include the x509.ExtKeyUsageServerAuth flag in the key", func() {
+								altNames := []interface{}{"cloudfoundry.com", "example.com"}
+								params["alternative_names"] = altNames
+								params["ext_key_usage"] = []string{"client_auth", "server_auth"}
+								certResp := getCertResp(generator, params)
+								certificate, _ := parseCertString(certResp.Certificate)
+
+								Expect(certificate.ExtKeyUsage).To(Equal([]x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth}))
+							})
+						})
+
+						Context("when it is neither server or client auth", func() {
+							It("returns an error", func() {
+								altNames := []interface{}{"cloudfoundry.com", "example.com"}
+								params["alternative_names"] = altNames
+								params["ext_key_usage"] = []string{"something not supported"}
+								_, err := generator.Generate(params)
+
+								Expect(err).ToNot(BeNil())
+								Expect(err.Error()).To(Equal("Unsupported extended key usage value: something not supported"))
+							})
+						})
+					})
+
+					Context("when ExtKeyUsage is empty", func() {
+						It("should include the x509.ExtKeyUsageServerAuth flag in the key", func() {
+							altNames := []interface{}{"cloudfoundry.com", "example.com"}
+							params["alternative_names"] = altNames
+							certResp := getCertResp(generator, params)
+							certificate, _ := parseCertString(certResp.Certificate)
+
+							Expect(certificate.ExtKeyUsage).To(Equal([]x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}))
+						})
 					})
 				})
 			})

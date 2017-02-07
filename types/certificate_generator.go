@@ -29,6 +29,7 @@ type certParams struct {
 	AlternativeNames []string `yaml:"alternative_names"`
 	IsCA             bool     `yaml:"is_ca"`
 	CAName           string   `yaml:"ca"`
+	ExtKeyUsage      []string `yaml:"ext_key_usage"`
 }
 
 func NewCertificateGenerator(loader CertsLoader) CertificateGenerator {
@@ -95,7 +96,24 @@ func (cfg CertificateGenerator) generateCertificate(cParams certParams) (CertRes
 			return certResponse, errors.Error("Missing required CA name")
 		}
 		certTemplate.KeyUsage = x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature
-		certTemplate.ExtKeyUsage = append(certTemplate.ExtKeyUsage, x509.ExtKeyUsageServerAuth)
+
+		extKeyUsages := certTemplate.ExtKeyUsage
+		if len(cParams.ExtKeyUsage) != 0 {
+			for _, extKeyUsage := range cParams.ExtKeyUsage {
+				switch extKeyUsage {
+				case "client_auth":
+					extKeyUsages = append(extKeyUsages, x509.ExtKeyUsageClientAuth)
+				case "server_auth":
+					extKeyUsages = append(extKeyUsages, x509.ExtKeyUsageServerAuth)
+				default:
+					return certResponse, errors.Errorf("Unsupported extended key usage value: %s", extKeyUsage)
+				}
+			}
+		} else {
+			extKeyUsages = append(extKeyUsages, x509.ExtKeyUsageServerAuth)
+		}
+
+		certTemplate.ExtKeyUsage = extKeyUsages
 
 		for _, altName := range cParams.AlternativeNames {
 			possibleIP := net.ParseIP(altName)
