@@ -29,7 +29,7 @@ type certParams struct {
 	AlternativeNames []string `yaml:"alternative_names"`
 	IsCA             bool     `yaml:"is_ca"`
 	CAName           string   `yaml:"ca"`
-	ExtKeyUsage      []string `yaml:"ext_key_usage"`
+	ExtKeyUsage      []string `yaml:"extended_key_usage"`
 }
 
 func NewCertificateGenerator(loader CertsLoader) CertificateGenerator {
