@@ -1,4 +1,4 @@
-package types
+package server
 
 import (
 	"crypto/rsa"
@@ -8,13 +8,14 @@ import (
 
 	"encoding/pem"
 	"github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/cloudfoundry/config-server/types"
 )
 
 type x509Loader struct {
 	store store.Store
 }
 
-func NewX509Loader(store store.Store) CertsLoader {
+func NewX509Loader(store store.Store) types.CertsLoader {
 	return x509Loader{store}
 }
 
@@ -32,7 +33,7 @@ func (l x509Loader) LoadCerts(name string) (*x509.Certificate, *rsa.PrivateKey, 
 	configuration := configurations[0]
 
 	var certContainer struct {
-		CertResponse CertResponse `json:"value"`
+		CertResponse types.CertResponse `json:"value"`
 	}
 
 	err = json.Unmarshal([]byte(configuration.Value), &certContainer)

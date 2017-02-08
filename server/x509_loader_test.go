@@ -1,9 +1,10 @@
-package types_test
+package server_test
 
 import (
 	"crypto/x509"
 	"encoding/json"
 	"encoding/pem"
+	"github.com/cloudfoundry/config-server/server"
 	"github.com/cloudfoundry/config-server/store"
 	. "github.com/cloudfoundry/config-server/store/storefakes"
 	"github.com/cloudfoundry/config-server/types"
@@ -19,7 +20,7 @@ var _ = Describe("x509Loader", func() {
 
 	BeforeEach(func() {
 		mockStore = &FakeStore{}
-		loader = types.NewX509Loader(mockStore)
+		loader = server.NewX509Loader(mockStore)
 	})
 
 	Context("when certificate is present in the store", func() {
