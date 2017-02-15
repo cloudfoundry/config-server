@@ -372,9 +372,9 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 			var params map[interface{}]interface{}
 			BeforeEach(func() {
 				params = map[interface{}]interface{}{
-					"is_ca":         true,
+					"is_ca":              true,
 					"extended_key_usage": []string{"random", "values"},
-					"ext_key_usage": []string{"random", "values"},
+					"ext_key_usage":      []string{"random", "values"},
 				}
 			})
 
