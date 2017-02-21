@@ -1,7 +1,14 @@
 ## API Docs (WIP)
 This document describes the APIs exposed by the **Config Server**.
 
-### 1 - Get By ID
+- [Get By ID](#get-by-id)
+- [Get By Name](#get-by-name)
+- [Set Name Value](#set-name-value)
+- [Generate password/certificate](#generate-password/certificate)
+- [Delete Name](#delete-name)
+
+
+### Get By ID
 ```
 GET /v1/data/:id
 ```
@@ -43,7 +50,7 @@ Response:
 
 --
 
-### 2 - Get By Name
+### Get By Name
 
 `GET /v1/data?name="/server/tomcat/port"`
 
@@ -82,7 +89,7 @@ Response:
 
 ---
 
-### 3 - Set Name Value
+### Set Name Value
 ```
 PUT /v1/data
 ```
@@ -127,7 +134,7 @@ Request Body:
 
 ---
 
-### 4 - Generate password/certificate
+### Generate password/certificate
 
 ```
 POST /v1/data/
@@ -219,7 +226,7 @@ It returns an array of the following object:
 }
 ```
 
-### 5 - Delete Name
+### Delete Name
 ```
 DELETE /v1/data?name="name"
 ```
