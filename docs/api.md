@@ -2,17 +2,17 @@
 This document describes the APIs exposed by the **Config Server**.
 
 - GET
-  - [Get by ID](#get-by-id)
-  - [Get by Name](#get-by-name)
+  - [Get by ID](#11-get-by-id) 
+  - [Get by Name](#12-get-by-name)
 - PUT
-  - [Set Name Value](#set-name-value)
+  - [Set Name Value](#21-set-name-value)
 - POST:   
-  - [Generate Password](#generate-password)
-  - [Generate Certificate](#generate-certificate)
-  - [Generate SSH Keys](#generate-ssh-keys)
-  - [Generate RSA keys](#generate-rsa-keys)
+  - [Generate Password](#31-generate-password)
+  - [Generate Certificate](#32-generate-certificate)
+  - [Generate SSH Keys](#33-generate-ssh-key)
+  - [Generate RSA keys](#34-generate-rsa-key)
 - DELETE  
-  - [Delete Name](#delete-name)
+  - [Delete Name](#41-delete-name)
 
 ## 1. GET
 
@@ -259,7 +259,7 @@ Request Body:
 Response Body:
 ``` JSON
 {
-  "id": "123"
+  "id": "123",
   "name": "some_name",
   "value": "happy value"
 }
@@ -498,7 +498,7 @@ Request Body (intermediate CA):
   "type": "certificate",
   "parameters": {
     "is_ca": true,
-    "ca": "my_ca"
+    "ca": "my_ca",
     "common_name": "bosh.io",
   }
 }
@@ -510,7 +510,7 @@ Request Body (regular certificate):
   "name": "my_cert",
   "type": "certificate",
   "parameters": {
-    "ca": "my_ca"
+    "ca": "my_ca",
     "common_name": "bosh.io",
     "alternative_names": ["bosh.io", "blah.bosh.io"],
   }
@@ -627,7 +627,7 @@ Response Body:
   "name": "my_ssh_key",
   "value": {
     "private_key" : "Private key....",
-    "public_key" : "Public key...."
+    "public_key" : "Public key....",
     "public_key_fingerprint" : "Public key fingerprint...."
   }
 }
@@ -741,7 +741,7 @@ DELETE /v1/data?name=":name_to_delete"
 
 ##### Sample Request
 
-`DELETE /v1/data?name="full/path/to/name"`
+`DELETE /v1/data?name="some_name_to_delete"`
 
 ##### Response Codes
 | Code | Description |
