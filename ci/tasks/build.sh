@@ -11,4 +11,4 @@ go build github.com/cloudfoundry/config-server
 
 mv config-server compiled-${GOOS}/${filename}
 
-openssl sha -sha256 compiled-${GOOS}/${filename}
+openssl sha256 compiled-${GOOS}/${filename}
