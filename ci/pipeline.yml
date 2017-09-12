@@ -109,6 +109,7 @@ jobs:
           internal_cidr: {{config_server_acceptance_tests_internal_cidr}}
           internal_gw: {{config_server_acceptance_tests_internal_gw}}
           internal_ip: {{config_server_acceptance_tests_internal_ip}}
+          external_ip: {{config_server_acceptance_tests_external_ip}}
           private_key: {{config_server_acceptance_tests_private_key}}
           region: {{config_server_acceptance_tests_region}}
           secret_access_key: {{config_server_acceptance_tests_secret_access_key}}
