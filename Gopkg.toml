@@ -4,10 +4,6 @@
   name = "github.com/BurntSushi/migration"
 
 [[constraint]]
-  revision = "eafd6570b7844952a20e4568c138a6b979a21f30"
-  name = "github.com/cloudfoundry/bosh-utils"
-
-[[constraint]]
   name = "github.com/dgrijalva/jwt-go"
   version = "3.0.0"
 

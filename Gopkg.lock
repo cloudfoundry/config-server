@@ -7,9 +7,10 @@
   revision = "c45b897f13350786ccaf2b7403b92b1c7ad85844"
 
 [[projects]]
+  branch = "master"
   name = "github.com/cloudfoundry/bosh-utils"
   packages = ["errors","logger"]
-  revision = "eafd6570b7844952a20e4568c138a6b979a21f30"
+  revision = "a960ab178e64b43d19051be6fd2891ff695bb206"
 
 [[projects]]
   name = "github.com/dgrijalva/jwt-go"
@@ -59,6 +60,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5012948545e376e215a893154189f39eab7e925b94d2cb95a6a884c7d08ce4d3"
+  inputs-digest = "14d5ce5850be8c126177613714f0c8718e66ea25a3806ebeb3b4aca7ce9654be"
   solver-name = "gps-cdcl"
   solver-version = 1
