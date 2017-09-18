@@ -288,7 +288,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 						Expect(certificate.IsCA).To(BeFalse())
 					})
 
-					It("generates a 2048-bit private key", func() {
+					It("generates a 3072-bit private key", func() {
 						certResp := getCertResp(generator, params)
 
 						Expect(certResp.PrivateKey).NotTo(BeEmpty())
