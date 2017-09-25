@@ -20,17 +20,17 @@ func NewAuthenticationHandler(tokenValidator TokenValidator, nextHandler http.Ha
 }
 
 func (handler authenticationHandler) ServeHTTP(resWriter http.ResponseWriter, req *http.Request) {
-	if handler.authenticate(req) == nil {
-		handler.nextHandler.ServeHTTP(resWriter, req)
+	if err := handler.authenticate(req); err != nil {
+		http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusUnauthorized)
 	} else {
-		http.Error(resWriter, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		handler.nextHandler.ServeHTTP(resWriter, req)
 	}
 }
 
 func (handler authenticationHandler) authenticate(req *http.Request) error {
 	authHeader := req.Header.Get("Authorization")
 	if len(authHeader) == 0 {
-		return errors.Error("Missing Token")
+		return errors.Error("Missing authorization token")
 	}
 
 	jwtToken, err := handler.checkTokenFormat(authHeader)
@@ -44,12 +44,12 @@ func (handler authenticationHandler) authenticate(req *http.Request) error {
 func (handler authenticationHandler) checkTokenFormat(token string) (string, error) {
 	tokenParts := strings.Split(token, " ")
 	if len(tokenParts) != 2 {
-		return "", errors.Error("Invalid token format")
+		return "", errors.Error("Invalid authorization token format")
 	}
 
 	tokenType, userToken := tokenParts[0], tokenParts[1]
 	if !strings.EqualFold(tokenType, "bearer") {
-		return "", errors.Error("Invalid token type: " + tokenType)
+		return "", errors.Error("Invalid authorization token type: " + tokenType)
 	}
 
 	return userToken, nil

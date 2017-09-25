@@ -38,7 +38,7 @@ func (handler requestHandler) ServeHTTP(resWriter http.ResponseWriter, req *http
 	case "DELETE":
 		handler.handleDelete(resWriter, req)
 	default:
-		http.Error(resWriter, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		http.Error(resWriter, NewErrorResponse(errors.Error("HTTP method not allowed")).GenerateErrorMsg(), http.StatusMethodNotAllowed)
 	}
 }
 
@@ -49,7 +49,7 @@ func (handler requestHandler) handleGet(resWriter http.ResponseWriter, req *http
 	} else {
 		name := req.URL.Query().Get("name")
 		if len(name) == 0 {
-			http.Error(resWriter, idErr.Error(), http.StatusBadRequest)
+			http.Error(resWriter, NewErrorResponse(idErr).GenerateErrorMsg(), http.StatusBadRequest)
 		} else {
 			handler.handleGetByName(name, resWriter)
 		}
@@ -61,14 +61,14 @@ func (handler requestHandler) handleGetByID(id string, resWriter http.ResponseWr
 	value, err := handler.store.GetByID(id)
 
 	if err != nil {
-		http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+		http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusInternalServerError)
 		return
 	}
 
 	emptyValue := store.Configuration{}
 
 	if value == emptyValue {
-		http.Error(resWriter, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		http.Error(resWriter, NewErrorResponse(errors.Errorf("ID '%s' not found", id)).GenerateErrorMsg(), http.StatusNotFound)
 	} else {
 		result, _ := value.StringifiedJSON()
 		respond(resWriter, result, http.StatusOK)
@@ -78,18 +78,18 @@ func (handler requestHandler) handleGetByID(id string, resWriter http.ResponseWr
 func (handler requestHandler) handleGetByName(name string, resWriter http.ResponseWriter) {
 
 	if isNameValid, nameError := isValidName(name); isNameValid == false {
-		http.Error(resWriter, nameError.Error(), http.StatusBadRequest)
+		http.Error(resWriter, NewErrorResponse(nameError).GenerateErrorMsg(), http.StatusBadRequest)
 		return
 	}
 
 	values, err := handler.store.GetByName(name)
 	if err != nil {
-		http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+		http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusInternalServerError)
 		return
 	}
 
 	if len(values) == 0 {
-		http.Error(resWriter, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		http.Error(resWriter, NewErrorResponse(errors.Errorf("Name '%s' not found", name)).GenerateErrorMsg(), http.StatusNotFound)
 	} else {
 		result, err := store.Configurations(values).StringifiedJSON()
 		if err == nil {
@@ -100,21 +100,21 @@ func (handler requestHandler) handleGetByName(name string, resWriter http.Respon
 
 func (handler requestHandler) handlePut(resWriter http.ResponseWriter, req *http.Request) {
 	if contentTypeErr := validateRequestContentType(req); contentTypeErr != nil {
-		http.Error(resWriter, contentTypeErr.Error(), http.StatusUnsupportedMediaType)
+		http.Error(resWriter, NewErrorResponse(contentTypeErr).GenerateErrorMsg(), http.StatusUnsupportedMediaType)
 		return
 	}
 
 	name, value, err := readPutRequest(req)
 
 	if err != nil {
-		http.Error(resWriter, err.Error(), http.StatusBadRequest)
+		http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusBadRequest)
 		return
 	}
 
 	configuration, err := handler.saveToStore(name, value)
 
 	if err != nil {
-		http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+		http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusInternalServerError)
 		return
 	}
 	result, _ := configuration.StringifiedJSON()
@@ -123,27 +123,27 @@ func (handler requestHandler) handlePut(resWriter http.ResponseWriter, req *http
 
 func (handler requestHandler) handlePost(resWriter http.ResponseWriter, req *http.Request) {
 	if contentTypeErr := validateRequestContentType(req); contentTypeErr != nil {
-		http.Error(resWriter, contentTypeErr.Error(), http.StatusUnsupportedMediaType)
+		http.Error(resWriter, NewErrorResponse(contentTypeErr).GenerateErrorMsg(), http.StatusUnsupportedMediaType)
 		return
 	}
 
 	name, generatorType, parameters, err := readPostRequest(req)
 
 	if err != nil {
-		http.Error(resWriter, err.Error(), http.StatusBadRequest)
+		http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusBadRequest)
 		return
 	}
 
 	values, err := handler.store.GetByName(name)
 	if err != nil {
-		http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+		http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusInternalServerError)
 		return
 	}
 
 	if len(values) != 0 {
 		result, err := values[0].StringifiedJSON()
 		if err != nil {
-			http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+			http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusInternalServerError)
 		} else {
 			respond(resWriter, result, http.StatusOK)
 		}
@@ -151,19 +151,19 @@ func (handler requestHandler) handlePost(resWriter http.ResponseWriter, req *htt
 	} else {
 		generator, err := handler.valueGeneratorFactory.GetGenerator(generatorType)
 		if err != nil {
-			http.Error(resWriter, err.Error(), http.StatusBadRequest)
+			http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusBadRequest)
 			return
 		}
 
 		generatedValue, err := generator.Generate(parameters)
 		if err != nil {
-			http.Error(resWriter, err.Error(), http.StatusBadRequest)
+			http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusBadRequest)
 			return
 		}
 
 		configuration, err := handler.saveToStore(name, generatedValue)
 		if err != nil {
-			http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+			http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusInternalServerError)
 			return
 		}
 
@@ -175,7 +175,7 @@ func (handler requestHandler) handlePost(resWriter http.ResponseWriter, req *htt
 func (handler requestHandler) handleDelete(resWriter http.ResponseWriter, req *http.Request) {
 	name := req.URL.Query().Get("name")
 	if isNameValid, nameError := isValidName(name); isNameValid == false {
-		http.Error(resWriter, nameError.Error(), http.StatusBadRequest)
+		http.Error(resWriter, NewErrorResponse(nameError).GenerateErrorMsg(), http.StatusBadRequest)
 		return
 	}
 
@@ -183,12 +183,12 @@ func (handler requestHandler) handleDelete(resWriter http.ResponseWriter, req *h
 
 	if err == nil {
 		if deleted == 0 {
-			respond(resWriter, "", http.StatusNotFound)
+			http.Error(resWriter, NewErrorResponse(errors.Errorf("Name '%s' not found", name)).GenerateErrorMsg(), http.StatusNotFound)
 		} else {
 			respond(resWriter, "", http.StatusNoContent)
 		}
 	} else {
-		http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+		http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusInternalServerError)
 	}
 }
 

@@ -9,6 +9,7 @@ import (
 	"bytes"
 	. "github.com/cloudfoundry/config-server/integration/support"
 	"net/http"
+	"strings"
 )
 
 var _ = Describe("Supported HTTP Methods", func() {
@@ -32,7 +33,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 				Expect(resp.StatusCode).To(Equal(400))
 
 				body, _ := ioutil.ReadAll(resp.Body)
-				Expect(string(body)).To(ContainSubstring("Name must consist of alphanumeric, underscores, dashes, and forward slashes"))
+				Expect(strings.TrimSpace(string(body))).To(Equal(`{"error":"Name must consist of alphanumeric, underscores, dashes, and forward slashes"}`))
 			})
 
 			Context("when name does not exist in server", func() {
@@ -41,6 +42,9 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 					Expect(err).To(BeNil())
 					Expect(resp.StatusCode).To(Equal(404))
+
+					body, _ := ioutil.ReadAll(resp.Body)
+					Expect(strings.TrimSpace(string(body))).To(Equal(`{"error":"Name 'smurf' not found"}`))
 				})
 			})
 
@@ -125,6 +129,9 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 					Expect(err).To(BeNil())
 					Expect(resp.StatusCode).To(Equal(404))
+
+					body, _ := ioutil.ReadAll(resp.Body)
+					Expect(strings.TrimSpace(string(body))).To(Equal(`{"error":"ID '123' not found"}`))
 				})
 			})
 
@@ -170,7 +177,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 			Expect(err).To(BeNil())
 
 			body, _ := ioutil.ReadAll(resp.Body)
-			Expect(string(body)).To(ContainSubstring("Unsupported Media Type - Accepts application/json only"))
+			Expect(strings.TrimSpace(string(body))).To(Equal(`{"error":"Unsupported Media Type - Accepts application/json only"}`))
 		})
 
 		It("errors when name has invalid characters", func() {
@@ -180,7 +187,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 			Expect(resp.StatusCode).To(Equal(400))
 
 			body, _ := ioutil.ReadAll(resp.Body)
-			Expect(string(body)).To(ContainSubstring("Name must consist of alphanumeric, underscores, dashes, and forward slashes"))
+			Expect(strings.TrimSpace(string(body))).To(Equal(`{"error":"Name must consist of alphanumeric, underscores, dashes, and forward slashes"}`))
 		})
 
 		Context("when name does NOT exist in server", func() {
@@ -265,7 +272,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 			Expect(err).To(BeNil())
 
 			body, _ := ioutil.ReadAll(resp.Body)
-			Expect(string(body)).To(ContainSubstring("Unsupported Media Type - Accepts application/json only"))
+			Expect(strings.TrimSpace(string(body))).To(Equal(`{"error":"Unsupported Media Type - Accepts application/json only"}`))
 		})
 
 		It("fails if is_ca is set but ca is NOT", func() {
@@ -276,7 +283,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 			body, _ := ioutil.ReadAll(response.Body)
 
-			Expect(string(body)).To(ContainSubstring("Missing required CA name"))
+			Expect(strings.TrimSpace(string(body))).To(Equal(`{"error":"Missing required CA name"}`))
 		})
 
 		It("generates a new id and password for a new name", func() {
@@ -372,6 +379,9 @@ var _ = Describe("Supported HTTP Methods", func() {
 			resp, err = SendGetRequestByName("smurf")
 			Expect(err).To(BeNil())
 			Expect(resp.StatusCode).To(Equal(http.StatusNotFound))
+
+			body, _ := ioutil.ReadAll(resp.Body)
+			Expect(strings.TrimSpace(string(body))).To(Equal(`{"error":"Name 'smurf' not found"}`))
 		})
 
 		It("returns 204 No Content when deletion is successful", func() {
@@ -388,6 +398,9 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 			Expect(err).To(BeNil())
 			Expect(resp.StatusCode).To(Equal(http.StatusNotFound))
+
+			body, _ := ioutil.ReadAll(resp.Body)
+			Expect(strings.TrimSpace(string(body))).To(Equal(`{"error":"Name 'smurf' not found"}`))
 		})
 	})
 })

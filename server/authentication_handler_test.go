@@ -47,6 +47,7 @@ var _ = Describe("AuthenticationHandler", func() {
 		authHandler.ServeHTTP(recorder, req)
 
 		Expect(recorder.Code).To(Equal(http.StatusUnauthorized))
+		Expect(strings.TrimSpace(recorder.Body.String())).To(Equal(`{"error":"Missing authorization token"}`))
 	})
 
 	It("should return 401 Unauthorized if token with invalid format is sent", func() {
@@ -56,12 +57,14 @@ var _ = Describe("AuthenticationHandler", func() {
 		recorder1 := httptest.NewRecorder()
 		authHandler.ServeHTTP(recorder1, req)
 		Expect(recorder1.Code).To(Equal(http.StatusUnauthorized))
+		Expect(strings.TrimSpace(recorder1.Body.String())).To(Equal(`{"error":"Invalid authorization token format"}`))
 
 		req.Header.Set("Authorization", "bad-prefix fake-auth-header")
 
 		recorder2 := httptest.NewRecorder()
 		authHandler.ServeHTTP(recorder2, req)
 		Expect(recorder2.Code).To(Equal(http.StatusUnauthorized))
+		Expect(strings.TrimSpace(recorder2.Body.String())).To(Equal(`{"error":"Invalid authorization token type: bad-prefix"}`))
 	})
 
 })
