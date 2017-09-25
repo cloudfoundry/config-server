@@ -2,15 +2,15 @@ package server
 
 import "encoding/json"
 
-type errorResponse struct {
+type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
-func NewErrorResponse(err error) errorResponse {
-	return errorResponse{Error: err.Error()}
+func NewErrorResponse(err error) ErrorResponse {
+	return ErrorResponse{Error: err.Error()}
 }
 
-func (e errorResponse) GenerateErrorMsg() string {
+func (e ErrorResponse) GenerateErrorMsg() string {
 	response, err := json.Marshal(e)
 	if err != nil {
 		return `{"error": "Unknown Error"}`
