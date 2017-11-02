@@ -5,4 +5,4 @@
 
 
 See [config-server-release](https://github.com/cloudfoundry/config-server-release) for the release repo for config-server
-See [bosh-notes](https://github.com/cloudfoundry/bosh-notes/blob/master/config-server.md) for more information
+See [bosh-notes](https://github.com/cloudfoundry/bosh-notes/blob/master/finished/config-server.md) for more information
