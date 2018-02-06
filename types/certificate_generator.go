@@ -98,7 +98,11 @@ func (cfg CertificateGenerator) generateCertificate(cParams certParams) (CertRes
 			return certResponse, errors.WrapError(err, "Generating CA certificate")
 		}
 
-		rootCARaw = certificateRaw
+		if cParams.CAName != "" {
+			rootCARaw = rootCA.Raw
+		} else {
+			rootCARaw = certificateRaw
+		}
 	} else {
 		if cParams.CAName == "" {
 			return certResponse, errors.Error("Missing required CA name")

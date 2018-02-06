@@ -10,6 +10,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"strings"
 )
 
 func parseCertString(certString string) (*x509.Certificate, error) {
@@ -118,10 +119,15 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 
 				Context("when 'ca' is NOT set", func() {
 					var certificate *x509.Certificate
+					var certResp CertResponse
 
 					BeforeEach(func() {
-						certResp := getCertResp(generator, params)
+						certResp = getCertResp(generator, params)
 						certificate, _ = parseCertString(certResp.Certificate)
+					})
+
+					It("set the CA field to itself", func() {
+						Expect(strings.Trim(certResp.CA, "\n")).To(Equal(strings.Trim(certResp.Certificate, "\n")))
 					})
 
 					It("generates a root CA", func() {
@@ -153,6 +159,10 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 
 					It("generates an intermediate CA cert", func() {
 						Expect(certificate.IsCA).To(BeTrue())
+					})
+
+					It("set the CA field to the signing CA", func() {
+						Expect(strings.Trim(certResp.CA, "\n")).To(Equal(mockCertValue))
 					})
 
 					It("sets KeyUsage and ExtKeyUsage", func() {
@@ -307,6 +317,11 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 						key, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
 
 						Expect(certificate.PublicKey).To(Equal(&key.PublicKey))
+					})
+
+					It("set the CA field to the signing CA", func() {
+						certResp := getCertResp(generator, params)
+						Expect(strings.Trim(certResp.CA, "\n")).To(Equal(mockCertValue))
 					})
 
 					Context("when ExtKeyUsage is NOT empty", func() {
