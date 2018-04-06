@@ -2,21 +2,23 @@ package server_test
 
 import (
 	"errors"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+
 	. "github.com/cloudfoundry/config-server/server"
 	. "github.com/cloudfoundry/config-server/server/serverfakes"
 	. "github.com/cloudfoundry/config-server/store/storefakes"
 	. "github.com/cloudfoundry/config-server/types/typesfakes"
-	"net/http"
-	"net/http/httptest"
-	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
 	"encoding/json"
+	"io"
+
 	"github.com/cloudfoundry/config-server/store"
 	"github.com/cloudfoundry/config-server/types"
-	"io"
 )
 
 type BadMockStore struct{}
@@ -67,13 +69,11 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 	Describe("Given a server with store", func() {
 		var requestHandler http.Handler
-		var mockTokenValidator *FakeTokenValidator
 		var mockStore *FakeStore
 		var mockValueGeneratorFactory *FakeValueGeneratorFactory
 		var mockValueGenerator *FakeValueGenerator
 
 		BeforeEach(func() {
-			mockTokenValidator = &FakeTokenValidator{}
 			mockStore = &FakeStore{}
 			mockValueGeneratorFactory = &FakeValueGeneratorFactory{}
 			mockValueGenerator = &FakeValueGenerator{}

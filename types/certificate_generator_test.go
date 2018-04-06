@@ -5,12 +5,14 @@ import (
 
 	"crypto/x509"
 	"encoding/pem"
-	"github.com/cloudfoundry/config-server/types/typesfakes"
 	"time"
+
+	"github.com/cloudfoundry/config-server/types/typesfakes"
+
+	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"strings"
 )
 
 func parseCertString(certString string) (*x509.Certificate, error) {
@@ -30,9 +32,8 @@ func getCertResp(generator ValueGenerator, certParams map[interface{}]interface{
 var _ = Describe("CertificateGenerator", func() {
 
 	var (
-		fakeLoader   *typesfakes.FakeCertsLoader
-		generator    ValueGenerator
-		fakeRootCert *x509.Certificate
+		fakeLoader *typesfakes.FakeCertsLoader
+		generator  ValueGenerator
 	)
 
 	mockCertValue := `-----BEGIN CERTIFICATE-----
@@ -73,8 +74,6 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 		key, _ := x509.ParsePKCS1PrivateKey(kpb.Bytes)
 
 		fakeLoader.LoadCertsReturns(crt, key, nil)
-
-		fakeRootCert, _ = parseCertString(mockCertValue)
 	})
 
 	Describe("Generate", func() {
