@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	. "github.com/cloudfoundry/config-server/server"
-	. "github.com/cloudfoundry/config-server/server/serverfakes"
 	. "github.com/cloudfoundry/config-server/store/storefakes"
 	. "github.com/cloudfoundry/config-server/types/typesfakes"
 
