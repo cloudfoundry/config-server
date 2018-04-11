@@ -101,8 +101,9 @@ jobs:
         file: config-server-release/ci/tasks/bosh-release.yml
         on_failure:
           <<: *slack-alert
-      - task: run-acceptane-tests
+      - task: run-acceptance-tests
         file: config-server-release/ci/tasks/acceptance-tests.yml
+        privileged: true
         params:
           access_key_id: {{config_server_acceptance_tests_access_key_id}}
           az: {{config_server_acceptance_tests_az}}
