@@ -23,6 +23,13 @@ var _ = Describe("PasswordGenerator", func() {
 				Expect(len(password.(string))).To(Equal(20))
 			})
 
+			It("generates a password of custom length", func() {
+				params := map[interface{}]interface{}{"length": 32}
+				password, err := generator.Generate(params)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(len(password.(string))).To(Equal(32))
+			})
+
 			It("generates unique passwords", func() {
 				password1, err := generator.Generate(nil)
 				Expect(err).ToNot(HaveOccurred())

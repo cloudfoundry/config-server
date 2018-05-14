@@ -46,7 +46,7 @@ func NewCertificateGenerator(loader CertsLoader) CertificateGenerator {
 
 func (cfg CertificateGenerator) Generate(parameters interface{}) (interface{}, error) {
 	var params certParams
-	err := objToStruct(parameters, &params)
+	err := objToStruct(parameters, &params, supportedCertParameters)
 	if err != nil {
 		return nil, errors.WrapError(err, "Failed to generate certificate, parameters are invalid")
 	}
@@ -194,7 +194,7 @@ func stringInArray(key string, list []string) bool {
 	return false
 }
 
-func objToStruct(input interface{}, str interface{}) error {
+func objToStruct(input interface{}, str interface{}, supportedParameters []string) error {
 	valBytes, err := yaml.Marshal(input)
 	if err != nil {
 		return errors.WrapErrorf(err, "Expected input to be serializable")
@@ -207,8 +207,8 @@ func objToStruct(input interface{}, str interface{}) error {
 	}
 
 	for key := range parametersMap {
-		if !stringInArray(key, supportedCertParameters) {
-			return errors.Errorf("Unsupported certificate parameter '%s'", key)
+		if !stringInArray(key, supportedParameters) {
+			return errors.Errorf("Unsupported parameter '%s'", key)
 		}
 	}
 
