@@ -1,10 +1,13 @@
 package types
 
 import (
+	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha1"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/asn1"
 	"encoding/pem"
 	"math/big"
 	"net"
@@ -84,6 +87,10 @@ func (cfg CertificateGenerator) generateCertificate(cParams certParams) (CertRes
 
 	if cParams.IsCA {
 		certTemplate.KeyUsage = x509.KeyUsageCertSign | x509.KeyUsageCRLSign
+		certTemplate.SubjectKeyId, err = generateSubjectKeyID(&privateKey.PublicKey)
+		if err != nil {
+			return certResponse, errors.WrapError(err, "Generating Subject Key ID")
+		}
 
 		signingKey := privateKey
 		signingCA := &certTemplate
@@ -108,6 +115,10 @@ func (cfg CertificateGenerator) generateCertificate(cParams certParams) (CertRes
 			return certResponse, errors.Error("Missing required CA name")
 		}
 		certTemplate.KeyUsage = x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature
+		certTemplate.SubjectKeyId, err = generateSubjectKeyID(&privateKey.PublicKey)
+		if err != nil {
+			return certResponse, errors.WrapError(err, "Generating Subject Key ID")
+		}
 
 		extKeyUsages := certTemplate.ExtKeyUsage
 		if len(cParams.ExtKeyUsage) != 0 {
@@ -218,4 +229,21 @@ func objToStruct(input interface{}, str interface{}) error {
 	}
 
 	return nil
+}
+
+// generateSubjectKeyID generates a Subject Key Identifier for a certificate
+// The identifier is the 160-bit SHA-1 hash of the public key
+// https://tools.ietf.org/html/rfc5280#section-4.2.1.2
+func generateSubjectKeyID(pub crypto.PublicKey) ([]byte, error) {
+	switch pub := pub.(type) {
+	case *rsa.PublicKey:
+		pubBytes, err := asn1.Marshal(*pub)
+		if err != nil {
+			return nil, err
+		}
+		hash := sha1.Sum(pubBytes)
+		return hash[:], nil
+	default:
+		return nil, errors.Error("only RSA public key is supported")
+	}
 }
