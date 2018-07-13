@@ -1,30 +1,39 @@
 package integration_test
 
 import (
+	"bytes"
 	"io/ioutil"
+	"net/http"
+	"os/exec"
+	"strings"
 
+	. "github.com/cloudfoundry/config-server/integration/support"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"bytes"
-	. "github.com/cloudfoundry/config-server/integration/support"
-	"net/http"
-	"strings"
+	"github.com/onsi/gomega/gexec"
 )
 
 var _ = Describe("Supported HTTP Methods", func() {
+	var session *gexec.Session
 
 	BeforeEach(func() {
 		SetupDB()
-		StartServer()
+
+		var err error
+		cmd := exec.Command(pathToConfigServer, pathToConfigFile)
+		session, err = gexec.Start(cmd, GinkgoWriter, GinkgoWriter)
+		Expect(err).NotTo(HaveOccurred())
+
+		WaitForServerToStart()
 	})
 
 	AfterEach(func() {
-		StopServer()
+		session.Kill()
+		Eventually(session).Should(gexec.Exit())
 	})
 
 	Describe("GET", func() {
-
 		Describe("Lookup by name", func() {
 			It("errors when name has invalid characters", func() {
 				resp, err := SendGetRequestByName("sm!urf/garg$amel/cat")

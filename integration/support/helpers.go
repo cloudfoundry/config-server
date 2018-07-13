@@ -50,23 +50,6 @@ func ValidToken() string {
 	return string(dat)
 }
 
-func StartServer() {
-	err := exec.Command(StartScript).Start()
-	if err != nil {
-		fmt.Println("Failed to start Config Server: ", err.Error())
-	}
-	waitForServerToStart()
-}
-
-func StopServer() {
-	err := exec.Command(StopScript).Start()
-	if err != nil {
-		fmt.Println("Failed to start Config Server: ", err.Error())
-	}
-
-	waitForServerToStop()
-}
-
 func SetupDB() {
 	db := os.Getenv("DB")
 	err := exec.Command(DbSetupScript, db).Run()
@@ -75,36 +58,17 @@ func SetupDB() {
 	}
 }
 
-func waitForServerToStart() {
+func WaitForServerToStart() {
 	for i := 0; i < ServerStartTimeout; i++ {
 		resp, err := SendGetRequestByID("1")
-
 		if err == nil && resp.StatusCode == 404 {
-			break
-		}
-
-		if i == ServerStartTimeout-1 {
-			panic("Could not start config server in " + string(ServerStartTimeout) + " seconds")
+			return
 		}
 
 		time.Sleep(time.Second)
 	}
-}
 
-func waitForServerToStop() {
-	for i := 0; i < ServerStartTimeout; i++ {
-		_, err := SendGetRequestByName("some_name")
-
-		if err != nil {
-			break
-		}
-
-		if i == ServerStartTimeout-1 {
-			panic("Could not stop config server in " + string(ServerStartTimeout) + " seconds")
-		}
-
-		time.Sleep(time.Second)
-	}
+	panic(fmt.Sprintf("Could not start config server in %d seconds", ServerStartTimeout))
 }
 
 func pathForAsset(fileName string) string {

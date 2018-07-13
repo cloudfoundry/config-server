@@ -1,21 +1,32 @@
 package integration_test
 
 import (
+	"os/exec"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega/gexec"
 
 	. "github.com/cloudfoundry/config-server/integration/support"
 )
 
 var _ = Describe("Supported HTTP Methods", func() {
+	var session *gexec.Session
 
 	BeforeEach(func() {
 		SetupDB()
-		StartServer()
+
+		var err error
+		cmd := exec.Command(pathToConfigServer, pathToConfigFile)
+		session, err = gexec.Start(cmd, GinkgoWriter, GinkgoWriter)
+		Expect(err).NotTo(HaveOccurred())
+
+		WaitForServerToStart()
 	})
 
 	AfterEach(func() {
-		StopServer()
+		session.Kill()
+		Eventually(session).Should(gexec.Exit())
 	})
 
 	Describe("PUT", func() {

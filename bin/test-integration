@@ -30,9 +30,8 @@ setup_test_dir
 run_tests (){
   export DB=$1
   echo -e "\n\nRunning Integration tests for $DB\n\n"
-  #Copy DB file to config.json
-  cp ./assets/config.$DB.json ./assets/config.json
 
+  export CONFIG_FILE="./assets/config.${DB}.json"
   ./integration.test
 }
 
