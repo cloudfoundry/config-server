@@ -17,7 +17,7 @@ var _ = Describe("DbProviderConcrete", func() {
 	BeforeEach(func() {
 		fakeDb = &fakes.FakeIDb{}
 		fakeSQL = &fakes.FakeISql{}
-		fakeSQL.OpenReturns(fakeDb, nil)
+		fakeSQL.OpenWithReturns(fakeDb, nil)
 	})
 
 	It("configures max open/idle connections", func() {
@@ -36,7 +36,7 @@ var _ = Describe("DbProviderConcrete", func() {
 
 		_, err := NewConcreteDbProvider(fakeSQL, dbConfig)
 		Expect(err).To(BeNil())
-		Expect(fakeSQL.OpenCallCount()).To(Equal(1))
+		Expect(fakeSQL.OpenWithCallCount()).To(Equal(1))
 
 		Expect(fakeDb.SetMaxOpenConnsCallCount()).To(Equal(1))
 		Expect(fakeDb.SetMaxOpenConnsArgsForCall(0)).To(Equal(12))
@@ -57,9 +57,9 @@ var _ = Describe("DbProviderConcrete", func() {
 
 		_, err := NewConcreteDbProvider(fakeSQL, dbConfig)
 		Expect(err).To(BeNil())
-		Expect(fakeSQL.OpenCallCount()).To(Equal(1))
+		Expect(fakeSQL.OpenWithCallCount()).To(Equal(1))
 
-		driverName, dataSourceName, _ := fakeSQL.OpenArgsForCall(0)
+		driverName, dataSourceName, _, _, _ := fakeSQL.OpenWithArgsForCall(0)
 		Expect(driverName).To(Equal(dbConfig.Adapter))
 		Expect(dataSourceName).To(Equal("bosh:somethingsafe@tcp(host:0)/dbconfig"))
 	})
@@ -76,9 +76,9 @@ var _ = Describe("DbProviderConcrete", func() {
 
 		_, err := NewConcreteDbProvider(fakeSQL, dbConfig)
 		Expect(err).To(BeNil())
-		Expect(fakeSQL.OpenCallCount()).To(Equal(1))
+		Expect(fakeSQL.OpenWithCallCount()).To(Equal(1))
 
-		driverName, dataSourceName, _ := fakeSQL.OpenArgsForCall(0)
+		driverName, dataSourceName, _, _, _ := fakeSQL.OpenWithArgsForCall(0)
 		Expect(driverName).To(Equal(dbConfig.Adapter))
 		Expect(dataSourceName).To(Equal("user=bosh password=somethingsafe dbname=dbconfig sslmode=disable"))
 	})
@@ -96,7 +96,7 @@ var _ = Describe("DbProviderConcrete", func() {
 		_, err := NewConcreteDbProvider(fakeSQL, dbConfig)
 		Expect(err).ToNot(BeNil())
 		Expect(err.Error()).To(Equal("Failed to generate DB connection string: Unsupported adapter: mongo"))
-		Expect(fakeSQL.OpenCallCount()).To(Equal(0))
+		Expect(fakeSQL.OpenWithCallCount()).To(Equal(0))
 	})
 
 	Context("#Db", func() {

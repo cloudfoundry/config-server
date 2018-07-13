@@ -1,5 +1,7 @@
 package store
 
+//go:generate counterfeiter . Store
+
 type Store interface {
 	Put(key string, value string) (string, error)
 	GetByName(name string) (Configurations, error)

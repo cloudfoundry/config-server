@@ -3,16 +3,14 @@ package migration
 import (
 	"database/sql"
 	"fmt"
-	"strings"
 )
 
 var ef = fmt.Errorf
-var dbDriver string
 
 // LimitedTx specifies the behavior of a transaction *without* commit and
 // rollback functions. Values with this type are given to client functions.
 // In particular, the migration routines in this package
-// handle transaction commits and rollbacks. Therefore the functions provided
+// handle transaction commits and rollbacks. Therefore the functions provided 
 // by the client should not use them.
 type LimitedTx interface {
 	Exec(query string, args ...interface{}) (sql.Result, error)
@@ -112,13 +110,9 @@ func OpenWith(
 	migrations []Migrator,
 	vget GetVersion, vset SetVersion,
 ) (*sql.DB, error) {
-
 	if (vget == nil && vset != nil) || (vget != nil && vset == nil) {
 		panic("vget/vset must both be nil or both be non-nil")
 	}
-
-	dbDriver = strings.ToLower(driver)
-
 	if vget == nil {
 		vget = DefaultGetVersion
 	}
@@ -229,36 +223,15 @@ func getVersion(tx LimitedTx) (int, error) {
 }
 
 func setVersion(tx LimitedTx, version int) error {
-	query := sqlReplacer("UPDATE migration_version SET version = ?")
-	_, err := tx.Exec(query, version)
+	_, err := tx.Exec("UPDATE migration_version SET version = $1", version)
 	return err
 }
 
 func createVersionTable(tx LimitedTx) error {
-	_, err := tx.Exec("CREATE TABLE migration_version (version INTEGER)")
-	if err != nil {
-		return err
-	}
-
-	_, err = tx.Exec("INSERT INTO migration_version (version) VALUES (0)")
+	_, err := tx.Exec(`
+		CREATE TABLE migration_version (
+			version INTEGER
+		);
+		INSERT INTO migration_version (version) VALUES (0)`)
 	return err
-}
-
-// Why: ? vs $ inconsistency as bind parameter for mysql vs postgres
-// Source: https://github.com/golang/go/issues/3602
-func sqlReplacer(query string) string {
-	const _PLACEHOLDER = "?"
-
-	switch dbDriver {
-	case "mysql", "sqlite":
-		if _PLACEHOLDER != "?" && strings.Contains(query, _PLACEHOLDER) {
-			return strings.Replace(query, _PLACEHOLDER, "?", -1)
-		}
-	case "postgres":
-		for nParam := 1; strings.Contains(query, _PLACEHOLDER); nParam++ {
-			query = strings.Replace(query, _PLACEHOLDER, fmt.Sprintf("$%d", nParam), 1)
-		}
-	}
-
-	return query
 }
