@@ -11,16 +11,17 @@ type MemoryStore struct {
 
 var dbCounter int
 
-func NewMemoryStore() MemoryStore {
+func NewMemoryStore() Store {
 	dbCounter = 0
 	return MemoryStore{db: make(map[string]Configuration)}
 }
 
-func (store MemoryStore) Put(name string, value string) (string, error) {
+func (store MemoryStore) Put(name string, value string, checksum string) (string, error) {
 	config := Configuration{
-		Name:  name,
-		Value: value,
-		ID:    strconv.Itoa(dbCounter),
+		Name:              name,
+		Value:             value,
+		ID:                strconv.Itoa(dbCounter),
+		ParameterChecksum: checksum,
 	}
 	dbCounter++
 

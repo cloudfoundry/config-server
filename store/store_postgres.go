@@ -13,15 +13,14 @@ func NewPostgresStore(dbProvider DbProvider) Store {
 	return postgresStore{dbProvider}
 }
 
-func (ps postgresStore) Put(name string, value string) (string, error) {
-
+func (ps postgresStore) Put(name string, value string, checksum string) (string, error) {
 	db, err := ps.dbProvider.Db()
 	if err != nil {
 		return "", err
 	}
 
 	var id int
-	err = db.QueryRow("INSERT INTO configurations (name, value) VALUES($1, $2) RETURNING id", name, value).Scan(&id)
+	err = db.QueryRow("INSERT INTO configurations (name, value, checksum) VALUES($1, $2, $3) RETURNING id", name, value, checksum).Scan(&id)
 
 	if err != nil {
 		return "", err
@@ -38,7 +37,7 @@ func (ps postgresStore) GetByName(name string) (Configurations, error) {
 		return results, err
 	}
 
-	rows, err := db.Query("SELECT id, name, value FROM configurations WHERE name = $1 ORDER BY id DESC", name)
+	rows, err := db.Query("SELECT id, name, value, checksum FROM configurations WHERE name = $1 ORDER BY id DESC", name)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return results, nil
@@ -50,7 +49,7 @@ func (ps postgresStore) GetByName(name string) (Configurations, error) {
 
 	for rows.Next() {
 		var config Configuration
-		if err := rows.Scan(&config.ID, &config.Name, &config.Value); err != nil {
+		if err := rows.Scan(&config.ID, &config.Name, &config.Value, &config.ParameterChecksum); err != nil {
 			return results, err
 		}
 		results = append(results, config)
@@ -72,7 +71,7 @@ func (ps postgresStore) GetByID(id string) (Configuration, error) {
 		return result, err
 	}
 
-	err = db.QueryRow("SELECT id, name, value FROM configurations WHERE id = $1", id).Scan(&result.ID, &result.Name, &result.Value)
+	err = db.QueryRow("SELECT id, name, value, checksum FROM configurations WHERE id = $1", id).Scan(&result.ID, &result.Name, &result.Value, &result.ParameterChecksum)
 	if err == sql.ErrNoRows {
 		return result, nil
 	}

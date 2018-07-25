@@ -42,20 +42,24 @@ func SendPutRequest(name string, value interface{}) (*http.Response, error) {
 	return HTTPSClient.Do(req)
 }
 
-func SendPostRequest(name string, valueType string) (*http.Response, error) {
+func SendPostRequest(name string, valueType string, extraParamValue string, converge bool) (*http.Response, error) {
 	var requestBytes *bytes.Reader
+	mode := "no-overwrite"
+	if converge {
+		mode = "converge"
+	}
 
 	switch valueType {
 	case "password":
-		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"password","parameters":{}}`))
+		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"password","parameters":{"foo":"` + extraParamValue + `"},"mode":"` + mode + `"}`))
 	case "certificate":
-		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"certificate","parameters":{"ca": "my-ca", "common_name": "some-signed-cn1", "alternative_names":["signed-an1", "signed-an2"]}}`))
+		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"certificate","parameters":{"ca": "my-ca", "common_name": "some-signed-cn1", "alternative_names":["signed-an1", "signed-an2"]},"mode":"` + mode + `"}`))
 	case "self-signed-certificate":
-		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"certificate","parameters":{"common_name": "some-self-signed-cn1", "alternative_names":["some-self-signed-an1", "some-self-signed-an2"]}}`))
+		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"certificate","parameters":{"common_name": "some-self-signed-cn1", "alternative_names":["some-self-signed-an1", "some-self-signed-an2", "` + extraParamValue + `"]},"mode":"` + mode + `"}`))
 	case "root-certificate-ca":
-		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"certificate","parameters":{"is_ca": true, "common_name": "some-root-certificate-ca-cn1", "alternative_names":["cnj", "deadlift"]}}`))
+		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"certificate","parameters":{"is_ca": true, "common_name": "some-root-certificate-ca-cn1", "alternative_names":["cnj", "deadlift", "` + extraParamValue + `"]},"mode":"` + mode + `"}`))
 	case "intermediate-certificate-ca":
-		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"certificate","parameters":{"is_ca": true, "ca": "my-ca", "common_name": "some-intermediate-certificate-ca-cn1", "alternative_names":["cnj", "deadlift"]}}`))
+		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"certificate","parameters":{"is_ca": true, "ca": "my-ca", "common_name": "some-intermediate-certificate-ca-cn1", "alternative_names":["cnj", "deadlift", "` + extraParamValue + `"]},"mode":"` + mode + `"}`))
 	}
 
 	req, _ := http.NewRequest(http.MethodPost, ServerURL+"/v1/data", requestBytes)

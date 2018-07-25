@@ -10,7 +10,7 @@ import (
 var _ = Describe("StoreMemory", func() {
 
 	Describe("Given a properly initialized MemoryStore", func() {
-		var store MemoryStore
+		var store Store
 
 		BeforeEach(func() {
 			store = NewMemoryStore()
@@ -18,37 +18,37 @@ var _ = Describe("StoreMemory", func() {
 
 		Context("Put", func() {
 			It("should not return error when adding a string type value", func() {
-				_, err := store.Put("key", "value")
+				_, err := store.Put("key", "value", "MyHash")
 				Expect(err).To(BeNil())
 			})
 
 			It("returns the ID of the created configuration", func() {
-				id, _ := store.Put("key", "value")
+				id, _ := store.Put("key", "value", "MyHash")
 				Expect(id).To(Equal("0"))
 			})
 
 			It("generates a unique id for new record", func() {
-				store.Put("key1", "value1")
+				store.Put("key1", "value1", "MyHash")
 				values1, _ := store.GetByName("key1")
 
 				Expect(values1).ToNot(BeNil())
 				Expect(len(values1)).To(Equal(1))
-				Expect(values1[0]).To(Equal(Configuration{ID: "0", Name: "key1", Value: "value1"}))
+				Expect(values1[0]).To(Equal(Configuration{ID: "0", Name: "key1", Value: "value1", ParameterChecksum: "MyHash"}))
 
-				store.Put("key2", "value2")
+				store.Put("key2", "value2", "MyHash2")
 				values2, _ := store.GetByName("key2")
 
 				Expect(values2).ToNot(BeNil())
 				Expect(len(values2)).To(Equal(1))
-				Expect(values2[0]).To(Equal(Configuration{ID: "1", Name: "key2", Value: "value2"}))
+				Expect(values2[0]).To(Equal(Configuration{ID: "1", Name: "key2", Value: "value2", ParameterChecksum: "MyHash2"}))
 			})
 
 			It("generates unique ids for duplicate entries", func() {
-				id1, err := store.Put("key1", "value1")
+				id1, err := store.Put("key1", "value1", "MyHash")
 				Expect(err).To(BeNil())
 				Expect(id1).ToNot(BeNil())
 
-				id2, err := store.Put("key1", "value1")
+				id2, err := store.Put("key1", "value1", "MyHash")
 				Expect(err).To(BeNil())
 				Expect(id2).ToNot(BeNil())
 
@@ -58,9 +58,9 @@ var _ = Describe("StoreMemory", func() {
 
 		Context("GetByName", func() {
 			It("should return ALL associated values sorted by ID", func() {
-				store.Put("some_name", "some_value")
-				store.Put("some_name", "some_value")
-				store.Put("some_name", "some_other_value")
+				store.Put("some_name", "some_value", "")
+				store.Put("some_name", "some_value", "")
+				store.Put("some_name", "some_other_value", "")
 
 				returnedValues, err := store.GetByName("some_name")
 				Expect(err).To(BeNil())
@@ -87,7 +87,7 @@ var _ = Describe("StoreMemory", func() {
 
 		Context("GetById", func() {
 			It("should return associated value", func() {
-				store.Put("some_name", "some_value")
+				store.Put("some_name", "some_value", "")
 
 				configuration, err := store.GetByID("0")
 				Expect(err).To(BeNil())
@@ -102,8 +102,8 @@ var _ = Describe("StoreMemory", func() {
 		Context("Delete", func() {
 			Context("Name exists", func() {
 				BeforeEach(func() {
-					store.Put("some_name", "some_value")
-					store.Put("some_name", "some_value")
+					store.Put("some_name", "some_value", "")
+					store.Put("some_name", "some_value", "")
 
 					values, err := store.GetByName("some_name")
 					Expect(err).To(BeNil())

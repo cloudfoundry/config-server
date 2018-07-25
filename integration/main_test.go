@@ -285,7 +285,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 		})
 
 		It("fails if is_ca is set but ca is NOT", func() {
-			response, err := SendPostRequest("certificate-name", "self-signed-certificate")
+			response, err := SendPostRequest("certificate-name", "self-signed-certificate", "", false)
 
 			Expect(response.StatusCode).To(Equal(400))
 			Expect(err).To(BeNil())
@@ -296,7 +296,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 		})
 
 		It("generates a new id and password for a new name", func() {
-			resp, _ := SendPostRequest("password-name", "password")
+			resp, _ := SendPostRequest("password-name", "password", "", false)
 			result := UnmarshalJSONString(resp.Body)
 
 			Expect(result["id"]).ToNot(BeNil())
@@ -305,9 +305,9 @@ var _ = Describe("Supported HTTP Methods", func() {
 		})
 
 		It("generates a new id and certificate for a new name", func() {
-			SendPostRequest("my-ca", "root-certificate-ca")
+			SendPostRequest("my-ca", "root-certificate-ca", "", false)
 
-			resp, _ := SendPostRequest("some-signed-certificate-name", "certificate")
+			resp, _ := SendPostRequest("some-signed-certificate-name", "certificate", "", false)
 
 			result := UnmarshalJSONString(resp.Body)
 
@@ -329,7 +329,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 		})
 
 		It("generates a new id and root ca certificate for a new name", func() {
-			resp, _ := SendPostRequest("some-root-certificate-name", "root-certificate-ca")
+			resp, _ := SendPostRequest("some-root-certificate-name", "root-certificate-ca", "", false)
 			result := UnmarshalJSONString(resp.Body)
 
 			Expect(result["id"]).ToNot(BeNil())
@@ -349,9 +349,9 @@ var _ = Describe("Supported HTTP Methods", func() {
 		})
 
 		It("generates a new id and intermediate ca certificate for a new name", func() {
-			SendPostRequest("my-ca", "root-certificate-ca")
+			SendPostRequest("my-ca", "root-certificate-ca", "", false)
 
-			resp, _ := SendPostRequest("certificate-name", "intermediate-certificate-ca")
+			resp, _ := SendPostRequest("certificate-name", "intermediate-certificate-ca", "", false)
 			result := UnmarshalJSONString(resp.Body)
 
 			Expect(result["id"]).ToNot(BeNil())
@@ -368,6 +368,30 @@ var _ = Describe("Supported HTTP Methods", func() {
 			Expect(cert.Issuer.Organization).To(ContainElement("Cloud Foundry"))
 			Expect(cert.Issuer.Country).To(ContainElement("USA"))
 			Expect(cert.Issuer.CommonName).To(Equal("some-root-certificate-ca-cn1"))
+		})
+
+		Context("when mode is set to converge", func() {
+			It("generates a new id and variable if the parameters are the different", func() {
+				resp, _ := SendPostRequest("password-name", "password", "", true)
+				result := UnmarshalJSONString(resp.Body)
+				resp2, _ := SendPostRequest("password-name", "password", "barbar", true)
+				result2 := UnmarshalJSONString(resp2.Body)
+
+				Expect(result2["id"]).ToNot(BeNil())
+				Expect(result2["name"]).To(Equal("password-name"))
+				Expect(result2["value"]).ToNot(Equal(result["value"]))
+			})
+
+			It("generates a new id and variable if the parameters are the same", func() {
+				resp, _ := SendPostRequest("password-name", "password", "barbar", true)
+				result := UnmarshalJSONString(resp.Body)
+				resp2, _ := SendPostRequest("password-name", "password", "barbar", true)
+				result2 := UnmarshalJSONString(resp2.Body)
+
+				Expect(result2["id"]).ToNot(BeNil())
+				Expect(result2["name"]).To(Equal("password-name"))
+				Expect(result2["value"]).To(Equal(result["value"]))
+			})
 		})
 	})
 

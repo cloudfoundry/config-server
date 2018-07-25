@@ -42,24 +42,26 @@ var _ = Describe("StoreMysql", func() {
 			Expect(err).To(BeNil())
 			query, _ := fakeDb.QueryArgsForCall(0)
 
-			Expect(query).To(Equal("SELECT id, name, value FROM configurations WHERE name = ? ORDER BY id DESC"))
+			Expect(query).To(Equal("SELECT id, name, value, checksum FROM configurations WHERE name = ? ORDER BY id DESC"))
 		})
 
 		It("returns ALL values from db query", func() {
 			var rawConfigs = []Configuration{
 				{
-					ID:    "6",
-					Name:  "someName",
-					Value: "someOtherValue",
+					ID:                "6",
+					Name:              "someName",
+					Value:             "someOtherValue",
+					ParameterChecksum: "foo",
 				},
 				{
-					ID:    "5",
-					Name:  "someName",
-					Value: "someValue",
+					ID:                "5",
+					Name:              "someName",
+					Value:             "someValue",
+					ParameterChecksum: "bar",
 				},
 			}
-			var index int = -1
 
+			index := -1
 			fakeRows.NextStub = func() bool {
 				index++
 				return index < len(rawConfigs)
@@ -68,16 +70,19 @@ var _ = Describe("StoreMysql", func() {
 			fakeRows.ScanStub = func(dest ...interface{}) error {
 				idPtr, ok := dest[0].(*string)
 				Expect(ok).To(BeTrue())
-
 				*idPtr = rawConfigs[index].ID
+
 				namePtr, ok := dest[1].(*string)
 				Expect(ok).To(BeTrue())
-
 				*namePtr = rawConfigs[index].Name
-				valuePtr, ok := dest[2].(*string)
 
+				valuePtr, ok := dest[2].(*string)
 				Expect(ok).To(BeTrue())
 				*valuePtr = rawConfigs[index].Value
+
+				checksumPtr, ok := dest[3].(*string)
+				Expect(ok).To(BeTrue())
+				*checksumPtr = rawConfigs[index].ParameterChecksum
 
 				return nil
 			}
@@ -203,16 +208,17 @@ var _ = Describe("StoreMysql", func() {
 			fakeDbProvider.DbReturns(fakeDb, nil)
 			fakeDb.ExecReturns(fakeResult, nil)
 
-			_, err := store.Put("Luke", "Skywalker")
+			_, err := store.Put("Luke", "Skywalker", "MyParamChecksum")
 			Expect(err).To(BeNil())
 
 			Expect(fakeDb.ExecCallCount()).To(Equal(1))
 
 			query, values := fakeDb.ExecArgsForCall(0)
-			Expect(query).To(Equal("INSERT INTO configurations (name, value) VALUES(?,?)"))
+			Expect(query).To(Equal("INSERT INTO configurations (name, value, checksum) VALUES(?,?,?)"))
 
 			Expect(values[0]).To(Equal("Luke"))
 			Expect(values[1]).To(Equal("Skywalker"))
+			Expect(values[2]).To(Equal("MyParamChecksum"))
 		})
 
 		It("returns id of new record", func() {
@@ -220,7 +226,7 @@ var _ = Describe("StoreMysql", func() {
 			fakeDb.ExecReturns(fakeResult, nil)
 			fakeResult.LastInsertIdReturns(9, nil)
 
-			id, err := store.Put("Luke", "Skywalker")
+			id, err := store.Put("Luke", "Skywalker", "")
 			Expect(err).To(BeNil())
 			Expect(id).To(Equal("9"))
 		})

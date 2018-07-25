@@ -42,7 +42,7 @@ var _ = Describe("StorePostgres", func() {
 			Expect(err).To(BeNil())
 			query, _ := fakeDb.QueryArgsForCall(0)
 
-			Expect(query).To(Equal("SELECT id, name, value FROM configurations WHERE name = $1 ORDER BY id DESC"))
+			Expect(query).To(Equal("SELECT id, name, value, checksum FROM configurations WHERE name = $1 ORDER BY id DESC"))
 		})
 
 		It("returns ALL values from db query", func() {
@@ -59,7 +59,7 @@ var _ = Describe("StorePostgres", func() {
 				},
 			}
 
-			var index int = -1
+			index := -1
 			fakeRows.NextStub = func() bool {
 				index++
 				return index < len(rawConfigs)
@@ -75,9 +75,13 @@ var _ = Describe("StorePostgres", func() {
 				valuePtr, ok := dest[2].(*string)
 				Expect(ok).To(BeTrue())
 
+				checksumPtr, ok := dest[3].(*string)
+				Expect(ok).To(BeTrue())
+
 				*idPtr = rawConfigs[index].ID
 				*namePtr = rawConfigs[index].Name
 				*valuePtr = rawConfigs[index].Value
+				*checksumPtr = rawConfigs[index].ParameterChecksum
 
 				return nil
 			}
@@ -132,7 +136,7 @@ var _ = Describe("StorePostgres", func() {
 			Expect(err).To(BeNil())
 			query, _ := fakeDb.QueryRowArgsForCall(0)
 
-			Expect(query).To(Equal("SELECT id, name, value FROM configurations WHERE id = $1"))
+			Expect(query).To(Equal("SELECT id, name, value, checksum FROM configurations WHERE id = $1"))
 		})
 
 		It("returns value from db query", func() {
@@ -146,9 +150,13 @@ var _ = Describe("StorePostgres", func() {
 				valuePtr, ok := dest[2].(*string)
 				Expect(ok).To(BeTrue())
 
+				checksumPtr, ok := dest[3].(*string)
+				Expect(ok).To(BeTrue())
+
 				*idPtr = "54"
 				*valuePtr = "Skywalker"
 				*namePtr = "Luke"
+				*checksumPtr = "MyParameterChecksum"
 
 				return nil
 			}
@@ -159,9 +167,10 @@ var _ = Describe("StorePostgres", func() {
 			value, err := store.GetByID("54")
 			Expect(err).To(BeNil())
 			Expect(value).To(Equal(Configuration{
-				ID:    "54",
-				Value: "Skywalker",
-				Name:  "Luke",
+				ID:                "54",
+				Value:             "Skywalker",
+				Name:              "Luke",
+				ParameterChecksum: "MyParameterChecksum",
 			}))
 		})
 
@@ -219,16 +228,17 @@ var _ = Describe("StorePostgres", func() {
 				return nil
 			}
 
-			_, err := store.Put("Luke", "Skywalker")
+			_, err := store.Put("Luke", "Skywalker", "MyParamChecksum")
 			Expect(err).To(BeNil())
 
 			Expect(fakeDb.QueryRowCallCount()).To(Equal(1))
 
 			query, values := fakeDb.QueryRowArgsForCall(0)
-			Expect(query).To(Equal("INSERT INTO configurations (name, value) VALUES($1, $2) RETURNING id"))
+			Expect(query).To(Equal("INSERT INTO configurations (name, value, checksum) VALUES($1, $2, $3) RETURNING id"))
 
 			Expect(values[0]).To(Equal("Luke"))
 			Expect(values[1]).To(Equal("Skywalker"))
+			Expect(values[2]).To(Equal("MyParamChecksum"))
 		})
 
 		It("returns id of new record", func() {
@@ -242,7 +252,7 @@ var _ = Describe("StorePostgres", func() {
 				return nil
 			}
 
-			id, err := store.Put("Luke", "Skywalker")
+			id, err := store.Put("Luke", "Skywalker", "")
 			Expect(err).To(BeNil())
 			Expect(id).To(Equal("9"))
 		})

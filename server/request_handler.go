@@ -1,15 +1,16 @@
 package server
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
+	"fmt"
+	"github.com/cloudfoundry/bosh-utils/errors"
 	"github.com/cloudfoundry/config-server/store"
 	"github.com/cloudfoundry/config-server/types"
 	"net/http"
-	"strings"
-
-	"fmt"
-	"github.com/cloudfoundry/bosh-utils/errors"
 	"regexp"
+	"strings"
 )
 
 type requestHandler struct {
@@ -111,7 +112,7 @@ func (handler requestHandler) handlePut(resWriter http.ResponseWriter, req *http
 		return
 	}
 
-	configuration, err := handler.saveToStore(name, value)
+	configuration, err := handler.saveToStore(name, value, "")
 
 	if err != nil {
 		http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusInternalServerError)
@@ -127,7 +128,7 @@ func (handler requestHandler) handlePost(resWriter http.ResponseWriter, req *htt
 		return
 	}
 
-	name, generatorType, parameters, err := readPostRequest(req)
+	name, generatorType, parameters, mode, err := readPostRequest(req)
 
 	if err != nil {
 		http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusBadRequest)
@@ -140,36 +141,54 @@ func (handler requestHandler) handlePost(resWriter http.ResponseWriter, req *htt
 		return
 	}
 
-	if len(values) != 0 {
-		result, err := values[0].StringifiedJSON()
-		if err != nil {
-			http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusInternalServerError)
-		} else {
-			respond(resWriter, result, http.StatusOK)
-		}
-
-	} else {
-		generator, err := handler.valueGeneratorFactory.GetGenerator(generatorType)
-		if err != nil {
-			http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusBadRequest)
-			return
-		}
-
-		generatedValue, err := generator.Generate(parameters)
-		if err != nil {
-			http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusBadRequest)
-			return
-		}
-
-		configuration, err := handler.saveToStore(name, generatedValue)
-		if err != nil {
-			http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusInternalServerError)
-			return
-		}
-
-		result, _ := configuration.StringifiedJSON()
-		respond(resWriter, result, http.StatusCreated)
+	checksum, err := handler.calculateChecksum(parameters)
+	if err != nil {
+		http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusInternalServerError)
 	}
+
+	if len(values) != 0 {
+		configuration := values[0]
+		if "converge" != mode || checksum == configuration.ParameterChecksum {
+			result, err := configuration.StringifiedJSON()
+			if err != nil {
+				http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusInternalServerError)
+			} else {
+				respond(resWriter, result, http.StatusOK)
+			}
+			return
+		}
+	}
+
+	generator, err := handler.valueGeneratorFactory.GetGenerator(generatorType)
+	if err != nil {
+		http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusBadRequest)
+		return
+	}
+
+	generatedValue, err := generator.Generate(parameters)
+	if err != nil {
+		http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusBadRequest)
+		return
+	}
+
+	configuration, err := handler.saveToStore(name, generatedValue, checksum)
+	if err != nil {
+		http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusInternalServerError)
+		return
+	}
+
+	result, _ := configuration.StringifiedJSON()
+	respond(resWriter, result, http.StatusCreated)
+}
+
+func (handler requestHandler) calculateChecksum(v interface{}) (string, error) {
+	result, err := json.Marshal(v)
+	if err != nil {
+		return "", errors.WrapError(err, "Calculating checksum:")
+	}
+
+	checksum := sha256.New().Sum(result)
+	return hex.EncodeToString(checksum), nil
 }
 
 func (handler requestHandler) handleDelete(resWriter http.ResponseWriter, req *http.Request) {
@@ -192,7 +211,7 @@ func (handler requestHandler) handleDelete(resWriter http.ResponseWriter, req *h
 	}
 }
 
-func (handler requestHandler) saveToStore(name string, value interface{}) (store.Configuration, error) {
+func (handler requestHandler) saveToStore(name string, value interface{}, checksum string) (store.Configuration, error) {
 	configValue := make(map[string]interface{})
 	configValue["value"] = value
 
@@ -202,7 +221,7 @@ func (handler requestHandler) saveToStore(name string, value interface{}) (store
 		return store.Configuration{}, err
 	}
 
-	id, err := handler.store.Put(name, string(bytes))
+	id, err := handler.store.Put(name, string(bytes), checksum)
 	if err != nil {
 		return store.Configuration{}, err
 	}
@@ -244,24 +263,42 @@ func readPutRequest(req *http.Request) (string, interface{}, error) {
 	return name, value, nil
 }
 
-func readPostRequest(req *http.Request) (string, string, interface{}, error) {
-
+func readPostRequest(req *http.Request) (string, string, interface{}, string, error) {
 	jsonMap, err := readJSONBody(req)
 	if err != nil {
-		return "", "", nil, err
+		return "", "", nil, "", err
 	}
 
 	name, err := getStringValueFromJSONBody(jsonMap, "name")
 	if err != nil {
-		return name, "", nil, err
+		return name, "", nil, "", err
 	}
 
 	generatorType, err := getStringValueFromJSONBody(jsonMap, "type")
 	if err != nil {
-		return name, generatorType, nil, err
+		return name, generatorType, nil, "", err
 	}
 
-	return name, generatorType, jsonMap["parameters"], nil
+	mode, err := getOptionalStringValueFromJSONBody(jsonMap, "mode", "no-overwrite")
+	if err != nil {
+		return name, generatorType, nil, "", err
+	}
+
+	return name, generatorType, jsonMap["parameters"], mode, nil
+}
+
+func getOptionalStringValueFromJSONBody(jsonMap map[string]interface{}, keyName string, defaultValue string) (string, error) {
+	value, keyExists := jsonMap[keyName]
+	if !keyExists {
+		return defaultValue, nil
+	}
+
+	switch value.(type) {
+	case string:
+		return value.(string), nil
+	default:
+		return "", errors.Error(fmt.Sprintf("JSON request body key '%s' must be of type string", keyName))
+	}
 }
 
 func getStringValueFromJSONBody(jsonMap map[string]interface{}, keyName string) (string, error) {

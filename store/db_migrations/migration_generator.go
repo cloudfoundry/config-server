@@ -14,7 +14,7 @@ func GetMigrations(adapter string) []migration.Migrator {
 		migrations = PostgresMigrations()
 	}
 
-	result := []migration.Migrator{}
+	var result []migration.Migrator
 
 	for _, mig := range migrations {
 		query := func(tx migration.LimitedTx) error {

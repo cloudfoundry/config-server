@@ -69,11 +69,11 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 	Describe("POST", func() {
 		BeforeEach(func() {
-			SendPostRequest("my-ca", "root-certificate-ca")
+			SendPostRequest("my-ca", "root-certificate-ca", "", false)
 		})
 
 		It("generates a new id and password for a new name", func() {
-			resp, _ := SendPostRequest("pass", "password")
+			resp, _ := SendPostRequest("pass", "password", "", false)
 			result := UnmarshalJSONString(resp.Body)
 
 			Expect(result["id"]).ToNot(BeNil())
@@ -81,7 +81,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 		})
 
 		It("generates a new id and certificate for a new name", func() {
-			resp, _ := SendPostRequest("cert", "certificate")
+			resp, _ := SendPostRequest("cert", "certificate", "", false)
 			result := UnmarshalJSONString(resp.Body)
 
 			Expect(result["id"]).ToNot(BeNil())

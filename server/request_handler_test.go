@@ -20,16 +20,6 @@ import (
 	"github.com/cloudfoundry/config-server/types"
 )
 
-type BadMockStore struct{}
-
-func (store BadMockStore) Get(name string) (string, error) {
-	return "", errors.New("")
-}
-
-func (store BadMockStore) Put(name string, value string) error {
-	return errors.New("")
-}
-
 func generateHTTPRequest(method, urlStr string, body io.Reader) (*http.Request, error) {
 	req, err := http.NewRequest(method, urlStr, body)
 	if err != nil {
@@ -331,7 +321,6 @@ var _ = Describe("RequestHandlerConcrete", func() {
 						})
 
 						Context("when request body is in the specified format", func() {
-
 							BeforeEach(func() {
 								config := store.Configuration{
 									Name:  "bla",
@@ -360,10 +349,11 @@ var _ = Describe("RequestHandlerConcrete", func() {
 									requestHandler.ServeHTTP(putRecorder, req)
 
 									Expect(mockStore.PutCallCount()).To(Equal(1))
-									name, value := mockStore.PutArgsForCall(0)
+									name, value, checksum := mockStore.PutArgsForCall(0)
 
 									Expect(name).To(Equal("bla"))
 									Expect(value).To(Equal(`{"value":"str"}`))
+									Expect(checksum).To(Equal(""))
 									Expect(putRecorder.Code).To(Equal(http.StatusOK))
 								})
 							})
@@ -375,10 +365,11 @@ var _ = Describe("RequestHandlerConcrete", func() {
 									requestHandler.ServeHTTP(putRecorder, req)
 
 									Expect(mockStore.PutCallCount()).To(Equal(1))
-									name, value := mockStore.PutArgsForCall(0)
+									name, value, checksum := mockStore.PutArgsForCall(0)
 
 									Expect(name).To(Equal("bla"))
 									Expect(value).To(Equal(`{"value":123}`))
+									Expect(checksum).To(Equal(""))
 									Expect(putRecorder.Code).To(Equal(http.StatusOK))
 								})
 							})
@@ -393,10 +384,11 @@ var _ = Describe("RequestHandlerConcrete", func() {
 									requestHandler.ServeHTTP(putRecorder, req)
 
 									Expect(mockStore.PutCallCount()).To(Equal(1))
-									name, value := mockStore.PutArgsForCall(0)
+									name, value, checksum := mockStore.PutArgsForCall(0)
 
 									Expect(name).To(Equal("bla"))
 									Expect(value).To(Equal(valueToStore))
+									Expect(checksum).To(Equal(""))
 									Expect(putRecorder.Code).To(Equal(http.StatusOK))
 								})
 							})
@@ -482,6 +474,137 @@ var _ = Describe("RequestHandlerConcrete", func() {
 						})
 
 						Context("when request body is in the specified format", func() {
+							Context("when the requested mode is converge", func() {
+								Context("when the configuration has changed", func() {
+									It("should regenerate the values", func() {
+										requestHandler, _ = NewRequestHandler(mockStore, mockValueGeneratorFactory)
+										mockValueGeneratorFactory.GetGeneratorReturns(mockValueGenerator, nil)
+
+										mockStore.GetByNameStub = func(name string) (store.Configurations, error) {
+											respValues := store.Configurations{
+												{
+													Value:             `{"value":"smurf"}`,
+													ID:                "some_id",
+													Name:              "bla",
+													ParameterChecksum: "MyHash",
+												},
+											}
+											return respValues, nil
+										}
+
+										mockStore.GetByIDReturns(store.Configuration{ID: "new_id", Name: "bla", ParameterChecksum: "abc", Value: `{"value":"my newly generated value"}`}, nil)
+
+										postReq, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bla", "type":"somtype", "parameters":{}, "mode":"converge"}`))
+
+										recorder := httptest.NewRecorder()
+										requestHandler.ServeHTTP(recorder, postReq)
+
+										Expect(recorder.Code).To(Equal(http.StatusCreated))
+
+										var data map[string]string
+										json.Unmarshal(recorder.Body.Bytes(), &data)
+
+										Expect(mockValueGenerator.GenerateCallCount()).To(Equal(1))
+									})
+								})
+
+								Context("when the configuration did not changed", func() {
+									It("should NOT regenerate the values", func() {
+										requestHandler, _ = NewRequestHandler(mockStore, mockValueGeneratorFactory)
+										mockValueGeneratorFactory.GetGeneratorReturns(mockValueGenerator, nil)
+
+										mockStore.GetByNameStub = func(name string) (store.Configurations, error) {
+											respValues := store.Configurations{
+												{
+													Value:             `{"value":"smurf"}`,
+													ID:                "some_id",
+													Name:              "bla",
+													ParameterChecksum: "7b7de3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+												},
+											}
+											return respValues, nil
+										}
+
+										postReq, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bla", "type":"somtype", "parameters":{}, "mode":"converge"}`))
+
+										recorder := httptest.NewRecorder()
+										requestHandler.ServeHTTP(recorder, postReq)
+
+										Expect(recorder.Code).To(Equal(http.StatusOK))
+
+										var data map[string]string
+										json.Unmarshal(recorder.Body.Bytes(), &data)
+
+										Expect(mockValueGenerator.GenerateCallCount()).To(Equal(0))
+									})
+								})
+							})
+
+							Context("when the requested mode is NOT converge", func() {
+								Context("when the configuration has changed", func() {
+									It("should NOT regenerate the values", func() {
+										requestHandler, _ = NewRequestHandler(mockStore, mockValueGeneratorFactory)
+										mockValueGeneratorFactory.GetGeneratorReturns(mockValueGenerator, nil)
+
+										mockStore.GetByNameStub = func(name string) (store.Configurations, error) {
+											respValues := store.Configurations{
+												{
+													Value:             `{"value":"smurf"}`,
+													ID:                "some_id",
+													Name:              "bla",
+													ParameterChecksum: "MyHash",
+												},
+											}
+											return respValues, nil
+										}
+
+										mockStore.GetByIDReturns(store.Configuration{ID: "new_id", Name: "bla", ParameterChecksum: "abc", Value: `{"value":"my newly generated value"}`}, nil)
+
+										postReq, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bla", "type":"somtype", "parameters":{}, "mode":"NOTconverge"}`))
+
+										recorder := httptest.NewRecorder()
+										requestHandler.ServeHTTP(recorder, postReq)
+
+										Expect(recorder.Code).To(Equal(http.StatusOK))
+
+										var data map[string]string
+										json.Unmarshal(recorder.Body.Bytes(), &data)
+
+										Expect(mockValueGenerator.GenerateCallCount()).To(Equal(0))
+									})
+								})
+
+								Context("when the configuration did not changed", func() {
+									It("should NOT regenerate the values", func() {
+										requestHandler, _ = NewRequestHandler(mockStore, mockValueGeneratorFactory)
+										mockValueGeneratorFactory.GetGeneratorReturns(mockValueGenerator, nil)
+
+										mockStore.GetByNameStub = func(name string) (store.Configurations, error) {
+											respValues := store.Configurations{
+												{
+													Value:             `{"value":"smurf"}`,
+													ID:                "some_id",
+													Name:              "bla",
+													ParameterChecksum: "7b7de3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+												},
+											}
+											return respValues, nil
+										}
+
+										postReq, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bla", "type":"somtype", "parameters":{}, "mode":"NOTconverge"}`))
+
+										recorder := httptest.NewRecorder()
+										requestHandler.ServeHTTP(recorder, postReq)
+
+										Expect(recorder.Code).To(Equal(http.StatusOK))
+
+										var data map[string]string
+										json.Unmarshal(recorder.Body.Bytes(), &data)
+
+										Expect(mockValueGenerator.GenerateCallCount()).To(Equal(0))
+									})
+								})
+							})
 
 							Describe("Password generation", func() {
 								Context("when value already exists", func() {
@@ -531,7 +654,6 @@ var _ = Describe("RequestHandlerConcrete", func() {
 							Describe("Certificate generation", func() {
 								Context("when value already exists", func() {
 									It("should not generate certificates", func() {
-
 										mockStore.GetByNameStub = func(name string) (store.Configurations, error) {
 											respValue := store.Configurations{
 												{

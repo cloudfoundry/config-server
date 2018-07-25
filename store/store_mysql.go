@@ -13,14 +13,13 @@ func NewMysqlStore(dbProvider DbProvider) Store {
 	return mysqlStore{dbProvider}
 }
 
-func (ms mysqlStore) Put(name string, value string) (string, error) {
-
+func (ms mysqlStore) Put(name string, value string, checksum string) (string, error) {
 	db, err := ms.dbProvider.Db()
 	if err != nil {
 		return "", err
 	}
 
-	result, err := db.Exec("INSERT INTO configurations (name, value) VALUES(?,?)", name, value)
+	result, err := db.Exec("INSERT INTO configurations (name, value, checksum) VALUES(?,?,?)", name, value, checksum)
 
 	id, err := result.LastInsertId()
 	if err != nil {
@@ -38,7 +37,7 @@ func (ms mysqlStore) GetByName(name string) (Configurations, error) {
 		return results, err
 	}
 
-	rows, err := db.Query("SELECT id, name, value FROM configurations WHERE name = ? ORDER BY id DESC", name)
+	rows, err := db.Query("SELECT id, name, value, checksum FROM configurations WHERE name = ? ORDER BY id DESC", name)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return results, nil
@@ -50,7 +49,7 @@ func (ms mysqlStore) GetByName(name string) (Configurations, error) {
 
 	for rows.Next() {
 		var config Configuration
-		if err := rows.Scan(&config.ID, &config.Name, &config.Value); err != nil {
+		if err := rows.Scan(&config.ID, &config.Name, &config.Value, &config.ParameterChecksum); err != nil {
 			return results, err
 		}
 		results = append(results, config)

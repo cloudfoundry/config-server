@@ -5,9 +5,10 @@ import (
 )
 
 type Configuration struct {
-	ID    string
-	Name  string
-	Value string
+	ID                string
+	Name              string
+	Value             string
+	ParameterChecksum string
 }
 
 func (rv Configuration) StringifiedJSON() (string, error) {
