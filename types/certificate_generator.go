@@ -38,6 +38,7 @@ var supportedCertParameters = []string{
 	"is_ca",
 	"ca",
 	"extended_key_usage",
+	"organization", // supported by credhub, quietly ignored by config-server
 }
 
 func NewCertificateGenerator(loader CertsLoader) CertificateGenerator {
