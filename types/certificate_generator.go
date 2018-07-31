@@ -26,6 +26,7 @@ type CertResponse struct {
 
 type certParams struct {
 	CommonName       string   `yaml:"common_name"`
+	Organization     string   `yaml:"organization"`
 	AlternativeNames []string `yaml:"alternative_names"`
 	IsCA             bool     `yaml:"is_ca"`
 	CAName           string   `yaml:"ca"`
@@ -34,6 +35,7 @@ type certParams struct {
 
 var supportedCertParameters = []string{
 	"common_name",
+	"organization",
 	"alternative_names",
 	"is_ca",
 	"ca",
@@ -155,12 +157,16 @@ func generateCertTemplate(cParams certParams) (x509.Certificate, error) {
 
 	now := time.Now()
 	notAfter := now.Add(365 * 24 * time.Hour)
+	organization := cParams.Organization
+	if len(organization) == 0 {
+		organization = "Cloud Foundry"
+	}
 
 	template := x509.Certificate{
 		SerialNumber: serialNumber,
 		Subject: pkix.Name{
 			Country:      []string{"USA"},
-			Organization: []string{"Cloud Foundry"},
+			Organization: []string{organization},
 			CommonName:   cParams.CommonName,
 		},
 		NotBefore:             now,
