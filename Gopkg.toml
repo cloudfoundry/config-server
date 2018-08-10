@@ -17,10 +17,6 @@ required = ["github.com/onsi/ginkgo/ginkgo", "github.com/maxbrunsfeld/counterfei
   name = "github.com/lib/pq"
 
 [[constraint]]
-  revision = "7e9105388ebff089b3f99f0ef676ea55a6da3a7e"
-  name = "golang.org/x/crypto"
-
-[[constraint]]
   revision = "b90f89a1e7a9c1f6b918820b3daa7f08488c8594"
   name = "golang.org/x/sys"
 

@@ -2,40 +2,51 @@
 
 
 [[projects]]
+  digest = "1:9068f43ac381ab0883a10a7cedcc54c6960589fbc70f6bced854113e33321ae3"
   name = "github.com/BurntSushi/migration"
   packages = ["."]
+  pruneopts = "NUT"
   revision = "c45b897f13350786ccaf2b7403b92b1c7ad85844"
 
 [[projects]]
   branch = "master"
+  digest = "1:ed143c642680f4b9df760648632dd8d6b33b456a7757865208dc6c326d4e0416"
   name = "github.com/cloudfoundry/bosh-utils"
   packages = [
     "errors",
-    "logger"
+    "logger",
   ]
-  revision = "8407325b97e759e58a377421422c476d042e0290"
+  pruneopts = "NUT"
+  revision = "407dd7546455f1a0a50feba2dcaef0ae88da1810"
 
 [[projects]]
+  digest = "1:bfebf84ecf0c67e060f1e92cfcf3d4cbf4428a26a8b3cc258a64d7330f4de31b"
   name = "github.com/dgrijalva/jwt-go"
   packages = ["."]
+  pruneopts = "NUT"
   revision = "d2709f9f1f31ebcda9651b03077758c1f3a0018c"
   version = "v3.0.0"
 
 [[projects]]
+  digest = "1:1c9db302f5e172d283a37560842163450a1ebfd478581afa4f7bf00882c93a39"
   name = "github.com/go-sql-driver/mysql"
   packages = ["."]
+  pruneopts = "NUT"
   revision = "a0583e0143b1624142adab07e0e97fe106d99561"
   version = "v1.3"
 
 [[projects]]
+  digest = "1:e899df49e0df304dd6571ba224188279fa3fecef934c1c825bf69b6b3c6b137e"
   name = "github.com/lib/pq"
   packages = [
     ".",
-    "oid"
+    "oid",
   ]
+  pruneopts = "NUT"
   revision = "2704adc878c21e1329f46f6e56a1c387d788ff94"
 
 [[projects]]
+  digest = "1:9670d34e6bfeed9cb5c91c0729da54344cb8de92a2d185aaf33869ae16291665"
   name = "github.com/maxbrunsfeld/counterfeiter"
   packages = [
     ".",
@@ -44,12 +55,14 @@
     "generator",
     "locator",
     "model",
-    "terminal"
+    "terminal",
   ]
+  pruneopts = "NUT"
   revision = "c1f2005ff133f81907ce72f3d20e1169799317fe"
   version = "v5"
 
 [[projects]]
+  digest = "1:3c4dade33a297b5ab7313535fe68e4d319f91d57b8e032f3da10a638df7ce7b2"
   name = "github.com/onsi/ginkgo"
   packages = [
     ".",
@@ -76,12 +89,14 @@
     "reporters/stenographer",
     "reporters/stenographer/support/go-colorable",
     "reporters/stenographer/support/go-isatty",
-    "types"
+    "types",
   ]
+  pruneopts = "NUT"
   revision = "77a8c1e5c40d6bb6c5eb4dd4bdce9763564f6298"
   version = "v1.3.1"
 
 [[projects]]
+  digest = "1:92d5ae4732d04109c6407b5a2072209ad11d045a6c7e5bd29d35bc7dc2511862"
   name = "github.com/onsi/gomega"
   packages = [
     ".",
@@ -97,46 +112,76 @@
     "matchers/support/goraph/edge",
     "matchers/support/goraph/node",
     "matchers/support/goraph/util",
-    "types"
+    "types",
   ]
+  pruneopts = "NUT"
   revision = "334b8f472b3af5d541c5642701c1e29e2126f486"
   version = "v1.1.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:10e257965f5774c1ef03b258130a6caa8dddbfe03041f69d7c16a00463dece62"
   name = "golang.org/x/crypto"
   packages = [
     "curve25519",
     "ed25519",
     "ed25519/internal/edwards25519",
+    "internal/chacha20",
+    "internal/subtle",
+    "poly1305",
     "ssh",
-    "ssh/terminal"
+    "ssh/terminal",
   ]
-  revision = "7e9105388ebff089b3f99f0ef676ea55a6da3a7e"
+  pruneopts = "NUT"
+  revision = "de0752318171da717af4ce24d0a2e8626afaeb11"
 
 [[projects]]
   branch = "master"
+  digest = "1:b30ea488a4dcd299544b29bdb42a219ed47bc9e0ce5a64cfa8580239ca389c19"
   name = "golang.org/x/sys"
-  packages = ["unix"]
+  packages = [
+    "unix",
+    "windows",
+  ]
+  pruneopts = "NUT"
   revision = "b90f89a1e7a9c1f6b918820b3daa7f08488c8594"
 
 [[projects]]
   branch = "master"
+  digest = "1:e1c96c8c8ce0af57da9dccb008e540b3d13b55ea04b530fb4fceb81706082bdd"
   name = "golang.org/x/tools"
   packages = [
     "go/ast/astutil",
     "imports",
-    "internal/fastwalk"
+    "internal/fastwalk",
   ]
+  pruneopts = "NUT"
   revision = "2087f8c10712366cfc2f4fcb1bf99eeef61ab21e"
 
 [[projects]]
+  digest = "1:335f30dbcc562002cac406b45584526ca0e9a97675db4c7edbd2a7c6f99e31dd"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
+  pruneopts = "NUT"
   revision = "cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8ee0971de94a7b380b2062a98fbb1272e145cd7e36172984928802a51a882c08"
+  input-imports = [
+    "github.com/BurntSushi/migration",
+    "github.com/cloudfoundry/bosh-utils/errors",
+    "github.com/cloudfoundry/bosh-utils/logger",
+    "github.com/dgrijalva/jwt-go",
+    "github.com/go-sql-driver/mysql",
+    "github.com/lib/pq",
+    "github.com/maxbrunsfeld/counterfeiter",
+    "github.com/onsi/ginkgo",
+    "github.com/onsi/ginkgo/ginkgo",
+    "github.com/onsi/gomega",
+    "github.com/onsi/gomega/gexec",
+    "golang.org/x/crypto/ssh",
+    "gopkg.in/yaml.v2",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1
