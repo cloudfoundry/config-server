@@ -370,25 +370,6 @@ var _ = Describe("Supported HTTP Methods", func() {
 			Expect(cert.Issuer.CommonName).To(Equal("some-root-certificate-ca-cn1"))
 		})
 
-		It("generates certificates with unique SKI and same AKI when sharing CA", func() {
-			SendPostRequest("my-ca", "root-certificate-ca", "", false)
-
-			firstCertResp, _ := SendPostRequest("first-certificate-name", "certificate", "", false)
-			firstCertResult := UnmarshalJSONString(firstCertResp.Body)
-			firstCertValue := firstCertResult["value"].(map[string]interface{})
-			firstCert, _ := ParseCertString(firstCertValue["certificate"].(string))
-
-			secondCertResp, _ := SendPostRequest("second-certificate-name", "certificate", "", false)
-			secondCertResult := UnmarshalJSONString(secondCertResp.Body)
-			secondCertValue := secondCertResult["value"].(map[string]interface{})
-			secondCert, _ := ParseCertString(secondCertValue["certificate"].(string))
-
-			Expect(firstCert).ToNot(Equal(secondCert))
-			Expect(firstCert.SubjectKeyId).ToNot(Equal(secondCert.SubjectKeyId))
-			Expect(firstCert.AuthorityKeyId).ToNot(BeNil())
-			Expect(firstCert.AuthorityKeyId).To(Equal(secondCert.AuthorityKeyId))
-		})
-
 		Context("when mode is set to converge", func() {
 			It("generates a new id and variable if the parameters are the different", func() {
 				resp, _ := SendPostRequest("password-name", "password", "", true)
