@@ -20,20 +20,34 @@
   revision = "407dd7546455f1a0a50feba2dcaef0ae88da1810"
 
 [[projects]]
-  digest = "1:bfebf84ecf0c67e060f1e92cfcf3d4cbf4428a26a8b3cc258a64d7330f4de31b"
+  digest = "1:7a6852b35eb5bbc184561443762d225116ae630c26a7c4d90546619f1e7d2ad2"
   name = "github.com/dgrijalva/jwt-go"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "d2709f9f1f31ebcda9651b03077758c1f3a0018c"
-  version = "v3.0.0"
+  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
+  version = "v3.2.0"
 
 [[projects]]
-  digest = "1:1c9db302f5e172d283a37560842163450a1ebfd478581afa4f7bf00882c93a39"
+  digest = "1:747c1fcb10f8f6734551465ab73c6ed9c551aa6e66250fb6683d1624f554546a"
   name = "github.com/go-sql-driver/mysql"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "a0583e0143b1624142adab07e0e97fe106d99561"
-  version = "v1.3"
+  revision = "d523deb1b23d913de5bdada721a6071e71283618"
+  version = "v1.4.0"
+
+[[projects]]
+  digest = "1:41933d387bfa3eaa6a82647914ed7044f7b8355764c24fb920892bc8c03ef0c3"
+  name = "github.com/hpcloud/tail"
+  packages = [
+    ".",
+    "ratelimiter",
+    "util",
+    "watch",
+    "winfile",
+  ]
+  pruneopts = "NUT"
+  revision = "a30252cb686a21eb2d0b98132633053ec2f7f1e5"
+  version = "v1.0.0"
 
 [[projects]]
   digest = "1:e899df49e0df304dd6571ba224188279fa3fecef934c1c825bf69b6b3c6b137e"
@@ -62,7 +76,7 @@
   version = "v5"
 
 [[projects]]
-  digest = "1:3c4dade33a297b5ab7313535fe68e4d319f91d57b8e032f3da10a638df7ce7b2"
+  digest = "1:dd5a236a6046c6dc18eae33c9ea5e0b1af4da768d158f3b29e13df6f840b40fd"
   name = "github.com/onsi/ginkgo"
   packages = [
     ".",
@@ -92,11 +106,11 @@
     "types",
   ]
   pruneopts = "NUT"
-  revision = "77a8c1e5c40d6bb6c5eb4dd4bdce9763564f6298"
-  version = "v1.3.1"
+  revision = "3774a09d95489ccaa16032e0770d08ea77ba6184"
+  version = "v1.6.0"
 
 [[projects]]
-  digest = "1:92d5ae4732d04109c6407b5a2072209ad11d045a6c7e5bd29d35bc7dc2511862"
+  digest = "1:7e5085b94894e347689f17587ffbae5f9c758f3c5352ac89c06b4e110c0129f9"
   name = "github.com/onsi/gomega"
   packages = [
     ".",
@@ -115,8 +129,8 @@
     "types",
   ]
   pruneopts = "NUT"
-  revision = "334b8f472b3af5d541c5642701c1e29e2126f486"
-  version = "v1.1.0"
+  revision = "b6ea1ea48f981d0f615a154a45eabb9dd466556d"
+  version = "v1.4.1"
 
 [[projects]]
   branch = "master"
@@ -133,22 +147,60 @@
     "ssh/terminal",
   ]
   pruneopts = "NUT"
-  revision = "de0752318171da717af4ce24d0a2e8626afaeb11"
+  revision = "614d502a4dac94afa3a6ce146bd1736da82514c6"
 
 [[projects]]
   branch = "master"
-  digest = "1:b30ea488a4dcd299544b29bdb42a219ed47bc9e0ce5a64cfa8580239ca389c19"
+  digest = "1:a02aa415a75c3de7ea637f7cf5551bdb1bf72f7b0eae6a462e835d6fbed4e426"
+  name = "golang.org/x/net"
+  packages = [
+    "html",
+    "html/atom",
+    "html/charset",
+  ]
+  pruneopts = "NUT"
+  revision = "922f4815f713f213882e8ef45e0d315b164d705c"
+
+[[projects]]
+  branch = "master"
+  digest = "1:4d2c9a7bafb3f55ca1ad9d79557b66fda4b182f5bd1531c9595c770d2a28a321"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "NUT"
-  revision = "b90f89a1e7a9c1f6b918820b3daa7f08488c8594"
+  revision = "3b58ed4ad3395d483fc92d5d14123ce2c3581fec"
+
+[[projects]]
+  digest = "1:7c61a813b250ba8bb02bebb0382e6c3d00e04da2b577dc58985b86312fb89ffd"
+  name = "golang.org/x/text"
+  packages = [
+    "encoding",
+    "encoding/charmap",
+    "encoding/htmlindex",
+    "encoding/internal",
+    "encoding/internal/identifier",
+    "encoding/japanese",
+    "encoding/korean",
+    "encoding/simplifiedchinese",
+    "encoding/traditionalchinese",
+    "encoding/unicode",
+    "internal/gen",
+    "internal/tag",
+    "internal/utf8internal",
+    "language",
+    "runes",
+    "transform",
+    "unicode/cldr",
+  ]
+  pruneopts = "NUT"
+  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
+  version = "v0.3.0"
 
 [[projects]]
   branch = "master"
-  digest = "1:e1c96c8c8ce0af57da9dccb008e540b3d13b55ea04b530fb4fceb81706082bdd"
+  digest = "1:a05bd2d296bc727082abcb63ff52615b4dcc6219d8b61e99fd83d605dc779a18"
   name = "golang.org/x/tools"
   packages = [
     "go/ast/astutil",
@@ -156,14 +208,40 @@
     "internal/fastwalk",
   ]
   pruneopts = "NUT"
-  revision = "2087f8c10712366cfc2f4fcb1bf99eeef61ab21e"
+  revision = "5fad05c81888302518e9dfb20b55b3e1790c7a11"
 
 [[projects]]
-  digest = "1:335f30dbcc562002cac406b45584526ca0e9a97675db4c7edbd2a7c6f99e31dd"
+  digest = "1:c25289f43ac4a68d88b02245742347c94f1e108c534dda442188015ff80669b3"
+  name = "google.golang.org/appengine"
+  packages = ["cloudsql"]
+  pruneopts = "NUT"
+  revision = "b1f26356af11148e710935ed1ac8a7f5702c7612"
+  version = "v1.1.0"
+
+[[projects]]
+  digest = "1:1b91ae0dc69a41d4c2ed23ea5cffb721ea63f5037ca4b81e6d6771fbb8f45129"
+  name = "gopkg.in/fsnotify.v1"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9"
+  source = "https://github.com/fsnotify/fsnotify.git"
+  version = "v1.4.7"
+
+[[projects]]
+  branch = "v1"
+  digest = "1:8fb1ccb16a6cfecbfdfeb84d8ea1cc7afa8f9ef16526bc2326f72d993e32cef1"
+  name = "gopkg.in/tomb.v1"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "dd632973f1e7218eb1089048e0798ec9ae7dceb8"
+
+[[projects]]
+  digest = "1:7c95b35057a0ff2e19f707173cc1a947fa43a6eb5c4d300d196ece0334046082"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b"
+  revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
+  version = "v2.2.1"
 
 [solve-meta]
   analyzer-name = "dep"
