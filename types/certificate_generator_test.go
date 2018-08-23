@@ -139,17 +139,32 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 						Expect(certificate.ExtKeyUsage).To(BeEmpty())
 					})
 
-					It("sets Issuer, Country & Org", func() {
+					It("sets Issuer, Country & default Org", func() {
 						Expect(certificate.Issuer.Country).To(Equal([]string{"USA"}))
 						Expect(certificate.Issuer.Organization).To(Equal([]string{"Cloud Foundry"}))
 						Expect(certificate.Issuer.CommonName).To(Equal(""))
 					})
 
-					It("sets the SKI and AKI", func() {
-						Expect(certificate.SubjectKeyId).ToNot(BeNil())
-						Expect(certificate.SubjectKeyId).To(Equal(certificate.AuthorityKeyId))
-					})
+					Context("when organization set", func() {
+						BeforeEach(func() {
+							params = map[interface{}]interface{}{
+								"is_ca":        true,
+								"organization": "Hi Five BOSH",
+							}
+							certResp = getCertResp(generator, params)
+							certificate, _ = parseCertString(certResp.Certificate)
+						})
 
+						It("sets Issuer, Country & default Org", func() {
+							Expect(certificate.Issuer.Country).To(Equal([]string{"USA"}))
+							Expect(certificate.Issuer.Organization).To(Equal([]string{"Hi Five BOSH"}))
+							Expect(certificate.Issuer.CommonName).To(Equal(""))
+						})
+
+					  It("sets the SKI and AKI", func() {
+						  Expect(certificate.SubjectKeyId).ToNot(BeNil())
+						  Expect(certificate.SubjectKeyId).To(Equal(certificate.AuthorityKeyId))
+					  })
 				})
 
 				Context("when 'ca' is NOT empty", func() {
