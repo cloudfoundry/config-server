@@ -10,6 +10,7 @@ import (
 	"net"
 	"time"
 
+	"crypto/sha1"
 	"github.com/cloudfoundry/bosh-utils/errors"
 	"gopkg.in/yaml.v2"
 )
@@ -58,6 +59,12 @@ func (cfg CertificateGenerator) Generate(parameters interface{}) (interface{}, e
 	return cfg.generateCertificate(params)
 }
 
+func (cfg CertificateGenerator) bigIntHash(n *big.Int) []byte {
+	h := sha1.New()
+	h.Write(n.Bytes())
+	return h.Sum(nil)
+}
+
 func (cfg CertificateGenerator) generateCertificate(cParams certParams) (CertResponse, error) {
 	var certResponse CertResponse
 
@@ -86,6 +93,8 @@ func (cfg CertificateGenerator) generateCertificate(cParams certParams) (CertRes
 		}
 	}
 
+	certTemplate.SubjectKeyId = cfg.bigIntHash(privateKey.N)
+
 	if cParams.IsCA {
 		certTemplate.KeyUsage = x509.KeyUsageCertSign | x509.KeyUsageCRLSign
 
@@ -96,6 +105,7 @@ func (cfg CertificateGenerator) generateCertificate(cParams certParams) (CertRes
 			signingKey = rootPKey
 			signingCA = rootCA
 		}
+		certTemplate.AuthorityKeyId = signingCA.SubjectKeyId
 
 		certificateRaw, err = x509.CreateCertificate(rand.Reader, &certTemplate, signingCA, &privateKey.PublicKey, signingKey)
 		if err != nil {
@@ -112,6 +122,8 @@ func (cfg CertificateGenerator) generateCertificate(cParams certParams) (CertRes
 			return certResponse, errors.Error("Missing required CA name")
 		}
 		certTemplate.KeyUsage = x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature
+
+		certTemplate.AuthorityKeyId = rootCA.SubjectKeyId
 
 		extKeyUsages := certTemplate.ExtKeyUsage
 		if len(cParams.ExtKeyUsage) != 0 {

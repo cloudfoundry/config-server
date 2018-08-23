@@ -16,17 +16,10 @@ required = ["github.com/onsi/ginkgo/ginkgo", "github.com/maxbrunsfeld/counterfei
   revision = "2704adc878c21e1329f46f6e56a1c387d788ff94"
   name = "github.com/lib/pq"
 
-[[constraint]]
-  revision = "7e9105388ebff089b3f99f0ef676ea55a6da3a7e"
-  name = "golang.org/x/crypto"
-
-[[constraint]]
-  revision = "b90f89a1e7a9c1f6b918820b3daa7f08488c8594"
-  name = "golang.org/x/sys"
-
-[[constraint]]
-  revision = "cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b"
-  name = "gopkg.in/yaml.v2"
+# dep ensure issue in https://github.com/golang/dep/issues/1799
+[[override]]
+  name = "gopkg.in/fsnotify.v1"
+  source = "https://github.com/fsnotify/fsnotify.git"
 
 [prune]
   unused-packages = true

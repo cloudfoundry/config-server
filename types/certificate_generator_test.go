@@ -34,6 +34,7 @@ var _ = Describe("CertificateGenerator", func() {
 	var (
 		fakeLoader *typesfakes.FakeCertsLoader
 		generator  ValueGenerator
+		fakeRootCA *x509.Certificate
 	)
 
 	mockCertValue := `-----BEGIN CERTIFICATE-----
@@ -70,10 +71,10 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 
 		cpb, _ := pem.Decode([]byte(mockCertValue))
 		kpb, _ := pem.Decode([]byte(mockKeyValue))
-		crt, _ := x509.ParseCertificate(cpb.Bytes)
+		fakeRootCA, _ = x509.ParseCertificate(cpb.Bytes)
 		key, _ := x509.ParsePKCS1PrivateKey(kpb.Bytes)
 
-		fakeLoader.LoadCertsReturns(crt, key, nil)
+		fakeLoader.LoadCertsReturns(fakeRootCA, key, nil)
 	})
 
 	Describe("Generate", func() {
@@ -159,8 +160,11 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 							Expect(certificate.Issuer.Organization).To(Equal([]string{"Hi Five BOSH"}))
 							Expect(certificate.Issuer.CommonName).To(Equal(""))
 						})
-					})
 
+					  It("sets the SKI and AKI", func() {
+						  Expect(certificate.SubjectKeyId).ToNot(BeNil())
+						  Expect(certificate.SubjectKeyId).To(Equal(certificate.AuthorityKeyId))
+					  })
 				})
 
 				Context("when 'ca' is NOT empty", func() {
@@ -212,6 +216,12 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 						_, err = cert.Verify(opts)
 
 						Expect(err).To(BeNil())
+					})
+
+					It("should set the AKI from the root CA", func() {
+						Expect(certificate.AuthorityKeyId).ToNot(BeNil())
+						Expect(certificate.SubjectKeyId).ToNot(BeNil())
+						Expect(certificate.AuthorityKeyId).To(Equal(fakeRootCA.SubjectKeyId))
 					})
 				})
 			})
@@ -331,13 +341,19 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 
 						block, _ := pem.Decode([]byte(certResp.PrivateKey))
 						key, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
-
 						Expect(certificate.PublicKey).To(Equal(&key.PublicKey))
 					})
 
 					It("set the CA field to the signing CA", func() {
 						certResp := getCertResp(generator, params)
 						Expect(strings.Trim(certResp.CA, "\n")).To(Equal(mockCertValue))
+					})
+
+					It("set the AKI as the CA's SKI", func() {
+						certResp := getCertResp(generator, params)
+						certificate, _ := parseCertString(certResp.Certificate)
+						Expect(certificate.SubjectKeyId).ToNot(BeNil())
+						Expect(certificate.AuthorityKeyId).To(Equal(fakeRootCA.SubjectKeyId))
 					})
 
 					Context("when ExtKeyUsage is NOT empty", func() {
