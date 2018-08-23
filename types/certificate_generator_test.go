@@ -145,6 +145,11 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 						Expect(certificate.Issuer.CommonName).To(Equal(""))
 					})
 
+					It("sets the SKI and AKI", func() {
+						Expect(certificate.SubjectKeyId).ToNot(BeNil())
+						Expect(certificate.SubjectKeyId).To(Equal(certificate.AuthorityKeyId))
+					})
+
 					Context("when organization set", func() {
 						BeforeEach(func() {
 							params = map[interface{}]interface{}{
@@ -160,11 +165,42 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 							Expect(certificate.Issuer.Organization).To(Equal([]string{"Hi Five BOSH"}))
 							Expect(certificate.Issuer.CommonName).To(Equal(""))
 						})
+					})
 
-					  It("sets the SKI and AKI", func() {
-						  Expect(certificate.SubjectKeyId).ToNot(BeNil())
-						  Expect(certificate.SubjectKeyId).To(Equal(certificate.AuthorityKeyId))
-					  })
+					Context("when several organizations are set", func() {
+						BeforeEach(func() {
+							params = map[interface{}]interface{}{
+								"is_ca":         true,
+								"organizations": []string{"Hi Five BOSH", "My Bosh"},
+							}
+							certResp = getCertResp(generator, params)
+							certificate, _ = parseCertString(certResp.Certificate)
+						})
+
+						It("sets Issuer, Country & default Org", func() {
+							Expect(certificate.Issuer.Country).To(Equal([]string{"USA"}))
+							Expect(certificate.Issuer.Organization).To(Equal([]string{"Hi Five BOSH", "My Bosh"}))
+							Expect(certificate.Issuer.CommonName).To(Equal(""))
+						})
+					})
+
+					Context("when organizations and organization both are set", func() {
+						BeforeEach(func() {
+							params = map[interface{}]interface{}{
+								"is_ca":         true,
+								"organization":  "True BOSH",
+								"organizations": []string{"Hi Five BOSH", "My Bosh"},
+							}
+							certResp = getCertResp(generator, params)
+							certificate, _ = parseCertString(certResp.Certificate)
+						})
+
+						It("prioritize organizationS over organization to sets Issuer, Country & default Org", func() {
+							Expect(certificate.Issuer.Country).To(Equal([]string{"USA"}))
+							Expect(certificate.Issuer.Organization).To(Equal([]string{"Hi Five BOSH", "My Bosh"}))
+							Expect(certificate.Issuer.CommonName).To(Equal(""))
+						})
+					})
 				})
 
 				Context("when 'ca' is NOT empty", func() {
