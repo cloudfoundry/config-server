@@ -23,6 +23,20 @@ var _ = Describe("PasswordGenerator", func() {
 				Expect(len(password.(string))).To(Equal(20))
 			})
 
+			It("generates a password of custom length", func() {
+				params := map[interface{}]interface{}{"length": 32}
+				password, err := generator.Generate(params)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(len(password.(string))).To(Equal(32))
+			})
+
+			It("errors on unknown parameters", func() {
+				params := map[interface{}]interface{}{"unsupported": 32}
+				_, err := generator.Generate(params)
+				Expect(err.Error()).ToNot(BeNil())
+				Expect(err.Error()).To(Equal("Failed to generate password, parameters are invalid: Unsupported parameter 'unsupported'"))
+			})
+
 			It("generates unique passwords", func() {
 				password1, err := generator.Generate(nil)
 				Expect(err).ToNot(HaveOccurred())

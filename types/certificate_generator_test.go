@@ -470,7 +470,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 				_, err := generator.Generate(params)
 
 				Expect(err).ToNot(BeNil())
-				Expect(err.Error()).To(Equal("Failed to generate certificate, parameters are invalid: Unsupported certificate parameter 'ext_key_usage'"))
+				Expect(err.Error()).To(Equal("Failed to generate certificate, parameters are invalid: Unsupported parameter 'ext_key_usage'"))
 			})
 		})
 	})

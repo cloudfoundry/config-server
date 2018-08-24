@@ -12,7 +12,6 @@ import (
 
 	"crypto/sha1"
 	"github.com/cloudfoundry/bosh-utils/errors"
-	"gopkg.in/yaml.v2"
 )
 
 type CertificateGenerator struct {
@@ -51,7 +50,7 @@ func NewCertificateGenerator(loader CertsLoader) CertificateGenerator {
 
 func (cfg CertificateGenerator) Generate(parameters interface{}) (interface{}, error) {
 	var params certParams
-	err := objToStruct(parameters, &params)
+	err := objToStruct(parameters, &params, supportedCertParameters)
 	if err != nil {
 		return nil, errors.WrapError(err, "Failed to generate certificate, parameters are invalid")
 	}
@@ -207,39 +206,4 @@ func generateCertResponse(privateKey *rsa.PrivateKey, certificateRaw, rootCARaw 
 	}
 
 	return certResponse
-}
-
-func stringInArray(key string, list []string) bool {
-	for _, value := range list {
-		if key == value {
-			return true
-		}
-	}
-	return false
-}
-
-func objToStruct(input interface{}, str interface{}) error {
-	valBytes, err := yaml.Marshal(input)
-	if err != nil {
-		return errors.WrapErrorf(err, "Expected input to be serializable")
-	}
-
-	parametersMap := make(map[string]interface{})
-	err = yaml.Unmarshal(valBytes, parametersMap)
-	if err != nil {
-		return errors.WrapErrorf(err, "Expected input to be deserializable")
-	}
-
-	for key := range parametersMap {
-		if !stringInArray(key, supportedCertParameters) {
-			return errors.Errorf("Unsupported certificate parameter '%s'", key)
-		}
-	}
-
-	err = yaml.Unmarshal(valBytes, str)
-	if err != nil {
-		return errors.WrapErrorf(err, "Expected input to be deserializable")
-	}
-
-	return nil
 }
