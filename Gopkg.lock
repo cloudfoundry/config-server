@@ -151,7 +151,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a02aa415a75c3de7ea637f7cf5551bdb1bf72f7b0eae6a462e835d6fbed4e426"
+  digest = "1:1d3f083a0b29a9db5ac57dc4d486dbb97cd58696bae3da441a375916b7e8c53b"
   name = "golang.org/x/net"
   packages = [
     "html",
@@ -159,18 +159,18 @@
     "html/charset",
   ]
   pruneopts = "NUT"
-  revision = "922f4815f713f213882e8ef45e0d315b164d705c"
+  revision = "4bcd98cce591d8c7061bf313d7a3cbad05b58549"
 
 [[projects]]
   branch = "master"
-  digest = "1:4d2c9a7bafb3f55ca1ad9d79557b66fda4b182f5bd1531c9595c770d2a28a321"
+  digest = "1:bc0ffa2e77f9cad8786c8949b1dc3c5843993355b6ae4d7f6d45ab5ba2dd4a51"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "NUT"
-  revision = "3b58ed4ad3395d483fc92d5d14123ce2c3581fec"
+  revision = "4910a1d54f876d7b22162a85f4d066d3ee649450"
 
 [[projects]]
   digest = "1:7c61a813b250ba8bb02bebb0382e6c3d00e04da2b577dc58985b86312fb89ffd"
@@ -208,7 +208,7 @@
     "internal/fastwalk",
   ]
   pruneopts = "NUT"
-  revision = "5fad05c81888302518e9dfb20b55b3e1790c7a11"
+  revision = "6c1c5e93cdc185a6ddf8f821166b3e631b0f8a72"
 
 [[projects]]
   digest = "1:c25289f43ac4a68d88b02245742347c94f1e108c534dda442188015ff80669b3"
