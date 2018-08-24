@@ -51,7 +51,7 @@ func SendPostRequest(name string, valueType string, extraParamValue string, conv
 
 	switch valueType {
 	case "password":
-		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"password","parameters":{"foo":"` + extraParamValue + `"},"mode":"` + mode + `"}`))
+		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"password","parameters":{` + extraParamValue + `},"mode":"` + mode + `"}`))
 	case "certificate":
 		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"certificate","parameters":{"ca": "my-ca", "common_name": "some-signed-cn1", "alternative_names":["signed-an1", "signed-an2"]},"mode":"` + mode + `"}`))
 	case "self-signed-certificate":

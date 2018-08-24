@@ -393,8 +393,13 @@ var _ = Describe("Supported HTTP Methods", func() {
 			It("generates a new id and variable if the parameters are the different", func() {
 				resp, _ := SendPostRequest("password-name", "password", "", true)
 				result := UnmarshalJSONString(resp.Body)
-				resp2, _ := SendPostRequest("password-name", "password", "barbar", true)
+
+				Expect(len(result["value"].(string))).To(Equal(20))
+
+				resp2, _ := SendPostRequest("password-name", "password", "\"length\": 8", true)
 				result2 := UnmarshalJSONString(resp2.Body)
+
+				Expect(len(result2["value"].(string))).To(Equal(8))
 
 				Expect(result2["id"]).ToNot(BeNil())
 				Expect(result2["name"]).To(Equal("password-name"))
@@ -402,9 +407,9 @@ var _ = Describe("Supported HTTP Methods", func() {
 			})
 
 			It("generates a new id and variable if the parameters are the same", func() {
-				resp, _ := SendPostRequest("password-name", "password", "barbar", true)
+				resp, _ := SendPostRequest("password-name", "password", "\"length\": 8", true)
 				result := UnmarshalJSONString(resp.Body)
-				resp2, _ := SendPostRequest("password-name", "password", "barbar", true)
+				resp2, _ := SendPostRequest("password-name", "password", "\"length\": 8", true)
 				result2 := UnmarshalJSONString(resp2.Body)
 
 				Expect(result2["id"]).ToNot(BeNil())
