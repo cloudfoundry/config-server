@@ -37,6 +37,20 @@ var _ = Describe("PasswordGenerator", func() {
 				Expect(err.Error()).To(Equal("Failed to generate password, parameters are invalid: Unsupported parameter 'unsupported'"))
 			})
 
+			It("errors on negative number for length", func() {
+				params := map[interface{}]interface{}{"length": -1}
+				_, err := generator.Generate(params)
+				Expect(err.Error()).ToNot(BeNil())
+				Expect(err.Error()).To(Equal("Failed to generate password, 'length' param cannot be negative"))
+			})
+
+			It("errors on non-number for length", func() {
+				params := map[interface{}]interface{}{"length": "a"}
+				_, err := generator.Generate(params)
+				Expect(err.Error()).ToNot(BeNil())
+				Expect(err.Error()).To(MatchRegexp(`Failed to generate password, parameters are invalid: Expected input to be deserializable: yaml: unmarshal errors:`))
+			})
+
 			It("generates unique passwords", func() {
 				password1, err := generator.Generate(nil)
 				Expect(err).ToNot(HaveOccurred())
