@@ -23,7 +23,7 @@ func NewRequestHandler(store store.Store, valueGeneratorFactory types.ValueGener
 		return nil, errors.Error("Data store must be set")
 	}
 	return requestHandler{
-		store: store,
+		store:                 store,
 		valueGeneratorFactory: valueGeneratorFactory,
 	}, nil
 }
