@@ -17,7 +17,7 @@
     "logger",
   ]
   pruneopts = "NUT"
-  revision = "407dd7546455f1a0a50feba2dcaef0ae88da1810"
+  revision = "15c556314b68953d0449541ded010b033767c805"
 
 [[projects]]
   digest = "1:7a6852b35eb5bbc184561443762d225116ae630c26a7c4d90546619f1e7d2ad2"
@@ -60,20 +60,16 @@
   revision = "2704adc878c21e1329f46f6e56a1c387d788ff94"
 
 [[projects]]
-  digest = "1:9670d34e6bfeed9cb5c91c0729da54344cb8de92a2d185aaf33869ae16291665"
+  digest = "1:0d33e8f4230cafee906332f45cc456ce2b66ac18a1edc40a9c87e3e68682d08b"
   name = "github.com/maxbrunsfeld/counterfeiter"
   packages = [
     ".",
     "arguments",
-    "astutil",
     "generator",
-    "locator",
-    "model",
-    "terminal",
   ]
   pruneopts = "NUT"
-  revision = "c1f2005ff133f81907ce72f3d20e1169799317fe"
-  version = "v5"
+  revision = "2d74a219416bffff638e30a3775c76715f1968a7"
+  version = "v6.0.1"
 
 [[projects]]
   digest = "1:dd5a236a6046c6dc18eae33c9ea5e0b1af4da768d158f3b29e13df6f840b40fd"
@@ -110,7 +106,7 @@
   version = "v1.6.0"
 
 [[projects]]
-  digest = "1:7e5085b94894e347689f17587ffbae5f9c758f3c5352ac89c06b4e110c0129f9"
+  digest = "1:6e41fb0c0e596001995888b8d0411eb3d592e578080eb2cd3b48633a69b9418b"
   name = "github.com/onsi/gomega"
   packages = [
     ".",
@@ -129,12 +125,12 @@
     "types",
   ]
   pruneopts = "NUT"
-  revision = "b6ea1ea48f981d0f615a154a45eabb9dd466556d"
-  version = "v1.4.1"
+  revision = "7615b9433f86a8bdf29709bf288bc4fd0636a369"
+  version = "v1.4.2"
 
 [[projects]]
   branch = "master"
-  digest = "1:10e257965f5774c1ef03b258130a6caa8dddbfe03041f69d7c16a00463dece62"
+  digest = "1:9c33c1e5c1f3745b491e331cc638597e65fb087bbacd35eb3a27d2ee029f7ee6"
   name = "golang.org/x/crypto"
   packages = [
     "curve25519",
@@ -144,14 +140,13 @@
     "internal/subtle",
     "poly1305",
     "ssh",
-    "ssh/terminal",
   ]
   pruneopts = "NUT"
-  revision = "614d502a4dac94afa3a6ce146bd1736da82514c6"
+  revision = "4d3f4d9ffa16a13f451c3b2999e9c49e9750bf06"
 
 [[projects]]
   branch = "master"
-  digest = "1:1d3f083a0b29a9db5ac57dc4d486dbb97cd58696bae3da441a375916b7e8c53b"
+  digest = "1:5193d913046443e59093d66a97a40c51f4a5ea4ceba60f3b3ecf89694de5d16f"
   name = "golang.org/x/net"
   packages = [
     "html",
@@ -159,18 +154,15 @@
     "html/charset",
   ]
   pruneopts = "NUT"
-  revision = "4bcd98cce591d8c7061bf313d7a3cbad05b58549"
+  revision = "c44066c5c816ec500d459a2a324a753f78531ae0"
 
 [[projects]]
   branch = "master"
-  digest = "1:bc0ffa2e77f9cad8786c8949b1dc3c5843993355b6ae4d7f6d45ab5ba2dd4a51"
+  digest = "1:7f814e4592f2e0a5a01a315b6e8d1536334058199d2560a21437cc7ff018e24d"
   name = "golang.org/x/sys"
-  packages = [
-    "unix",
-    "windows",
-  ]
+  packages = ["unix"]
   pruneopts = "NUT"
-  revision = "4910a1d54f876d7b22162a85f4d066d3ee649450"
+  revision = "7e31e0c00fa05cb5fbf4347b585621d6709e19a4"
 
 [[projects]]
   digest = "1:7c61a813b250ba8bb02bebb0382e6c3d00e04da2b577dc58985b86312fb89ffd"
@@ -200,23 +192,30 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a05bd2d296bc727082abcb63ff52615b4dcc6219d8b61e99fd83d605dc779a18"
+  digest = "1:9f3683efed4dce2a2011162be3913dcdf379a8d5476b11f438bcf6dbc4d7071b"
   name = "golang.org/x/tools"
   packages = [
     "go/ast/astutil",
+    "go/gcexportdata",
+    "go/internal/cgo",
+    "go/internal/gcimporter",
+    "go/packages",
+    "go/types/typeutil",
     "imports",
     "internal/fastwalk",
+    "internal/gopathwalk",
+    "internal/semver",
   ]
   pruneopts = "NUT"
-  revision = "6c1c5e93cdc185a6ddf8f821166b3e631b0f8a72"
+  revision = "bb28844c46df63910d88c11eb36098ce781adfa0"
 
 [[projects]]
   digest = "1:c25289f43ac4a68d88b02245742347c94f1e108c534dda442188015ff80669b3"
   name = "google.golang.org/appengine"
   packages = ["cloudsql"]
   pruneopts = "NUT"
-  revision = "b1f26356af11148e710935ed1ac8a7f5702c7612"
-  version = "v1.1.0"
+  revision = "ae0ab99deb4dc413a2b4bd6c8bdd0eb67f1e4d06"
+  version = "v1.2.0"
 
 [[projects]]
   digest = "1:1b91ae0dc69a41d4c2ed23ea5cffb721ea63f5037ca4b81e6d6771fbb8f45129"
