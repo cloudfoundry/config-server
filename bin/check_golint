@@ -3,7 +3,7 @@ set -e
 
 bin=$(dirname $0)
 
-go get -u github.com/golang/lint/golint
+go get -u golang.org/x/lint/golint
 
 if [ $# -eq 0 ]; then
   gofiles="$($bin/gofiles)"
