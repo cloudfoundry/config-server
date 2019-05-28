@@ -24,7 +24,7 @@ case "$DB" in
     export PGDATA=/tmp/postgres/data
 
     su postgres -c '
-      export PATH=/usr/lib/postgresql/*/bin:$PATH
+      export PATH=$( echo /usr/lib/postgresql/*/bin ):$PATH
       export PGDATA=/tmp/postgres/data
       export PGLOGS=/tmp/log/postgres
       mkdir -p $PGDATA
