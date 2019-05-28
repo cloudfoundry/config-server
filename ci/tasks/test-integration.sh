@@ -15,13 +15,12 @@ case "$DB" in
     sudo service mysql start
     ;;
   postgresql)
-    export PATH=$( echo /usr/lib/postgresql/*/bin ):$PATH
+    export PATH=/usr/lib/postgresql/9.4/bin:$PATH
 
     mkdir /tmp/postgres
-    mount -t tmpfs -o size=512M tmpfs /tmp/postgres
+    mount -t tmpfs -o size=256M tmpfs /tmp/postgres
     mkdir /tmp/postgres/data
     chown postgres:postgres /tmp/postgres/data
-    export PGDATA=/tmp/postgres/data
 
     su postgres -c '
       export PATH=/usr/lib/postgresql/9.4/bin:$PATH
