@@ -417,6 +417,22 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 							Expect(certificate.ExtKeyUsage).To(Equal([]x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}))
 						})
 					})
+
+					Context("when 'duration' is NOT empty", func() {
+						BeforeEach(func() {
+							params["duration"] = 365
+							params["common_name"] = "bosh.io"
+						})
+
+						It("should set expiry for the cert in more than year", func() {
+							certResp := getCertResp(generator, params)
+							certificate, _ := parseCertString(certResp.Certificate)
+
+							tenYearsFromToday := time.Now().UTC().Add(365 * 24 * time.Hour)
+
+							Expect(certificate.NotAfter).Should(BeTemporally("~", tenYearsFromToday, 5*time.Second))
+						})
+					})
 				})
 			})
 		})
