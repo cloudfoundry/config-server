@@ -419,18 +419,37 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 					})
 
 					Context("when 'duration' is NOT empty", func() {
-						BeforeEach(func() {
+						It("should set expiry for the cert in more than year", func() {
 							params["duration"] = 365
 							params["common_name"] = "bosh.io"
-						})
-
-						It("should set expiry for the cert in more than year", func() {
 							certResp := getCertResp(generator, params)
 							certificate, _ := parseCertString(certResp.Certificate)
 
 							tenYearsFromToday := time.Now().UTC().Add(365 * 24 * time.Hour)
 
 							Expect(certificate.NotAfter).Should(BeTemporally("~", tenYearsFromToday, 5*time.Second))
+						})
+
+						It("should set expiry for the cert correctly when duration is very large", func() {
+							params["duration"] = 7000
+							params["common_name"] = "bosh.io"
+							certResp := getCertResp(generator, params)
+							certificate, _ := parseCertString(certResp.Certificate)
+
+							longTimeFromToday := time.Now().UTC().Add(7000 * 24 * time.Hour)
+
+							Expect(certificate.NotAfter).Should(BeTemporally("~", longTimeFromToday, 5*time.Second))
+						})
+
+						It("should set expiry for the cert correctly when duration is invalid", func() {
+							params["duration"] = -100
+							params["common_name"] = "bosh.io"
+							certResp := getCertResp(generator, params)
+							certificate, _ := parseCertString(certResp.Certificate)
+
+							oneYearFromToday := time.Now().UTC().Add(365 * 24 * time.Hour)
+
+							Expect(certificate.NotAfter).Should(BeTemporally("~", oneYearFromToday, 5*time.Second))
 						})
 					})
 				})
