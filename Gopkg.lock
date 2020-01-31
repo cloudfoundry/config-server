@@ -10,14 +10,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ed143c642680f4b9df760648632dd8d6b33b456a7757865208dc6c326d4e0416"
+  digest = "1:c1a420f0536b8f45326068fb30c9fc7e87afc5baeef86b06241758dc6f3ca63c"
   name = "github.com/cloudfoundry/bosh-utils"
   packages = [
     "errors",
     "logger",
   ]
   pruneopts = "NUT"
-  revision = "15c556314b68953d0449541ded010b033767c805"
+  revision = "c77401f104e15ff7adf957b3990ed897144336f0"
 
 [[projects]]
   digest = "1:7a6852b35eb5bbc184561443762d225116ae630c26a7c4d90546619f1e7d2ad2"
