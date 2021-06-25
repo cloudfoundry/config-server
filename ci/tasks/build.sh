@@ -7,7 +7,9 @@ export PATH=/usr/local/go/bin:$GOPATH/bin:$PATH
 semver=`cat version-semver/number`
 filename="config-server-${semver}-${GOOS}-${GOARCH}"
 
-go build github.com/cloudfoundry/config-server
+pushd github.com/cloudfoundry/config-server
+  go build .
+popd
 
 mv config-server compiled-${GOOS}/${filename}
 
