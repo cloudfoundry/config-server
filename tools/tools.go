@@ -3,7 +3,7 @@
 package tools
 
 import (
-	_ "github.com/onsi/ginkgo/ginkgo"
+	_ "github.com/onsi/ginkgo/ginkgo" // Comment to make linter happy
 )
 
 // This file imports packages that are used when running go generate, or used
