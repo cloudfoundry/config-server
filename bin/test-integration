@@ -18,7 +18,7 @@ setup_test_dir (){
   $bin/build
   cp -p ./out/config-server ${testdir}/config-server
 
-  $bin/env ginkgo build -r -race integration
+  $bin/env go run github.com/onsi/ginkgo/ginkgo build -r -race integration
 
   mv ./integration/integration.test ${testdir}
   pushd ${testdir}
