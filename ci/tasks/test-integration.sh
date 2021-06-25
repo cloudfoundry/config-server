@@ -41,8 +41,6 @@ case "$DB" in
     exit 1
 esac
 
-go clean -r github.com/cloudfoundry/config-server
-
 cd src/github.com/cloudfoundry/config-server
 
 bin/test-integration $DB
