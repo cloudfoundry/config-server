@@ -8,12 +8,6 @@ jobs:
         trigger: true
       - task: test-gofmt
         file: config-server/ci/tasks/test-gofmt.yml
-        on_failure: &slack-alert
-          put: slack-alert
-          params:
-            channel: {{slack_channel_name}}
-            icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
-            text: {{slack_failure_message}}
 
   - name: test-golint
     public: true
@@ -22,8 +16,6 @@ jobs:
         trigger: true
       - task: test-golint
         file: config-server/ci/tasks/test-golint.yml
-        on_failure:
-          <<: *slack-alert
 
   - name: test-govet
     public: true
@@ -32,8 +24,6 @@ jobs:
         trigger: true
       - task: test-govet
         file: config-server/ci/tasks/test-govet.yml
-        on_failure:
-          <<: *slack-alert
 
   - name: test-unit
     public: true
@@ -42,8 +32,6 @@ jobs:
         trigger: true
       - task: test-unit
         file: config-server/ci/tasks/test-unit.yml
-        on_failure:
-          <<: *slack-alert
 
   - name: test-integration-in-memory
     public: true
@@ -55,8 +43,6 @@ jobs:
         file: config-server/ci/tasks/test-integration.yml
         params:
           DB: memory
-        on_failure:
-          <<: *slack-alert
 
   - name: test-integration-mysql
     public: true
@@ -68,9 +54,6 @@ jobs:
         file: config-server/ci/tasks/test-integration.yml
         params:
           DB: mysql
-        on_failure:
-          <<: *slack-alert
-
 
   - name: test-integration-postgresql
     public: true
@@ -82,8 +65,6 @@ jobs:
         file: config-server/ci/tasks/test-integration.yml
         params:
           DB: postgresql
-        on_failure:
-          <<: *slack-alert
 
   - name: acceptance-tests
     public: true
@@ -99,8 +80,6 @@ jobs:
         params: { submodules: all }
       - task: build-bosh-release
         file: config-server-release/ci/tasks/bosh-release.yml
-        on_failure:
-          <<: *slack-alert
       - task: run-acceptance-tests
         file: config-server-release/ci/tasks/acceptance-tests.yml
         privileged: true
@@ -117,8 +96,6 @@ jobs:
           region: {{config_server_acceptance_tests_region}}
           secret_access_key: {{config_server_acceptance_tests_secret_access_key}}
           subnet_id: {{config_server_acceptance_tests_subnet_id}}
-        on_failure:
-          <<: *slack-alert
 
   - name: bump-config-server-submodule
     public: true
@@ -133,8 +110,6 @@ jobs:
       - get: bosh-cli
       - task: bosh-release
         file: config-server-release/ci/tasks/bump-submodule.yml
-        on_failure:
-          <<: *slack-alert
       - put: config-server-release
         params:
           repository: config-server-repo/config-server-release
@@ -235,21 +210,9 @@ resources:
       bucket: bosh-cli-artifacts
       regexp: bosh-cli-(.*)-linux-amd64
 
-  - name: slack-alert
-    type: slack-notification
-    source:
-      url: {{slack_hook_url}}
-
   - name: every-sunday
     type: time
     source:
       start: 1:00 PM
       stop: 9:00 PM
       days: [Sunday]
-
-resource_types:
-- name: slack-notification
-  type: docker-image
-  source:
-    repository: cfcommunity/slack-notification-resource
-    tag: latest
