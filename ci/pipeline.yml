@@ -36,9 +36,11 @@ jobs:
   - name: test-integration-in-memory
     public: true
     plan:
+      - get: integration-image
       - get: config-server
         trigger: true
       - task: test-integration
+        image: integration-image
         privileged: true
         file: config-server/ci/tasks/test-integration.yml
         params:
@@ -47,9 +49,11 @@ jobs:
   - name: test-integration-mysql
     public: true
     plan:
+      - get: main-mysql-5-7-image
       - get: config-server
         trigger: true
       - task: test-integration
+        image: main-mysql-5-7-image
         privileged: true
         file: config-server/ci/tasks/test-integration.yml
         params:
@@ -60,7 +64,9 @@ jobs:
     plan:
       - get: config-server
         trigger: true
+      - get: main-postgres-10-image
       - task: test-integration
+        image: main-postgres-10-image
         privileged: true
         file: config-server/ci/tasks/test-integration.yml
         params:
@@ -149,6 +155,21 @@ jobs:
       - {put: version-semver, params: {file: version-semver/number}}
 
 resources:
+  - name: main-postgres-10-image
+    type: docker-image
+    source:
+      repository: bosh/main-postgres-10
+
+  - name: main-mysql-5-7-image
+    type: docker-image
+    source:
+      repository: bosh/main-mysql-5.7
+
+  - name: integration-image
+    type: docker-image
+    source:
+      repository: bosh/integration
+
   - name: config-server
     type: git
     source:
