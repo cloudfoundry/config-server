@@ -1,7 +1,7 @@
 # github.com/BurntSushi/migration v0.0.0-20140125045755-c45b897f1335
 ## explicit
 github.com/BurntSushi/migration
-# github.com/cloudfoundry/bosh-utils v0.0.281
+# github.com/cloudfoundry/bosh-utils v0.0.287
 ## explicit; go 1.17
 github.com/cloudfoundry/bosh-utils/errors
 github.com/cloudfoundry/bosh-utils/logger
@@ -17,7 +17,7 @@ github.com/go-sql-driver/mysql
 # github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0
 ## explicit; go 1.13
 github.com/go-task/slim-sprig
-# github.com/hpcloud/tail v1.0.0
+# github.com/kr/text v0.2.0
 ## explicit
 # github.com/lib/pq v1.10.3
 ## explicit; go 1.13
@@ -77,6 +77,8 @@ github.com/onsi/gomega/matchers/support/goraph/edge
 github.com/onsi/gomega/matchers/support/goraph/node
 github.com/onsi/gomega/matchers/support/goraph/util
 github.com/onsi/gomega/types
+# github.com/rogpeppe/go-internal v1.6.1
+## explicit; go 1.11
 # golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 ## explicit; go 1.17
 golang.org/x/crypto/blowfish
@@ -89,12 +91,12 @@ golang.org/x/crypto/internal/poly1305
 golang.org/x/crypto/internal/subtle
 golang.org/x/crypto/ssh
 golang.org/x/crypto/ssh/internal/bcrypt_pbkdf
-# golang.org/x/net v0.0.0-20211015210444-4f30a5c0130f
+# golang.org/x/net v0.0.0-20211020060615-d418f374d309
 ## explicit; go 1.17
 golang.org/x/net/html
 golang.org/x/net/html/atom
 golang.org/x/net/html/charset
-# golang.org/x/sys v0.0.0-20211020174200-9d6173849985
+# golang.org/x/sys v0.0.0-20211029165221-6e7872819dc8
 ## explicit; go 1.17
 golang.org/x/sys/cpu
 golang.org/x/sys/internal/unsafeheader
@@ -121,10 +123,8 @@ golang.org/x/text/transform
 # golang.org/x/tools v0.0.0-20201224043029-2b0845dc783e
 ## explicit; go 1.12
 golang.org/x/tools/go/ast/inspector
-# google.golang.org/appengine v1.6.7
+# gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c
 ## explicit; go 1.11
-# gopkg.in/fsnotify.v1 v1.4.7
-## explicit
 # gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7
 ## explicit
 gopkg.in/tomb.v1
