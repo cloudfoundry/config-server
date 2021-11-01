@@ -211,6 +211,7 @@ resources:
     type: docker-image
     source:
       repository: bosh/integration
+      tag: master
 
   - name: config-server
     type: git
