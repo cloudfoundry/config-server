@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/BurntSushi/migration v0.0.0-20140125045755-c45b897f1335
-	github.com/cloudfoundry/bosh-utils v0.0.296
+	github.com/cloudfoundry/bosh-utils v0.0.297
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/lib/pq v1.10.4
@@ -20,7 +20,7 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect
 	github.com/rogpeppe/go-internal v1.6.1 // indirect
-	golang.org/x/net v0.0.0-20220107192237-5cfca573fb4d // indirect
+	golang.org/x/net v0.0.0-20220114011407-0dd24b26b47d // indirect
 	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
 	golang.org/x/text v0.3.6 // indirect
 	golang.org/x/tools v0.0.0-20201224043029-2b0845dc783e // indirect

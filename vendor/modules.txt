@@ -1,7 +1,7 @@
 # github.com/BurntSushi/migration v0.0.0-20140125045755-c45b897f1335
 ## explicit
 github.com/BurntSushi/migration
-# github.com/cloudfoundry/bosh-utils v0.0.296
+# github.com/cloudfoundry/bosh-utils v0.0.297
 ## explicit; go 1.17
 github.com/cloudfoundry/bosh-utils/errors
 github.com/cloudfoundry/bosh-utils/logger
@@ -91,7 +91,7 @@ golang.org/x/crypto/internal/poly1305
 golang.org/x/crypto/internal/subtle
 golang.org/x/crypto/ssh
 golang.org/x/crypto/ssh/internal/bcrypt_pbkdf
-# golang.org/x/net v0.0.0-20220107192237-5cfca573fb4d
+# golang.org/x/net v0.0.0-20220114011407-0dd24b26b47d
 ## explicit; go 1.17
 golang.org/x/net/html
 golang.org/x/net/html/atom
