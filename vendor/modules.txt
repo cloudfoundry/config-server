@@ -1,7 +1,7 @@
 # github.com/BurntSushi/migration v0.0.0-20140125045755-c45b897f1335
 ## explicit
 github.com/BurntSushi/migration
-# github.com/cloudfoundry/bosh-utils v0.0.327
+# github.com/cloudfoundry/bosh-utils v0.0.328
 ## explicit; go 1.18
 github.com/cloudfoundry/bosh-utils/errors
 github.com/cloudfoundry/bosh-utils/logger
@@ -79,7 +79,7 @@ github.com/onsi/gomega/matchers/support/goraph/util
 github.com/onsi/gomega/types
 # github.com/rogpeppe/go-internal v1.6.1
 ## explicit; go 1.11
-# golang.org/x/crypto v0.0.0-20220817201139-bc19a97f63c8
+# golang.org/x/crypto v0.0.0-20220826181053-bd7e27e6170d
 ## explicit; go 1.17
 golang.org/x/crypto/blowfish
 golang.org/x/crypto/chacha20
@@ -95,7 +95,7 @@ golang.org/x/crypto/ssh/internal/bcrypt_pbkdf
 golang.org/x/net/html
 golang.org/x/net/html/atom
 golang.org/x/net/html/charset
-# golang.org/x/sys v0.0.0-20220818161305-2296e01440c6
+# golang.org/x/sys v0.0.0-20220825204002-c680a09ffe64
 ## explicit; go 1.17
 golang.org/x/sys/cpu
 golang.org/x/sys/internal/unsafeheader
