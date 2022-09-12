@@ -7,7 +7,6 @@ import (
 	"encoding/pem"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
@@ -41,7 +40,7 @@ func ParseCertString(certString string) (*x509.Certificate, error) {
 
 func ValidToken() string {
 	tokenPath := pathForAsset("uaa.token")
-	dat, err := ioutil.ReadFile(tokenPath)
+	dat, err := os.ReadFile(tokenPath)
 
 	if err != nil {
 		panic(err.Error())
@@ -95,7 +94,7 @@ func createHTTPSClient() *http.Client {
 	}
 
 	// Load CA cert
-	caCert, err := ioutil.ReadFile(rootCAPath)
+	caCert, err := os.ReadFile(rootCAPath)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -107,7 +106,7 @@ func createHTTPSClient() *http.Client {
 		Certificates: []tls.Certificate{cert},
 		RootCAs:      caCertPool,
 	}
-	tlsConfig.BuildNameToCertificate()
+	tlsConfig.BuildNameToCertificate() //nolint:staticcheck
 	transport := &http.Transport{TLSClientConfig: tlsConfig}
 
 	client := &http.Client{Transport: transport}

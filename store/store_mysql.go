@@ -19,7 +19,8 @@ func (ms mysqlStore) Put(name string, value string, checksum string) (string, er
 		return "", err
 	}
 
-	result, err := db.Exec("INSERT INTO configurations (name, value, checksum) VALUES(?,?,?)", name, value, checksum)
+	result, err := //nolint:ineffassign,staticcheck
+		db.Exec("INSERT INTO configurations (name, value, checksum) VALUES(?,?,?)", name, value, checksum)
 
 	id, err := result.LastInsertId()
 	if err != nil {

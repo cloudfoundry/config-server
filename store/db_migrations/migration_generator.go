@@ -1,8 +1,9 @@
 package db_migrations
 
 import (
-	"github.com/BurntSushi/migration"
 	"strings"
+
+	"github.com/BurntSushi/migration"
 )
 
 func GetMigrations(adapter string) []migration.Migrator {

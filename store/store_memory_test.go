@@ -28,14 +28,14 @@ var _ = Describe("StoreMemory", func() {
 			})
 
 			It("generates a unique id for new record", func() {
-				store.Put("key1", "value1", "MyHash")
+				store.Put("key1", "value1", "MyHash") //nolint:errcheck
 				values1, _ := store.GetByName("key1")
 
 				Expect(values1).ToNot(BeNil())
 				Expect(len(values1)).To(Equal(1))
 				Expect(values1[0]).To(Equal(Configuration{ID: "0", Name: "key1", Value: "value1", ParameterChecksum: "MyHash"}))
 
-				store.Put("key2", "value2", "MyHash2")
+				store.Put("key2", "value2", "MyHash2") //nolint:errcheck
 				values2, _ := store.GetByName("key2")
 
 				Expect(values2).ToNot(BeNil())
@@ -58,9 +58,9 @@ var _ = Describe("StoreMemory", func() {
 
 		Context("GetByName", func() {
 			It("should return ALL associated values sorted by ID", func() {
-				store.Put("some_name", "some_value", "")
-				store.Put("some_name", "some_value", "")
-				store.Put("some_name", "some_other_value", "")
+				store.Put("some_name", "some_value", "")       //nolint:errcheck
+				store.Put("some_name", "some_value", "")       //nolint:errcheck
+				store.Put("some_name", "some_other_value", "") //nolint:errcheck
 
 				returnedValues, err := store.GetByName("some_name")
 				Expect(err).To(BeNil())
@@ -87,7 +87,7 @@ var _ = Describe("StoreMemory", func() {
 
 		Context("GetById", func() {
 			It("should return associated value", func() {
-				store.Put("some_name", "some_value", "")
+				store.Put("some_name", "some_value", "") //nolint:errcheck
 
 				configuration, err := store.GetByID("0")
 				Expect(err).To(BeNil())
@@ -102,8 +102,8 @@ var _ = Describe("StoreMemory", func() {
 		Context("Delete", func() {
 			Context("Name exists", func() {
 				BeforeEach(func() {
-					store.Put("some_name", "some_value", "")
-					store.Put("some_name", "some_value", "")
+					store.Put("some_name", "some_value", "") //nolint:errcheck
+					store.Put("some_name", "some_value", "") //nolint:errcheck
 
 					values, err := store.GetByName("some_name")
 					Expect(err).To(BeNil())
@@ -120,7 +120,7 @@ var _ = Describe("StoreMemory", func() {
 				})
 
 				It("removes all values", func() {
-					store.Delete("some_name")
+					store.Delete("some_name") //nolint:errcheck
 					values, err := store.GetByName("some_name")
 					Expect(err).To(BeNil())
 					Expect(len(values)).To(Equal(0))

@@ -14,7 +14,7 @@ type Configuration struct {
 func (rv Configuration) StringifiedJSON() (string, error) {
 	var val map[string]interface{}
 
-	err := json.Unmarshal([]byte(rv.Value), &val)
+	err := json.Unmarshal([]byte(rv.Value), &val) //nolint:ineffassign,staticcheck
 
 	val["id"] = rv.ID
 	val["name"] = rv.Name

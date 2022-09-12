@@ -1,8 +1,9 @@
 package store
 
 import (
-	"github.com/cloudfoundry/config-server/config"
 	"strings"
+
+	"github.com/cloudfoundry/config-server/config"
 
 	"github.com/cloudfoundry/bosh-utils/errors"
 )

@@ -5,12 +5,13 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/cloudfoundry/bosh-utils/errors"
-	"github.com/cloudfoundry/config-server/store"
-	"github.com/cloudfoundry/config-server/types"
 	"net/http"
 	"regexp"
 	"strings"
+
+	"github.com/cloudfoundry/bosh-utils/errors"
+	"github.com/cloudfoundry/config-server/store"
+	"github.com/cloudfoundry/config-server/types"
 )
 
 type requestHandler struct {
@@ -78,7 +79,7 @@ func (handler requestHandler) handleGetByID(id string, resWriter http.ResponseWr
 
 func (handler requestHandler) handleGetByName(name string, resWriter http.ResponseWriter) {
 
-	if isNameValid, nameError := isValidName(name); isNameValid == false {
+	if isNameValid, nameError := isValidName(name); !isNameValid {
 		http.Error(resWriter, NewErrorResponse(nameError).GenerateErrorMsg(), http.StatusBadRequest)
 		return
 	}
@@ -92,7 +93,7 @@ func (handler requestHandler) handleGetByName(name string, resWriter http.Respon
 	if len(values) == 0 {
 		http.Error(resWriter, NewErrorResponse(errors.Errorf("Name '%s' not found", name)).GenerateErrorMsg(), http.StatusNotFound)
 	} else {
-		result, err := store.Configurations(values).StringifiedJSON()
+		result, err := values.StringifiedJSON()
 		if err == nil {
 			respond(resWriter, result, http.StatusOK)
 		}
@@ -193,7 +194,7 @@ func (handler requestHandler) calculateChecksum(v interface{}) (string, error) {
 
 func (handler requestHandler) handleDelete(resWriter http.ResponseWriter, req *http.Request) {
 	name := req.URL.Query().Get("name")
-	if isNameValid, nameError := isValidName(name); isNameValid == false {
+	if isNameValid, nameError := isValidName(name); !isNameValid {
 		http.Error(resWriter, NewErrorResponse(nameError).GenerateErrorMsg(), http.StatusBadRequest)
 		return
 	}
@@ -251,7 +252,7 @@ func readPutRequest(req *http.Request) (string, interface{}, error) {
 		return "", nil, err
 	}
 
-	if isNameValid, nameError := isValidName(name); isNameValid == false {
+	if isNameValid, nameError := isValidName(name); !isNameValid {
 		return "", nil, nameError
 	}
 
@@ -293,9 +294,9 @@ func getOptionalStringValueFromJSONBody(jsonMap map[string]interface{}, keyName 
 		return defaultValue, nil
 	}
 
-	switch value.(type) {
+	switch typeOfValue := value.(type) {
 	case string:
-		return value.(string), nil
+		return typeOfValue, nil
 	default:
 		return "", errors.Error(fmt.Sprintf("JSON request body key '%s' must be of type string", keyName))
 	}
@@ -308,9 +309,9 @@ func getStringValueFromJSONBody(jsonMap map[string]interface{}, keyName string) 
 		return "", errors.Error(fmt.Sprintf("JSON request body should contain the key '%s'", keyName))
 	}
 
-	switch value.(type) {
+	switch typeOfValue := value.(type) {
 	case string:
-		return value.(string), nil
+		return typeOfValue, nil
 	default:
 		return "", errors.Error(fmt.Sprintf("JSON request body key '%s' must be of type string", keyName))
 	}
@@ -348,7 +349,7 @@ func extractIDFromURLPath(path string) (string, error) {
 }
 
 func isValidName(name string) (bool, error) {
-	var validNameToken = regexp.MustCompile(`^[a-zA-Z0-9_\-\/]+$`)
+	var validNameToken = regexp.MustCompile(`^[a-zA-Z0-9_\-/]+$`)
 	if !validNameToken.MatchString(name) {
 		return false, errors.Error("Name must consist of alphanumeric, underscores, dashes, and forward slashes")
 	}

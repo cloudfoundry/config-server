@@ -1,13 +1,12 @@
 package config_test
 
 import (
-	. "github.com/cloudfoundry/config-server/config"
-
-	"io/ioutil"
 	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	. "github.com/cloudfoundry/config-server/config"
 )
 
 var _ = Describe("ParseConfig", func() {
@@ -24,16 +23,16 @@ var _ = Describe("ParseConfig", func() {
 		var configFile *os.File
 
 		BeforeEach(func() {
-			configFile, _ = ioutil.TempFile(os.TempDir(), "server-config-")
+			configFile, _ = os.CreateTemp(os.TempDir(), "server-config-")
 		})
 
 		AfterEach(func() {
-			os.Remove(configFile.Name())
+			os.Remove(configFile.Name()) //nolint:errcheck
 		})
 
 		Context("has invalid content", func() {
 			It("should return an error", func() {
-				configFile.WriteString("garbage")
+				configFile.WriteString("garbage") //nolint:errcheck
 				_, err := ParseConfig(configFile.Name())
 				Expect(err).ToNot(BeNil())
 			})
@@ -41,7 +40,8 @@ var _ = Describe("ParseConfig", func() {
 
 		Context("has valid content", func() {
 			It("should return ServerConfig", func() {
-				configFile.WriteString(`
+				configFile.WriteString( //nolint:errcheck
+					`
 {
    "port":9000,
    "certificate_file_path":"/path/to/cert",
@@ -50,7 +50,7 @@ var _ = Describe("ParseConfig", func() {
       "adapter":"postgres",
       "user":"uword",
       "password":"pword",
-      "host":"http://www.yahoo.com",
+      "host":"https://www.yahoo.com",
       "port":4300,
       "db_name":"db",
       "connection_options":{
@@ -72,7 +72,7 @@ var _ = Describe("ParseConfig", func() {
 				Expect(serverConfig.Database.Adapter).To(Equal("postgres"))
 				Expect(serverConfig.Database.User).To(Equal("uword"))
 				Expect(serverConfig.Database.Password).To(Equal("pword"))
-				Expect(serverConfig.Database.Host).To(Equal("http://www.yahoo.com"))
+				Expect(serverConfig.Database.Host).To(Equal("https://www.yahoo.com"))
 				Expect(serverConfig.Database.Port).To(Equal(4300))
 				Expect(serverConfig.Database.Name).To(Equal("db"))
 				Expect(serverConfig.Database.ConnectionOptions).ToNot(BeNil())
@@ -83,7 +83,8 @@ var _ = Describe("ParseConfig", func() {
 
 		Context("has missing keys", func() {
 			It("should error when certificate_file_path is missing", func() {
-				configFile.WriteString(`
+				configFile.WriteString( //nolint:errcheck
+					`
 {
    "port":9000,
    "private_key_file_path":"/path/to/key",
@@ -91,7 +92,7 @@ var _ = Describe("ParseConfig", func() {
       "adapter":"postgres",
       "user":"uword",
       "password":"pword",
-      "host":"http://www.yahoo.com",
+      "host":"https://www.yahoo.com",
       "port":4300,
       "db_name":"db",
       "connection_options":{
@@ -107,7 +108,8 @@ var _ = Describe("ParseConfig", func() {
 			})
 
 			It("should error when private_key_file_path is missing", func() {
-				configFile.WriteString(`
+				configFile.WriteString( //nolint:errcheck
+					`
 {
    "port":9000,
    "certificate_file_path":"/path/to/cert",
@@ -115,7 +117,7 @@ var _ = Describe("ParseConfig", func() {
       "adapter":"postgres",
       "user":"uword",
       "password":"pword",
-      "host":"http://www.yahoo.com",
+      "host":"https://www.yahoo.com",
       "port":4300,
       "db_name":"db",
       "connection_options":{
@@ -129,7 +131,6 @@ var _ = Describe("ParseConfig", func() {
 				Expect(err).ToNot(BeNil())
 				Expect(err.Error()).To(Equal("Certificate file path and key file path should be defined"))
 			})
-
 		})
 	})
 })
