@@ -1,13 +1,10 @@
-#!/bin/bash
-
-set -e
+#!/usr/bin/env bash
+set -eu -o pipefail
 
 bin=$(dirname "${0}")
 
 "${bin}/lint"
 
 echo -e "\n Running unit tests..."
-"${bin}/env" go run github.com/onsi/ginkgo/ginkgo -r -race -trace -skipPackage="acceptance,integration,vendor" $@
-
-#echo -e "\n Building docs example..."
-#$bin/go build -o $bin/../out/example github.com/cloudfoundry/config-server/docs/
+# shellcheck disable=SC2068
+go run github.com/onsi/ginkgo/ginkgo -r -race -trace -skipPackage="acceptance,integration,vendor" $@
