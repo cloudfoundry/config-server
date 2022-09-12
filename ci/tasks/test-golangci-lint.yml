@@ -8,7 +8,7 @@ image_resource:
 
 inputs:
 - name: config-server
-  path: src/github.com/cloudfoundry/config-server
+  path: config-server
 
 run:
-  path: src/github.com/cloudfoundry/config-server/ci/tasks/test-golangci-lint.sh
+  path: config-server/ci/tasks/test-golangci-lint.sh

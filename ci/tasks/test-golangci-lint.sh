@@ -1,9 +1,6 @@
-#!/bin/sh
-set -e -x
+#!/usr/bin/env bash
+set -eu -o pipefail
 
-export GOPATH=$(pwd)
-export PATH=/usr/local/go/bin:$GOPATH/bin:$PATH
-
-cd src/github.com/cloudfoundry/config-server
+cd config-server
 
 bin/lint
