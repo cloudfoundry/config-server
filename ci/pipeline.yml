@@ -1,29 +1,13 @@
 #fly -t production set-pipeline -p config-server -c ci/pipeline.yml --load-vars-from <(lpass show -G "config-server concourse secrets" --notes)
 ---
 jobs:
-  - name: test-gofmt
+  - name: test-golangci-lint
     public: true
     plan:
       - get: config-server
         trigger: true
-      - task: test-gofmt
-        file: config-server/ci/tasks/test-gofmt.yml
-
-  - name: test-golint
-    public: true
-    plan:
-      - get: config-server
-        trigger: true
-      - task: test-golint
-        file: config-server/ci/tasks/test-golint.yml
-
-  - name: test-govet
-    public: true
-    plan:
-      - get: config-server
-        trigger: true
-      - task: test-govet
-        file: config-server/ci/tasks/test-govet.yml
+      - task: test-golangci-lint
+        file: config-server/ci/tasks/test-golangci-lint.yml
 
   - name: test-unit
     public: true
@@ -125,7 +109,7 @@ jobs:
     plan:
       - in_parallel:
         - get: config-server
-          passed: [test-gofmt, test-unit, test-integration-in-memory, test-integration-mysql, test-integration-postgresql]
+          passed: [test-golangci-lint, test-unit, test-integration-in-memory, test-integration-mysql, test-integration-postgresql]
           trigger: true
         - get: version-semver
           params: {bump: patch}

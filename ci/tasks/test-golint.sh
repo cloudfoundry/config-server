@@ -6,4 +6,4 @@ export PATH=/usr/local/go/bin:$GOPATH/bin:$PATH
 
 cd src/github.com/cloudfoundry/config-server
 
-bin/check_golint
+bin/lint
