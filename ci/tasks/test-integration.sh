@@ -23,6 +23,7 @@ case "$DB" in
     chown postgres:postgres /tmp/postgres/data
     export PGDATA=/tmp/postgres/data
 
+    # shellcheck disable=SC2016
     su postgres -c '
       export PATH=$( echo /usr/lib/postgresql/*/bin ):$PATH
       export PGDATA=/tmp/postgres/data
@@ -43,4 +44,4 @@ esac
 
 cd src/github.com/cloudfoundry/config-server
 
-bin/test-integration $DB
+bin/test-integration "${DB}"
