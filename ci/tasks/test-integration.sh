@@ -1,8 +1,7 @@
-#!/bin/sh
-set -e -x
+#!/usr/bin/env bash
+set -eu -o pipefail
 
-export GOPATH=$(pwd)
-export PATH=/usr/local/go/bin:$GOPATH/bin:$PATH
+export PATH=/usr/local/go/bin:${PATH}
 
 echo "Starting $DB..."
 case "$DB" in
@@ -15,7 +14,8 @@ case "$DB" in
     service mysql start
     ;;
   postgresql)
-    export PATH=$( echo /usr/lib/postgresql/*/bin ):$PATH
+    pg_path=$( echo /usr/lib/postgresql/*/bin )
+    export PATH=${pg_path}:$PATH
 
     mkdir /tmp/postgres
     mount -t tmpfs -o size=512M tmpfs /tmp/postgres

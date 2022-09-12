@@ -1,16 +1,16 @@
-#!/bin/bash
-set -e -x
+#!/usr/bin/env bash
+set -eu -o pipefail
 
-export GOPATH=$(pwd)
-export PATH=/usr/local/go/bin:$GOPATH/bin:$PATH
-
-semver=$(cat version-semver/number)
-filename="config-server-${semver}-${GOOS}-${GOARCH}"
+export PATH=/usr/local/go/bin:${PATH}
 
 pushd config-server
   go build .
 popd
 
-mv config-server/config-server "compiled-${GOOS}/${filename}"
+semver=$(cat version-semver/number)
+binary_name="config-server-${semver}-${GOOS}-${GOARCH}"
+output_filename="compiled-${GOOS}/${binary_name}"
 
-openssl sha256 "compiled-${GOOS}/${filename}"
+mv config-server/config-server "${output_filename}"
+
+openssl sha256 "${output_filename}"
