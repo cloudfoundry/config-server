@@ -2,7 +2,7 @@ package config
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/cloudfoundry/bosh-utils/errors"
@@ -35,7 +35,7 @@ type DBConfig struct {
 func ParseConfig(filename string) (ServerConfig, error) {
 	config := ServerConfig{}
 
-	data, err := ioutil.ReadFile(filename)
+	data, err := os.ReadFile(filename)
 	if err != nil {
 		return config, errors.WrapError(err, "Failed to read config file")
 	}
@@ -49,7 +49,7 @@ func ParseConfig(filename string) (ServerConfig, error) {
 		return config, errors.Error("Certificate file path and key file path should be defined")
 	}
 
-	if (&config.Database != nil) && (&config.Database.Adapter != nil) {
+	if (&config.Database != nil) && (&config.Database.Adapter != nil) { //nolint:staticcheck
 		config.Database.Adapter = strings.ToLower(config.Database.Adapter)
 	}
 

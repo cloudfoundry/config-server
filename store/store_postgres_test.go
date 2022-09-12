@@ -5,6 +5,7 @@ import (
 
 	"database/sql"
 	"errors"
+
 	fakes "github.com/cloudfoundry/config-server/store/storefakes"
 
 	. "github.com/onsi/ginkgo"
@@ -269,7 +270,7 @@ var _ = Describe("StorePostgres", func() {
 			})
 
 			It("removes value", func() {
-				store.Delete("Luke")
+				store.Delete("Luke") //nolint:errcheck
 
 				Expect(fakeDb.ExecCallCount()).To(Equal(1))
 				query, value := fakeDb.ExecArgsForCall(0)

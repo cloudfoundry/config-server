@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/cloudfoundry/config-server/config"
 	"github.com/cloudfoundry/config-server/log"
 	"github.com/cloudfoundry/config-server/server"
-	"os"
 )
 
 func main() {

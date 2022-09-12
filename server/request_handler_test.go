@@ -1,23 +1,21 @@
 package server_test
 
 import (
+	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 
-	. "github.com/cloudfoundry/config-server/server"
-	. "github.com/cloudfoundry/config-server/store/storefakes"
-	. "github.com/cloudfoundry/config-server/types/typesfakes"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"encoding/json"
-	"io"
-
+	. "github.com/cloudfoundry/config-server/server"
 	"github.com/cloudfoundry/config-server/store"
+	. "github.com/cloudfoundry/config-server/store/storefakes"
 	"github.com/cloudfoundry/config-server/types"
+	. "github.com/cloudfoundry/config-server/types/typesfakes"
 )
 
 func generateHTTPRequest(method, urlStr string, body io.Reader) (*http.Request, error) {
@@ -502,7 +500,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 										Expect(recorder.Code).To(Equal(http.StatusCreated))
 
 										var data map[string]string
-										json.Unmarshal(recorder.Body.Bytes(), &data)
+										json.Unmarshal(recorder.Body.Bytes(), &data) //nolint:errcheck
 
 										Expect(mockValueGenerator.GenerateCallCount()).To(Equal(1))
 									})
@@ -533,7 +531,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 										Expect(recorder.Code).To(Equal(http.StatusOK))
 
 										var data map[string]string
-										json.Unmarshal(recorder.Body.Bytes(), &data)
+										json.Unmarshal(recorder.Body.Bytes(), &data) //nolint:errcheck
 
 										Expect(mockValueGenerator.GenerateCallCount()).To(Equal(0))
 									})
@@ -568,7 +566,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 										Expect(recorder.Code).To(Equal(http.StatusOK))
 
 										var data map[string]string
-										json.Unmarshal(recorder.Body.Bytes(), &data)
+										json.Unmarshal(recorder.Body.Bytes(), &data) //nolint:errcheck
 
 										Expect(mockValueGenerator.GenerateCallCount()).To(Equal(0))
 									})
@@ -599,7 +597,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 										Expect(recorder.Code).To(Equal(http.StatusOK))
 
 										var data map[string]string
-										json.Unmarshal(recorder.Body.Bytes(), &data)
+										json.Unmarshal(recorder.Body.Bytes(), &data) //nolint:errcheck
 
 										Expect(mockValueGenerator.GenerateCallCount()).To(Equal(0))
 									})
@@ -643,7 +641,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 										Expect(recorder.Code).To(Equal(http.StatusCreated))
 
 										var data map[string]string
-										json.Unmarshal(recorder.Body.Bytes(), &data)
+										json.Unmarshal(recorder.Body.Bytes(), &data) //nolint:errcheck
 
 										Expect(data["name"]).To(Equal("bla"))
 										Expect(data["value"]).Should(MatchRegexp("[a-z0-9]{20}"))
@@ -695,7 +693,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 										Expect(recorder.Code).To(Equal(http.StatusCreated))
 
 										var data map[string]interface{}
-										json.Unmarshal(recorder.Body.Bytes(), &data)
+										json.Unmarshal(recorder.Body.Bytes(), &data) //nolint:errcheck
 
 										Expect(data["name"]).To(Equal("bla"))
 

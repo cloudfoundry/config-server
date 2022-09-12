@@ -2,7 +2,7 @@ package server
 
 import (
 	"crypto/rsa"
-	"io/ioutil"
+	"os"
 
 	"github.com/cloudfoundry/bosh-utils/errors"
 	"github.com/dgrijalva/jwt-go"
@@ -17,7 +17,7 @@ type JwtTokenValidator struct {
 }
 
 func NewJwtTokenValidator(jwtVerificationKeyPath string) (JwtTokenValidator, error) {
-	bytes, err := ioutil.ReadFile(jwtVerificationKeyPath)
+	bytes, err := os.ReadFile(jwtVerificationKeyPath)
 	if err != nil {
 		return JwtTokenValidator{}, errors.WrapError(err, "Failed to read JWT Verification key")
 	}

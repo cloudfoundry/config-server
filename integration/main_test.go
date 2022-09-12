@@ -2,7 +2,7 @@ package integration_test
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os/exec"
 	"strings"
@@ -10,7 +10,6 @@ import (
 	. "github.com/cloudfoundry/config-server/integration/support"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
 	"github.com/onsi/gomega/gexec"
 )
 
@@ -41,7 +40,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 				Expect(err).To(BeNil())
 				Expect(resp.StatusCode).To(Equal(400))
 
-				body, _ := ioutil.ReadAll(resp.Body)
+				body, _ := io.ReadAll(resp.Body)
 				Expect(strings.TrimSpace(string(body))).To(Equal(`{"error":"Name must consist of alphanumeric, underscores, dashes, and forward slashes"}`))
 			})
 
@@ -52,7 +51,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 					Expect(err).To(BeNil())
 					Expect(resp.StatusCode).To(Equal(404))
 
-					body, _ := ioutil.ReadAll(resp.Body)
+					body, _ := io.ReadAll(resp.Body)
 					Expect(strings.TrimSpace(string(body))).To(Equal(`{"error":"Name 'smurf' not found"}`))
 				})
 			})
@@ -69,7 +68,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 				})
 
 				It("sends back id, name and value as json", func() {
-					SendPutRequest("smurf", "blue")
+					SendPutRequest("smurf", "blue") //nolint:errcheck
 
 					resp, err := SendGetRequestByName("smurf")
 
@@ -86,9 +85,9 @@ var _ = Describe("Supported HTTP Methods", func() {
 				})
 
 				It("sends back ALL values sorted by ID", func() {
-					SendPutRequest("smurf", "red")
-					SendPutRequest("smurf", "green")
-					SendPutRequest("smurf", "blue")
+					SendPutRequest("smurf", "red")   //nolint:errcheck
+					SendPutRequest("smurf", "green") //nolint:errcheck
+					SendPutRequest("smurf", "blue")  //nolint:errcheck
 
 					resp, err := SendGetRequestByName("smurf")
 
@@ -114,7 +113,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 				It("handles names with forward slashes", func() {
 					name := "smurf/gar_gamel/c-at"
 
-					SendPutRequest(name, "vroom")
+					SendPutRequest(name, "vroom") //nolint:errcheck
 
 					resp, err := SendGetRequestByName(name)
 
@@ -139,7 +138,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 					Expect(err).To(BeNil())
 					Expect(resp.StatusCode).To(Equal(404))
 
-					body, _ := ioutil.ReadAll(resp.Body)
+					body, _ := io.ReadAll(resp.Body)
 					Expect(strings.TrimSpace(string(body))).To(Equal(`{"error":"ID '123' not found"}`))
 				})
 			})
@@ -185,7 +184,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 			Expect(resp.StatusCode).To(Equal(415))
 			Expect(err).To(BeNil())
 
-			body, _ := ioutil.ReadAll(resp.Body)
+			body, _ := io.ReadAll(resp.Body)
 			Expect(strings.TrimSpace(string(body))).To(Equal(`{"error":"Unsupported Media Type - Accepts application/json only"}`))
 		})
 
@@ -195,7 +194,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 			Expect(err).To(BeNil())
 			Expect(resp.StatusCode).To(Equal(400))
 
-			body, _ := ioutil.ReadAll(resp.Body)
+			body, _ := io.ReadAll(resp.Body)
 			Expect(strings.TrimSpace(string(body))).To(Equal(`{"error":"Name must consist of alphanumeric, underscores, dashes, and forward slashes"}`))
 		})
 
@@ -246,7 +245,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 
 		Context("when name exists in server", func() {
 			It("updates the value", func() {
-				SendPutRequest("smurf", "blue")
+				SendPutRequest("smurf", "blue") //nolint:errcheck
 
 				getResp, _ := SendGetRequestByName("smurf")
 
@@ -257,7 +256,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 				Expect(entry["name"]).To(Equal("smurf"))
 				Expect(entry["value"]).To(Equal("blue"))
 
-				SendPutRequest("smurf", "red")
+				SendPutRequest("smurf", "red") //nolint:errcheck
 				getResp, _ = SendGetRequestByName("smurf")
 
 				resultMap = UnmarshalJSONString(getResp.Body)
@@ -280,7 +279,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 			Expect(resp.StatusCode).To(Equal(415))
 			Expect(err).To(BeNil())
 
-			body, _ := ioutil.ReadAll(resp.Body)
+			body, _ := io.ReadAll(resp.Body)
 			Expect(strings.TrimSpace(string(body))).To(Equal(`{"error":"Unsupported Media Type - Accepts application/json only"}`))
 		})
 
@@ -290,7 +289,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 			Expect(response.StatusCode).To(Equal(400))
 			Expect(err).To(BeNil())
 
-			body, _ := ioutil.ReadAll(response.Body)
+			body, _ := io.ReadAll(response.Body)
 
 			Expect(strings.TrimSpace(string(body))).To(Equal(`{"error":"Missing required CA name"}`))
 		})
@@ -305,7 +304,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 		})
 
 		It("generates a new id and certificate for a new name", func() {
-			SendPostRequest("my-ca", "root-certificate-ca", "", false)
+			SendPostRequest("my-ca", "root-certificate-ca", "", false) //nolint:errcheck
 
 			resp, _ := SendPostRequest("some-signed-certificate-name", "certificate", "", false)
 
@@ -349,7 +348,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 		})
 
 		It("generates a new id and intermediate ca certificate for a new name", func() {
-			SendPostRequest("my-ca", "root-certificate-ca", "", false)
+			SendPostRequest("my-ca", "root-certificate-ca", "", false) //nolint:errcheck
 
 			resp, _ := SendPostRequest("certificate-name", "intermediate-certificate-ca", "", false)
 			result := UnmarshalJSONString(resp.Body)
@@ -371,7 +370,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 		})
 
 		It("generates certificates with unique SKI and same AKI when sharing CA", func() {
-			SendPostRequest("my-ca", "root-certificate-ca", "", false)
+			SendPostRequest("my-ca", "root-certificate-ca", "", false) //nolint:errcheck
 
 			firstCertResp, _ := SendPostRequest("first-certificate-name", "certificate", "", false)
 			firstCertResult := UnmarshalJSONString(firstCertResp.Body)
@@ -422,27 +421,28 @@ var _ = Describe("Supported HTTP Methods", func() {
 	Describe("DELETE", func() {
 
 		It("deletes ALL entries for for the name", func() {
-			SendPutRequest("smurf", "green")
-			SendPutRequest("smurf", "blue")
+			SendPutRequest("smurf", "green") //nolint:errcheck
+			SendPutRequest("smurf", "blue")  //nolint:errcheck
 
 			resp, err := SendGetRequestByName("smurf")
+			Expect(err).NotTo(HaveOccurred())
 			resultMap := UnmarshalJSONString(resp.Body)
 
 			data := resultMap["data"].([]interface{})
 			Expect(len(data)).To(Equal(2))
 
-			SendDeleteRequest("smurf")
+			SendDeleteRequest("smurf") //nolint:errcheck
 
 			resp, err = SendGetRequestByName("smurf")
 			Expect(err).To(BeNil())
 			Expect(resp.StatusCode).To(Equal(http.StatusNotFound))
 
-			body, _ := ioutil.ReadAll(resp.Body)
+			body, _ := io.ReadAll(resp.Body)
 			Expect(strings.TrimSpace(string(body))).To(Equal(`{"error":"Name 'smurf' not found"}`))
 		})
 
 		It("returns 204 No Content when deletion is successful", func() {
-			SendPutRequest("smurf", "blue")
+			SendPutRequest("smurf", "blue") //nolint:errcheck
 
 			resp, err := SendDeleteRequest("smurf")
 
@@ -456,7 +456,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 			Expect(err).To(BeNil())
 			Expect(resp.StatusCode).To(Equal(http.StatusNotFound))
 
-			body, _ := ioutil.ReadAll(resp.Body)
+			body, _ := io.ReadAll(resp.Body)
 			Expect(strings.TrimSpace(string(body))).To(Equal(`{"error":"Name 'smurf' not found"}`))
 		})
 	})

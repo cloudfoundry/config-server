@@ -4,10 +4,11 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/json"
-	"github.com/cloudfoundry/config-server/store"
-
 	"encoding/pem"
+
 	"github.com/cloudfoundry/bosh-utils/errors"
+
+	"github.com/cloudfoundry/config-server/store"
 	"github.com/cloudfoundry/config-server/types"
 )
 

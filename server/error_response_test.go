@@ -4,6 +4,7 @@ import (
 	. "github.com/cloudfoundry/config-server/server"
 
 	"errors"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

@@ -19,8 +19,8 @@ import (
 )
 
 type concreteDbProvider struct {
-	config config.DBConfig
-	sql    ISql
+	config config.DBConfig //nolint:unused
+	sql    ISql            //nolint:unused
 	db     IDb
 }
 
@@ -100,7 +100,7 @@ func closeDBOnSignal(db IDb) {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 
-	_ = <-c
+	<-c
 	fmt.Printf("Shutting down DB connection")
 	db.Close()
 	os.Exit(1)

@@ -1,11 +1,12 @@
 package server
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/cloudfoundry/config-server/config"
 	"github.com/cloudfoundry/config-server/store"
 	"github.com/cloudfoundry/config-server/types"
-	"net/http"
-	"strconv"
 
 	"github.com/cloudfoundry/bosh-utils/errors"
 )
