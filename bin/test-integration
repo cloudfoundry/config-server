@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
+set -eu -o pipefail
 
-set -e
+export PATH=/usr/local/go/bin:${PATH}
 
 bin=$(dirname $0)
 testdir="./tmp"
@@ -15,10 +16,10 @@ setup_test_dir (){
   cp -r ./integration/assets ${testdir}/assets
 
   echo 'Building config-server'
-  "${bin}/build"
-  cp -p ./out/config-server ${testdir}/config-server
+  go build .
+  cp -p config-server ${testdir}/config-server
 
-  "${bin}/env" go run github.com/onsi/ginkgo/ginkgo build -r -race integration
+  go run github.com/onsi/ginkgo/ginkgo build -r -race integration
 
   mv ./integration/integration.test ${testdir}
   pushd ${testdir}
