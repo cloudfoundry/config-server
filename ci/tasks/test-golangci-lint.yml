@@ -11,4 +11,4 @@ inputs:
   path: src/github.com/cloudfoundry/config-server
 
 run:
-  path: src/github.com/cloudfoundry/config-server/ci/tasks/test-golint.sh
+  path: src/github.com/cloudfoundry/config-server/ci/tasks/test-golangci-lint.sh
