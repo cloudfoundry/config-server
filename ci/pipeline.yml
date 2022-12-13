@@ -190,12 +190,15 @@ resources:
     type: docker-image
     source:
       repository: bosh/main-mysql-5.7
+      tag: main
+      username: ((docker.username))
+      password: ((docker.password))
 
   - name: integration-image
     type: docker-image
     source:
       repository: bosh/integration
-      tag: master
+      tag: main
 
   - name: config-server
     type: git
