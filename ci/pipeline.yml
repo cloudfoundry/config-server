@@ -55,7 +55,6 @@ jobs:
         file: config-server/ci/tasks/test-integration.yml
         params:
           DB: postgresql
-          DB_VERSION: 10
 
   - name: acceptance-tests
     public: true

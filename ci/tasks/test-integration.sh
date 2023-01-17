@@ -14,6 +14,9 @@ case "$DB" in
     service mysql start
     ;;
   postgresql)
+    pg_path=$( echo /usr/lib/postgresql/*/bin )
+    export PATH=${pg_path}:$PATH
+
     mkdir /tmp/postgres
     mount -t tmpfs -o size=512M tmpfs /tmp/postgres
     mkdir /tmp/postgres/data
@@ -21,8 +24,8 @@ case "$DB" in
     export PGDATA=/tmp/postgres/data
 
     # shellcheck disable=SC2016
-    su -m postgres -c '
-      export PATH=$( echo /usr/lib/postgresql/$DB_VERSION/bin ):$PATH
+    su postgres -c '
+      export PATH=$( echo /usr/lib/postgresql/*/bin ):$PATH
       export PGDATA=/tmp/postgres/data
       export PGLOGS=/tmp/log/postgres
       mkdir -p $PGDATA
