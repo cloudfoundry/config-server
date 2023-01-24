@@ -74,19 +74,6 @@ jobs:
       - task: run-acceptance-tests
         file: config-server-release/ci/tasks/acceptance-tests.yml
         privileged: true
-        params:
-          access_key_id: {{config_server_acceptance_tests_access_key_id}}
-          az: {{config_server_acceptance_tests_az}}
-          default_key_name: {{config_server_acceptance_tests_default_key_name}}
-          default_security_groups: {{config_server_acceptance_tests_default_security_groups}}
-          internal_cidr: {{config_server_acceptance_tests_internal_cidr}}
-          internal_gw: {{config_server_acceptance_tests_internal_gw}}
-          internal_ip: {{config_server_acceptance_tests_internal_ip}}
-          external_ip: {{config_server_acceptance_tests_external_ip}}
-          private_key: {{config_server_acceptance_tests_private_key}}
-          region: {{config_server_acceptance_tests_region}}
-          secret_access_key: {{config_server_acceptance_tests_secret_access_key}}
-          subnet_id: {{config_server_acceptance_tests_subnet_id}}
 
   - name: bump-config-server-submodule
     public: true
@@ -186,6 +173,7 @@ resources:
     type: docker-image
     source:
       repository: bosh/main-postgres-10
+      tag: main
 
   - name: main-mysql-5-7-image
     type: docker-image
@@ -206,21 +194,21 @@ resources:
     source:
       uri: git@github.com:cloudfoundry/config-server.git
       branch: develop
-      private_key: {{config_server_concourse_github_private_key}}
+      private_key: ((github_deploy_key_config-server.private_key))
 
   - name: config-server-promoted
     type: git
     source:
       uri: git@github.com:cloudfoundry/config-server.git
       branch: master
-      private_key: {{config_server_concourse_github_private_key}}
+      private_key: ((github_deploy_key_config-server.private_key))
 
   - name: config-server-release
     type: git
     source:
       uri: git@github.com:cloudfoundry/config-server-release.git
       branch: master
-      private_key: {{config_server_release_concourse_github_private_key}}
+      private_key: ((github_deploy_key_config-server-release.private_key))
 
   - name: bosh-deployment
     type: git
@@ -238,28 +226,28 @@ resources:
     type: s3
     source:
       regexp: config-server-(.*)-linux-amd64
-      bucket: {{aws_s3_release_bucket}}
-      region_name: {{aws_s3_release_bucket_region}}
-      access_key_id: {{aws_s3_release_bucket_access_key}}
-      secret_access_key: {{aws_s3_release_bucket_secret_key}}
+      bucket: config-server-releases
+      region_name: us-east-1
+      access_key_id: ((config-server-release-admin_aws_access_key.username))
+      secret_access_key: ((config-server-release-admin_aws_access_key.password))
 
   - name: release-bucket-darwin
     type: s3
     source:
       regexp: config-server-(.*)-darwin-amd64
-      bucket: {{aws_s3_release_bucket}}
-      region_name: {{aws_s3_release_bucket_region}}
-      access_key_id: {{aws_s3_release_bucket_access_key}}
-      secret_access_key: {{aws_s3_release_bucket_secret_key}}
+      bucket: config-server-releases
+      region_name: us-east-1
+      access_key_id: ((config-server-release-admin_aws_access_key.username))
+      secret_access_key: ((config-server-release-admin_aws_access_key.password))
 
   - name: version-semver
     type: semver
     source:
       initial_version: 0.0.20
       key: current-version
-      bucket: {{aws_s3_release_bucket}}
-      access_key_id: {{aws_s3_release_bucket_access_key}}
-      secret_access_key: {{aws_s3_release_bucket_secret_key}}
+      bucket: config-server-releases
+      access_key_id: ((config-server-release-admin_aws_access_key.username))
+      secret_access_key: ((config-server-release-admin_aws_access_key.password))
 
   - name: bosh-cli
     type: s3
