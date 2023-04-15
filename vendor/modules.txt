@@ -1,7 +1,7 @@
 # github.com/BurntSushi/migration v0.0.0-20140125045755-c45b897f1335
 ## explicit
 github.com/BurntSushi/migration
-# github.com/cloudfoundry/bosh-utils v0.0.360
+# github.com/cloudfoundry/bosh-utils v0.0.361
 ## explicit; go 1.20
 github.com/cloudfoundry/bosh-utils/errors
 github.com/cloudfoundry/bosh-utils/logger
@@ -26,7 +26,7 @@ github.com/google/go-cmp/cmp/internal/function
 github.com/google/go-cmp/cmp/internal/value
 # github.com/kr/text v0.2.0
 ## explicit
-# github.com/lib/pq v1.10.7
+# github.com/lib/pq v1.10.8
 ## explicit; go 1.13
 github.com/lib/pq
 github.com/lib/pq/oid
