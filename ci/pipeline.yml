@@ -228,8 +228,9 @@ resources:
       regexp: config-server-(.*)-linux-amd64
       bucket: config-server-releases
       region_name: us-east-1
-      access_key_id: ((config-server-release-admin_aws_access_key.username))
-      secret_access_key: ((config-server-release-admin_aws_access_key.password))
+      access_key_id: ((config-server-release-admin_assume_aws_access_key.username))
+      secret_access_key: ((config-server-release-admin_assume_aws_access_key.password))
+      aws_role_arn: ((config-server-release-admin_assume_aws_access_key.role_arn))
 
   - name: release-bucket-darwin
     type: s3
@@ -237,8 +238,9 @@ resources:
       regexp: config-server-(.*)-darwin-amd64
       bucket: config-server-releases
       region_name: us-east-1
-      access_key_id: ((config-server-release-admin_aws_access_key.username))
-      secret_access_key: ((config-server-release-admin_aws_access_key.password))
+      access_key_id: ((config-server-release-admin_assume_aws_access_key.username))
+      secret_access_key: ((config-server-release-admin_assume_aws_access_key.password))
+      aws_role_arn: ((config-server-release-admin_assume_aws_access_key.role_arn))
 
   - name: version-semver
     type: semver
