@@ -248,8 +248,9 @@ resources:
       initial_version: 0.0.20
       key: current-version
       bucket: config-server-releases
-      access_key_id: ((config-server-release-admin_aws_access_key.username))
-      secret_access_key: ((config-server-release-admin_aws_access_key.password))
+      access_key_id: ((config-server-release-admin_assume_aws_access_key.username))
+      secret_access_key: ((config-server-release-admin_assume_aws_access_key.password))
+      assume_role_arn: ((config-server-release-admin_assume_aws_access_key.role_arn))
 
   - name: bosh-cli
     type: s3
@@ -270,3 +271,10 @@ resources:
       start: 3:00 -0700
       stop: 4:30 -0700
       days: [ Saturday ]
+
+resource_types:
+- name: semver
+  type: docker-image
+  source:
+    repository: concourse/semver-resource
+    tag: 1.6
