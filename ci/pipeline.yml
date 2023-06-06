@@ -140,7 +140,13 @@ jobs:
         output_repo: bumped-config-server-release
       params:
         PACKAGES: [golang-1-linux]
-        PRIVATE_YML: ((private-yml))
+        PRIVATE_YML: |
+          ---
+          blobstore:
+            options:
+              access_key_id: ((assume_aws_access_key.username))
+              secret_access_key: ((assume_aws_access_key.password))
+              assume_role_arn: ((assume_aws_access_key.role_arn))
     - put: config-server-release
       params:
         repository: bumped-config-server-release
