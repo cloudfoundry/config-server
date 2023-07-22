@@ -1,7 +1,7 @@
 github.com/BurntSushi/migration v0.0.0-20140125045755-c45b897f1335 h1:n8o916boOorBHMGywZ+ucvUZRLIvjt2CaY/694CgMfU=
 github.com/BurntSushi/migration v0.0.0-20140125045755-c45b897f1335/go.mod h1:eVEKGm5N/F2XPdHocE3gP//Ab+rb/54WJ7XXtFGxwaQ=
-github.com/cloudfoundry/bosh-utils v0.0.372 h1:a7wvrgLv7j69JVlmpGuWt+TBvrjxEQ0xJt/3/WwSCFk=
-github.com/cloudfoundry/bosh-utils v0.0.372/go.mod h1:seqKYzWZ1hfTXjAOZ9Se2CA+25nkPO0rXPNPXkasOmg=
+github.com/cloudfoundry/bosh-utils v0.0.373 h1:Qp9gInFsyBeZRnnjWgBm9kqTMcw6W8XSHV9MT85ZeN0=
+github.com/cloudfoundry/bosh-utils v0.0.373/go.mod h1:67n5J3/Iq53LCvubJ4sX5BwdtMWnFcs52djGlEtvv74=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
