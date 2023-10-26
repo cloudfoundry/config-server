@@ -323,7 +323,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 			Expect(cert.IsCA).To(BeFalse())
 
 			Expect(cert.Issuer.Organization).To(ContainElement("Cloud Foundry"))
-			Expect(cert.Issuer.Country).To(ContainElement("USA"))
+			Expect(cert.Issuer.Country).To(ContainElement("US"))
 			Expect(cert.Issuer.CommonName).To(Equal("some-root-certificate-ca-cn1"))
 		})
 
@@ -344,7 +344,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 			Expect(cert.Subject.CommonName).To(Equal("some-root-certificate-ca-cn1"))
 
 			Expect(cert.Issuer.Organization).To(ContainElement("Cloud Foundry"))
-			Expect(cert.Issuer.Country).To(ContainElement("USA"))
+			Expect(cert.Issuer.Country).To(ContainElement("US"))
 		})
 
 		It("generates a new id and intermediate ca certificate for a new name", func() {
@@ -365,7 +365,7 @@ var _ = Describe("Supported HTTP Methods", func() {
 			Expect(cert.Subject.CommonName).To(Equal("some-intermediate-certificate-ca-cn1"))
 
 			Expect(cert.Issuer.Organization).To(ContainElement("Cloud Foundry"))
-			Expect(cert.Issuer.Country).To(ContainElement("USA"))
+			Expect(cert.Issuer.Country).To(ContainElement("US"))
 			Expect(cert.Issuer.CommonName).To(Equal("some-root-certificate-ca-cn1"))
 		})
 

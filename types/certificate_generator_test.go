@@ -140,7 +140,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 					})
 
 					It("sets Issuer, Country & default Org", func() {
-						Expect(certificate.Issuer.Country).To(Equal([]string{"USA"}))
+						Expect(certificate.Issuer.Country).To(Equal([]string{"US"}))
 						Expect(certificate.Issuer.Organization).To(Equal([]string{"Cloud Foundry"}))
 						Expect(certificate.Issuer.CommonName).To(Equal(""))
 					})
@@ -161,7 +161,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 						})
 
 						It("sets Issuer, Country & default Org", func() {
-							Expect(certificate.Issuer.Country).To(Equal([]string{"USA"}))
+							Expect(certificate.Issuer.Country).To(Equal([]string{"US"}))
 							Expect(certificate.Issuer.Organization).To(Equal([]string{"Hi Five BOSH"}))
 							Expect(certificate.Issuer.CommonName).To(Equal(""))
 						})
