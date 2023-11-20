@@ -7,4 +7,4 @@ bin=$(dirname "${0}")
 
 echo -e "\n Running unit tests..."
 # shellcheck disable=SC2068
-go run github.com/onsi/ginkgo/ginkgo -r -race -trace -skipPackage="acceptance,integration,vendor" $@
+go run github.com/onsi/ginkgo/v2/ginkgo run -r --race --trace --skip-package="integration,vendor" $@
