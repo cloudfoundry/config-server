@@ -18,7 +18,7 @@ Before running the unit test on your local machine, you should install
 [lint](bin/lint) script installs `golangci-lint` is not suitable for running
 on a local machine.)
 
-Then run the unit tests using the dedicated script.
+Then run the unit tests using the dedicated script. 
 
 ```bash
 bin/test-unit
@@ -26,11 +26,11 @@ bin/test-unit
 
 ### Integration tests
 
-There a re 3 distinct flavors of integration tests. Run the relevant one, or
+There are 3 distinct flavors of integration tests. Run the relevant one, or
 all, depending on the changes you've done.
 
 ```bash
-bin/test-unit memory     # <- uses an in-memory database
-bin/test-unit mysql      # <- uses a MySQL database
-bin/test-unit postgresql # <- uses a PostgreSQL database
+bin/test-integration memory     # <- uses an in-memory database
+bin/test-integration mysql      # <- uses a MySQL database
+bin/test-integration postgresql # <- uses a PostgreSQL database
 ```
