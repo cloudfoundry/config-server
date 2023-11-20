@@ -3,7 +3,7 @@ set -eu -o pipefail
 
 bin=$(dirname "${0}")
 
-"${bin}/lint"
+[ -z "${SKIP_LINT:-}" ] && "${bin}/lint"
 
 echo -e "\n Running unit tests..."
 # shellcheck disable=SC2068

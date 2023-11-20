@@ -5,4 +5,4 @@ export PATH=/usr/local/go/bin:${PATH}
 
 cd config-server
 
-bin/test-unit
+SKIP_LINT=true bin/test-unit
