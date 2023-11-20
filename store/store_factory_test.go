@@ -4,7 +4,7 @@ import (
 	. "github.com/cloudfoundry/config-server/store"
 
 	"github.com/cloudfoundry/config-server/config"
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 

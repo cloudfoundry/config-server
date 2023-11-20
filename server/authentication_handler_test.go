@@ -8,7 +8,7 @@ import (
 	. "github.com/cloudfoundry/config-server/server"
 	. "github.com/cloudfoundry/config-server/server/serverfakes"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
