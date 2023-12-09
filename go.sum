@@ -1,7 +1,7 @@
 github.com/BurntSushi/migration v0.0.0-20140125045755-c45b897f1335 h1:n8o916boOorBHMGywZ+ucvUZRLIvjt2CaY/694CgMfU=
 github.com/BurntSushi/migration v0.0.0-20140125045755-c45b897f1335/go.mod h1:eVEKGm5N/F2XPdHocE3gP//Ab+rb/54WJ7XXtFGxwaQ=
-github.com/cloudfoundry/bosh-utils v0.0.414 h1:UuCD4w7jBb5SEAaQ6E6i9bjndieWD6ph7Rvh2Zeu3HY=
-github.com/cloudfoundry/bosh-utils v0.0.414/go.mod h1:NTqY6NfE8ZBdc9LEG6ZZAuThBJmGMjQTvhjAo/rKAiQ=
+github.com/cloudfoundry/bosh-utils v0.0.416 h1:hAmXTL1B6YepkIIxdQFfhzj4GP22Demz3Ugzex+A3+Q=
+github.com/cloudfoundry/bosh-utils v0.0.416/go.mod h1:cDykQYQieA7HuBLobIgnBiqG7euCbHbhq3VXKudgryU=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
@@ -18,8 +18,8 @@ github.com/golang/protobuf v1.5.3 h1:KhyjKVUg7Usr/dYsdSqoFveMYd5ko72D+zANwlG1mmg
 github.com/golang/protobuf v1.5.3/go.mod h1:XVQd3VNwM+JqD3oG2Ue2ip4fOMUkwXdXDdiuN0vRsmY=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
-github.com/google/pprof v0.0.0-20231127191134-f3a68a39ae15 h1:t2sLhFuGXwoomaKLTuoxFfFqqlG1Gp2DpsupXq3UvZ0=
-github.com/google/pprof v0.0.0-20231127191134-f3a68a39ae15/go.mod h1:czg5+yv1E0ZGTi6S6vVK1mke0fV+FaUhNGcd6VRS9Ik=
+github.com/google/pprof v0.0.0-20231205033806-a5a03c77bf08 h1:PxlBVtIFHR/mtWk2i0gTEdCz+jBnqiuHNSki0epDbVs=
+github.com/google/pprof v0.0.0-20231205033806-a5a03c77bf08/go.mod h1:czg5+yv1E0ZGTi6S6vVK1mke0fV+FaUhNGcd6VRS9Ik=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
 github.com/kr/pretty v0.2.1/go.mod h1:ipq/a2n7PKx3OHsz4KJII5eveXtPO4qwEXGdVfWzfnI=
 github.com/kr/pretty v0.3.0 h1:WgNl7dwNpEZ6jJ9k1snq4pZsg7DOEN8hP9Xw0Tsjwk0=
