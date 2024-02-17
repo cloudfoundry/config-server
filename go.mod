@@ -1,17 +1,17 @@
 module github.com/cloudfoundry/config-server
 
-go 1.21
+go 1.21.0
 
 require (
 	github.com/BurntSushi/migration v0.0.0-20140125045755-c45b897f1335
-	github.com/cloudfoundry/bosh-utils v0.0.438
+	github.com/cloudfoundry/bosh-utils v0.0.444
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/lib/pq v1.10.9
 	github.com/onsi/ginkgo/v2 v2.15.0
 	github.com/onsi/gomega v1.30.0
 	golang.org/x/crypto v0.19.0
-	golang.org/x/tools v0.17.0
+	golang.org/x/tools v0.18.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
