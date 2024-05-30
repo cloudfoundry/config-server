@@ -8,7 +8,7 @@ See [bosh-notes](https://github.com/cloudfoundry/bosh-notes/blob/master/proposal
 
 ## Contributing
 
-Before submitting PRs, you should make sure that tests are passing properly.
+All PRs and code should be against the `develop` branch.  Before submitting PRs, you should make sure that tests are passing properly.
 
 ### Unit tests
 
