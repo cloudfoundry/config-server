@@ -4,11 +4,11 @@ go 1.21.0
 
 require (
 	github.com/BurntSushi/migration v0.0.0-20140125045755-c45b897f1335
-	github.com/cloudfoundry/bosh-utils v0.0.483
+	github.com/cloudfoundry/bosh-utils v0.0.484
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/lib/pq v1.10.9
-	github.com/onsi/ginkgo/v2 v2.20.0
+	github.com/onsi/ginkgo/v2 v2.20.1
 	github.com/onsi/gomega v1.34.1
 	golang.org/x/crypto v0.26.0
 	golang.org/x/tools v0.24.0
