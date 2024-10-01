@@ -63,6 +63,9 @@ jobs:
       - get: every-sunday
         trigger: true
       - get: bosh-cli
+        params:
+          globs:
+          - 'bosh-cli-*-linux-amd64'
       - get: bosh-deployment
       - get: config-server
       - get: config-server-release
@@ -85,6 +88,9 @@ jobs:
         passed: [build]
         trigger: true
       - get: bosh-cli
+        params:
+          globs:
+          - 'bosh-cli-*-linux-amd64'
       - task: bosh-release
         file: config-server-release/ci/tasks/bump-submodule.yml
       - put: config-server-release
@@ -258,10 +264,11 @@ resources:
       assume_role_arn: ((config-server-release-admin_assume_aws_access_key.role_arn))
 
   - name: bosh-cli
-    type: s3
+    type: github-release
     source:
-      bucket: bosh-cli-artifacts
-      regexp: bosh-cli-(.*)-linux-amd64
+      access_token: ((github_public_repo_token))
+      owner: cloudfoundry
+      repository: bosh-cli
 
   - name: every-sunday
     type: time
