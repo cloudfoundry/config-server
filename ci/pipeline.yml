@@ -112,10 +112,7 @@ jobs:
           file: config-server/ci/tasks/build-linux.yml
         - task: build-darwin
           file: config-server/ci/tasks/build-darwin.yml
-      - in_parallel:
-        - {put: release-bucket-linux, params: {file: compiled-linux/config-server-*-linux-amd64}}
-        - {put: release-bucket-darwin, params: {file: compiled-darwin/config-server-*-darwin-amd64}}
-        - {put: config-server-promoted, params: {repository: config-server, tag: version-semver/number, tag_prefix: v}}
+      - {put: config-server-promoted, params: {repository: config-server, tag: version-semver/number, tag_prefix: v}}
 
   - name: bump-minor
     public: true
@@ -232,26 +229,6 @@ resources:
     type: git
     source:
       uri: https://github.com/cloudfoundry/bosh-package-golang-release.git
-
-  - name: release-bucket-linux
-    type: s3
-    source:
-      regexp: config-server-(.*)-linux-amd64
-      bucket: config-server-releases
-      region_name: us-east-1
-      access_key_id: ((config-server-release-admin_assume_aws_access_key.username))
-      secret_access_key: ((config-server-release-admin_assume_aws_access_key.password))
-      aws_role_arn: ((config-server-release-admin_assume_aws_access_key.role_arn))
-
-  - name: release-bucket-darwin
-    type: s3
-    source:
-      regexp: config-server-(.*)-darwin-amd64
-      bucket: config-server-releases
-      region_name: us-east-1
-      access_key_id: ((config-server-release-admin_assume_aws_access_key.username))
-      secret_access_key: ((config-server-release-admin_assume_aws_access_key.password))
-      aws_role_arn: ((config-server-release-admin_assume_aws_access_key.role_arn))
 
   - name: version-semver
     type: semver
