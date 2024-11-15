@@ -32,11 +32,11 @@ jobs:
   - name: test-integration-mysql
     public: true
     plan:
-      - get: main-mysql-5-7-image
+      - get: main-mysql-8-0-image
       - get: config-server
         trigger: true
       - task: test-integration
-        image: main-mysql-5-7-image
+        image: main-mysql-8-0-image
         privileged: true
         file: config-server/ci/tasks/test-integration.yml
         params:
@@ -47,55 +47,14 @@ jobs:
     plan:
       - get: config-server
         trigger: true
-      - get: main-postgres-10-image
+      - get: main-postgres-15-image
       - task: test-integration
-        image: main-postgres-10-image
+        image: main-postgres-15-image
         privileged: true
         file: config-server/ci/tasks/test-integration.yml
         params:
           DB: postgresql
           DB_VERSION: 10
-
-  - name: acceptance-tests
-    public: true
-    serial: true
-    plan:
-      - get: every-sunday
-        trigger: true
-      - get: bosh-cli
-        params:
-          globs:
-          - 'bosh-cli-*-linux-amd64'
-      - get: bosh-deployment
-      - get: config-server
-      - get: config-server-release
-        trigger: true
-        params: { submodules: all }
-      - task: build-bosh-release
-        file: config-server-release/ci/tasks/bosh-release.yml
-      - task: run-acceptance-tests
-        file: config-server-release/ci/tasks/acceptance-tests.yml
-        privileged: true
-
-  - name: bump-config-server-submodule
-    public: true
-    plan:
-      - get: config-server-release
-        params: { submodules: all }
-        passed: [acceptance-tests]
-        trigger: true
-      - get: config-server
-        passed: [build]
-        trigger: true
-      - get: bosh-cli
-        params:
-          globs:
-          - 'bosh-cli-*-linux-amd64'
-      - task: bosh-release
-        file: config-server-release/ci/tasks/bump-submodule.yml
-      - put: config-server-release
-        params:
-          repository: config-server-repo/config-server-release
 
   - name: build
     public: true
@@ -128,32 +87,6 @@ jobs:
         params: {bump: major}
       - {put: version-semver, params: {file: version-semver/number}}
 
-  - name: bump-golang-packages
-    plan:
-    - in_parallel:
-      - get: config-server-release
-      - get: golang-release
-        trigger: true
-    - task: bump-golang-packages
-      file: golang-release/ci/tasks/shared/bump-golang-package.yml
-      input_mapping:
-        input_repo: config-server-release
-      output_mapping:
-        output_repo: bumped-config-server-release
-      params:
-        PACKAGES: [golang-1-linux]
-        PRIVATE_YML: |
-          ---
-          blobstore:
-            options:
-              access_key_id: ((assume_aws_access_key.username))
-              secret_access_key: ((assume_aws_access_key.password))
-              assume_role_arn: ((assume_aws_access_key.role_arn))
-    - put: config-server-release
-      params:
-        repository: bumped-config-server-release
-        rebase: true
-
   - name: bump-deps
     plan:
     - in_parallel:
@@ -177,16 +110,16 @@ jobs:
         rebase: true
 
 resources:
-  - name: main-postgres-10-image
+  - name: main-postgres-15-image
     type: docker-image
     source:
-      repository: bosh/main-postgres-10
+      repository: bosh/main-postgres-15
       tag: main
 
-  - name: main-mysql-5-7-image
+  - name: main-mysql-8-0-image
     type: docker-image
     source:
-      repository: bosh/main-mysql-5.7
+      repository: bosh/main-mysql-8.0
       tag: main
       username: ((docker.username))
       password: ((docker.password))
@@ -211,20 +144,6 @@ resources:
       branch: master
       private_key: ((github_deploy_key_config-server.private_key))
 
-  - name: config-server-release
-    type: git
-    source:
-      uri: git@github.com:cloudfoundry/config-server-release.git
-      branch: master
-      private_key: ((github_deploy_key_config-server-release.private_key))
-
-  - name: bosh-deployment
-    type: git
-    source:
-      branch: master
-      uri: https://github.com/cloudfoundry/bosh-deployment.git
-      version: f1ee4f5bdd2c4d26ae1f7e937a1cf46c1cac9b53
-
   - name: golang-release
     type: git
     source:
@@ -233,26 +152,12 @@ resources:
   - name: version-semver
     type: semver
     source:
-      initial_version: 0.0.20
-      key: current-version
-      bucket: config-server-releases
-      access_key_id: ((config-server-release-admin_assume_aws_access_key.username))
-      secret_access_key: ((config-server-release-admin_assume_aws_access_key.password))
-      assume_role_arn: ((config-server-release-admin_assume_aws_access_key.role_arn))
-
-  - name: bosh-cli
-    type: github-release
-    source:
-      access_token: ((github_public_repo_token))
-      owner: cloudfoundry
-      repository: bosh-cli
-
-  - name: every-sunday
-    type: time
-    source:
-      start: 1:00 PM
-      stop: 9:00 PM
-      days: [Sunday]
+      initial_version: "0.1.216"
+      driver: git
+      uri: git@github.com:cloudfoundry/config-server.git
+      branch: release-semver
+      file: VERSION
+      private_key: ((github_deploy_key_config-server.private_key))
 
   - name: weekly
     type: time
@@ -266,4 +171,3 @@ resource_types:
   type: docker-image
   source:
     repository: concourse/semver-resource
-    tag: 1.6
