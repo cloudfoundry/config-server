@@ -54,7 +54,7 @@ jobs:
         file: config-server/ci/tasks/test-integration.yml
         params:
           DB: postgresql
-          DB_VERSION: 10
+          DB_VERSION: 15
 
   - name: build
     public: true
