@@ -8,8 +8,8 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/lib/pq v1.10.9
-	github.com/onsi/ginkgo/v2 v2.22.1
-	github.com/onsi/gomega v1.36.1
+	github.com/onsi/ginkgo/v2 v2.22.2
+	github.com/onsi/gomega v1.36.2
 	golang.org/x/crypto v0.31.0
 	golang.org/x/tools v0.28.0
 	gopkg.in/yaml.v2 v2.4.0
