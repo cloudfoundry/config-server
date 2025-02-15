@@ -1,17 +1,17 @@
 module github.com/cloudfoundry/config-server
 
-go 1.22.0
+go 1.23.0
 
 require (
 	github.com/BurntSushi/migration v0.0.0-20140125045755-c45b897f1335
-	github.com/cloudfoundry/bosh-utils v0.0.528
+	github.com/cloudfoundry/bosh-utils v0.0.530
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/lib/pq v1.10.9
 	github.com/onsi/ginkgo/v2 v2.22.2
 	github.com/onsi/gomega v1.36.2
 	golang.org/x/crypto v0.33.0
-	golang.org/x/tools v0.29.0
+	golang.org/x/tools v0.30.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -20,11 +20,11 @@ require (
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
-	github.com/google/pprof v0.0.0-20250202011525-fc3143867406 // indirect
+	github.com/google/pprof v0.0.0-20250208200701-d0013a598941 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.6.1 // indirect
 	golang.org/x/mod v0.23.0 // indirect
-	golang.org/x/net v0.34.0 // indirect
+	golang.org/x/net v0.35.0 // indirect
 	golang.org/x/sync v0.11.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/text v0.22.0 // indirect
