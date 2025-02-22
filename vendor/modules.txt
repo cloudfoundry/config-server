@@ -5,8 +5,8 @@ filippo.io/edwards25519/field
 # github.com/BurntSushi/migration v0.0.0-20140125045755-c45b897f1335
 ## explicit
 github.com/BurntSushi/migration
-# github.com/cloudfoundry/bosh-utils v0.0.530
-## explicit; go 1.22.0
+# github.com/cloudfoundry/bosh-utils v0.0.531
+## explicit; go 1.23.0
 github.com/cloudfoundry/bosh-utils/errors
 github.com/cloudfoundry/bosh-utils/logger
 # github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -16,8 +16,8 @@ github.com/dgrijalva/jwt-go
 ## explicit; go 1.18
 github.com/go-logr/logr
 github.com/go-logr/logr/funcr
-# github.com/go-sql-driver/mysql v1.8.1
-## explicit; go 1.18
+# github.com/go-sql-driver/mysql v1.9.0
+## explicit; go 1.21
 github.com/go-sql-driver/mysql
 # github.com/go-task/slim-sprig/v3 v3.0.0
 ## explicit; go 1.20
@@ -78,8 +78,8 @@ github.com/onsi/gomega/matchers/support/goraph/util
 github.com/onsi/gomega/types
 # github.com/rogpeppe/go-internal v1.6.1
 ## explicit; go 1.11
-# golang.org/x/crypto v0.33.0
-## explicit; go 1.20
+# golang.org/x/crypto v0.34.0
+## explicit; go 1.23.0
 golang.org/x/crypto/blowfish
 golang.org/x/crypto/chacha20
 golang.org/x/crypto/curve25519
