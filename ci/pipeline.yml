@@ -133,16 +133,18 @@ resources:
   - name: config-server
     type: git
     source:
-      uri: git@github.com:cloudfoundry/config-server.git
+      uri: https://github.com/cloudfoundry/config-server.git
       branch: develop
-      private_key: ((github_deploy_key_config-server.private_key))
+      username: bosh-admin-bot
+      password: ((github_public_repo_token))
 
   - name: config-server-promoted
     type: git
     source:
-      uri: git@github.com:cloudfoundry/config-server.git
+      uri: https://github.com/cloudfoundry/config-server.git
       branch: master
-      private_key: ((github_deploy_key_config-server.private_key))
+      username: bosh-admin-bot
+      password: ((github_public_repo_token))
 
   - name: golang-release
     type: git
@@ -154,10 +156,11 @@ resources:
     source:
       initial_version: "0.1.216"
       driver: git
-      uri: git@github.com:cloudfoundry/config-server.git
+      uri: https://github.com/cloudfoundry/config-server.git
       branch: release-semver
       file: VERSION
-      private_key: ((github_deploy_key_config-server.private_key))
+      username: bosh-admin-bot
+      password: ((github_public_repo_token))
 
   - name: weekly
     type: time
