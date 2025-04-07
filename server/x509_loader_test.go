@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"encoding/pem"
 
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+
 	"github.com/cloudfoundry/config-server/server"
 	"github.com/cloudfoundry/config-server/store"
 	. "github.com/cloudfoundry/config-server/store/storefakes"
 	"github.com/cloudfoundry/config-server/types"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("x509Loader", func() {
@@ -59,7 +60,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 				PrivateKey:  mockKeyValue,
 				CA:          "some-ca",
 			}
-			serializedCertResponse, _ := json.Marshal(certResponse)
+			serializedCertResponse, _ := json.Marshal(certResponse) //nolint:errcheck
 
 			respValues := []store.Configuration{
 				{
@@ -71,8 +72,8 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 		It("return a parsed certificate", func() {
 			cpb, _ := pem.Decode([]byte(mockCertValue))
 			kpb, _ := pem.Decode([]byte(mockKeyValue))
-			expectedCrt, _ := x509.ParseCertificate(cpb.Bytes)
-			expectedKey, _ := x509.ParsePKCS1PrivateKey(kpb.Bytes)
+			expectedCrt, _ := x509.ParseCertificate(cpb.Bytes)     //nolint:errcheck
+			expectedKey, _ := x509.ParsePKCS1PrivateKey(kpb.Bytes) //nolint:errcheck
 
 			actualCrt, actualKey, err := loader.LoadCerts("some-name")
 

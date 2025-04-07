@@ -64,7 +64,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 			mockStore = &FakeStore{}
 			mockValueGeneratorFactory = &FakeValueGeneratorFactory{}
 			mockValueGenerator = &FakeValueGenerator{}
-			requestHandler, _ = NewRequestHandler(mockStore, mockValueGeneratorFactory)
+			requestHandler, _ = NewRequestHandler(mockStore, mockValueGeneratorFactory) //nolint:errcheck
 		})
 
 		Context("when URL path is invalid", func() {
@@ -74,7 +74,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 				for _, method := range validMethods {
 					for _, path := range invalidPaths {
-						req, _ := generateHTTPRequest(method, path, nil)
+						req, _ := generateHTTPRequest(method, path, nil) //nolint:errcheck
 						recorder := httptest.NewRecorder()
 						requestHandler.ServeHTTP(recorder, req)
 
@@ -87,7 +87,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 				It("should return 400 Bad Request", func() {
 					validMethods := []string{"GET", "DELETE"}
 					for _, method := range validMethods {
-						req, _ := generateHTTPRequest(method, "/v1/data?name=", nil)
+						req, _ := generateHTTPRequest(method, "/v1/data?name=", nil) //nolint:errcheck
 						getRecorder := httptest.NewRecorder()
 						requestHandler.ServeHTTP(getRecorder, req)
 
@@ -107,7 +107,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 					for _, method := range validMethods {
 						for _, path := range inValidURLPaths {
-							req, _ := generateHTTPRequest(method, path, nil)
+							req, _ := generateHTTPRequest(method, path, nil) //nolint:errcheck
 							recorder := httptest.NewRecorder()
 							requestHandler.ServeHTTP(recorder, req)
 
@@ -123,7 +123,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 			Context("when http method is not supported", func() {
 				It("should return 405 Method Not Allowed", func() {
-					req, _ := generateHTTPRequest("PATCH", "/v1/data?name=bla", nil)
+					req, _ := generateHTTPRequest("PATCH", "/v1/data?name=bla", nil) //nolint:errcheck
 					recorder := httptest.NewRecorder()
 					requestHandler.ServeHTTP(recorder, req)
 
@@ -144,7 +144,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 								}
 								mockStore.GetByIDReturns(respValue, nil)
 
-								getReq, _ := generateHTTPRequest("GET", "/v1/data/"+respValue.ID, nil)
+								getReq, _ := generateHTTPRequest("GET", "/v1/data/"+respValue.ID, nil) //nolint:errcheck
 								getRecorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(getRecorder, getReq)
 
@@ -156,7 +156,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 						Context("when configuration with id does not exist", func() {
 							It("should return 404 Not Found", func() {
-								req, _ := generateHTTPRequest("GET", "/v1/data/5", nil)
+								req, _ := generateHTTPRequest("GET", "/v1/data/5", nil) //nolint:errcheck
 								getRecorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(getRecorder, req)
 
@@ -182,9 +182,9 @@ var _ = Describe("RequestHandlerConcrete", func() {
 								},
 							}
 							mockStore.GetByNameReturns(respValues, nil)
-							var counter int = 0
+							var counter = 0
 							for path, extractedName := range validURLPaths {
-								getReq, _ := generateHTTPRequest("GET", path, nil)
+								getReq, _ := generateHTTPRequest("GET", path, nil) //nolint:errcheck
 								getRecorder := httptest.NewRecorder()
 
 								requestHandler.ServeHTTP(getRecorder, getReq)
@@ -216,7 +216,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 									mockStore.GetByNameReturns(respValues, nil)
 
-									getReq, _ := generateHTTPRequest("GET", "/v1/data?name=bla", nil)
+									getReq, _ := generateHTTPRequest("GET", "/v1/data?name=bla", nil) //nolint:errcheck
 									getRecorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(getRecorder, getReq)
 
@@ -229,7 +229,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 						Context("when name does not exist", func() {
 							It("should return 404 Not Found", func() {
-								req, _ := generateHTTPRequest("GET", "/v1/data?name=test", nil)
+								req, _ := generateHTTPRequest("GET", "/v1/data?name=test", nil) //nolint:errcheck
 								getRecorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(getRecorder, req)
 
@@ -241,7 +241,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 							It("returns 500 Internal Server Error", func() {
 								mockStore.GetByNameReturns([]store.Configuration{}, errors.New("Kaboom!"))
 
-								getReq, _ := generateHTTPRequest("GET", "/v1/data?name=bla", nil)
+								getReq, _ := generateHTTPRequest("GET", "/v1/data?name=bla", nil) //nolint:errcheck
 								getRecorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(getRecorder, getReq)
 
@@ -252,7 +252,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 					Describe("PUT", func() {
 						It("throws an error if request header content type is not application/json", func() {
-							req, _ := http.NewRequest("PUT", "/v1/data/", strings.NewReader(`{"value":"str"}`))
+							req, _ := http.NewRequest("PUT", "/v1/data/", strings.NewReader(`{"value":"str"}`)) //nolint:errcheck
 							putRecorder := httptest.NewRecorder()
 							requestHandler.ServeHTTP(putRecorder, req)
 
@@ -263,7 +263,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 						Context("when request body is NOT in the specified format", func() {
 							Context("when body is empty", func() {
 								It("should return 400 Bad Request", func() {
-									req, _ := generateHTTPRequest("PUT", "/v1/data", nil)
+									req, _ := generateHTTPRequest("PUT", "/v1/data", nil) //nolint:errcheck
 									putRecorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(putRecorder, req)
 
@@ -274,7 +274,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 							Context("when body is NOT JSON string", func() {
 								It("should return 400 Bad Request", func() {
-									req, _ := generateHTTPRequest("PUT", "/v1/data", strings.NewReader(`smurf`))
+									req, _ := generateHTTPRequest("PUT", "/v1/data", strings.NewReader(`smurf`)) //nolint:errcheck
 									putRecorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(putRecorder, req)
 
@@ -285,7 +285,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 							Context("when name is missing in the body", func() {
 								It("should return 400 Bad Request", func() {
-									req, _ := generateHTTPRequest("PUT", "/v1/data", strings.NewReader(`{"value":"blue"}`))
+									req, _ := generateHTTPRequest("PUT", "/v1/data", strings.NewReader(`{"value":"blue"}`)) //nolint:errcheck
 									putRecorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(putRecorder, req)
 
@@ -296,7 +296,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 							Context("when name is NOT of type string", func() {
 								It("should return 400 Bad Request", func() {
-									req, _ := generateHTTPRequest("PUT", "/v1/data", strings.NewReader(`{"name":{"foo":"bar"},"value":"james"}`))
+									req, _ := generateHTTPRequest("PUT", "/v1/data", strings.NewReader(`{"name":{"foo":"bar"},"value":"james"}`)) //nolint:errcheck
 									recorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(recorder, req)
 
@@ -307,7 +307,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 							Context("when value is missing in the body", func() {
 								It("should return 400 Bad Request", func() {
-									req, _ := generateHTTPRequest("PUT", "/v1/data?name=some-name", strings.NewReader(`{"name":"smurf"}`))
+									req, _ := generateHTTPRequest("PUT", "/v1/data?name=some-name", strings.NewReader(`{"name":"smurf"}`)) //nolint:errcheck
 									putRecorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(putRecorder, req)
 
@@ -330,7 +330,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 							})
 
 							It("returns value, name and id in the response", func() {
-								req, _ := generateHTTPRequest("PUT", "/v1/data", strings.NewReader(`{"name":"bla","value":"str"}`))
+								req, _ := generateHTTPRequest("PUT", "/v1/data", strings.NewReader(`{"name":"bla","value":"str"}`)) //nolint:errcheck
 								putRecorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(putRecorder, req)
 
@@ -342,7 +342,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 							Context("when value is a string ", func() {
 								It("should store value in a specific JSON format and respond with 204 StatusNoContent", func() {
-									req, _ := generateHTTPRequest("PUT", "/v1/data", strings.NewReader(`{"name":"bla","value":"str"}`))
+									req, _ := generateHTTPRequest("PUT", "/v1/data", strings.NewReader(`{"name":"bla","value":"str"}`)) //nolint:errcheck
 									putRecorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(putRecorder, req)
 
@@ -358,7 +358,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 							Context("when value is a number", func() {
 								It("should store value in a specific JSON format and respond with 204 StatusNoContent", func() {
-									req, _ := generateHTTPRequest("PUT", "/v1/data", strings.NewReader(`{"name":"bla","value":123}`))
+									req, _ := generateHTTPRequest("PUT", "/v1/data", strings.NewReader(`{"name":"bla","value":123}`)) //nolint:errcheck
 									putRecorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(putRecorder, req)
 
@@ -377,7 +377,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 									requestBody := `{"name":"bla","value":{"age":10,"color":"red"}}`
 									valueToStore := `{"value":{"age":10,"color":"red"}}`
 
-									req, _ := generateHTTPRequest("PUT", "/v1/data", strings.NewReader(requestBody))
+									req, _ := generateHTTPRequest("PUT", "/v1/data", strings.NewReader(requestBody)) //nolint:errcheck
 									putRecorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(putRecorder, req)
 
@@ -395,7 +395,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 					Describe("POST", func() {
 						It("throws an error if request header content type is not application/json", func() {
-							req, _ := http.NewRequest("POST", "/v1/data", strings.NewReader(`{"name":"somename","type":"password","parameters":{}}`))
+							req, _ := http.NewRequest("POST", "/v1/data", strings.NewReader(`{"name":"somename","type":"password","parameters":{}}`)) //nolint:errcheck
 							postRecorder := httptest.NewRecorder()
 							requestHandler.ServeHTTP(postRecorder, req)
 
@@ -406,7 +406,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 						Context("when request body is NOT in the specified format", func() {
 							Context("when body is empty", func() {
 								It("should return 400 Bad Request", func() {
-									req, _ := generateHTTPRequest("POST", "/v1/data", nil)
+									req, _ := generateHTTPRequest("POST", "/v1/data", nil) //nolint:errcheck
 									recorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(recorder, req)
 
@@ -417,7 +417,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 							Context("when body is NOT JSON string", func() {
 								It("should return 400 Bad Request", func() {
-									req, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader("smurf"))
+									req, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader("smurf")) //nolint:errcheck
 									recorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(recorder, req)
 
@@ -428,7 +428,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 							Context("when name is missing in the body", func() {
 								It("should return 400 Bad Request", func() {
-									req, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"value":"james"}`))
+									req, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"value":"james"}`)) //nolint:errcheck
 									recorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(recorder, req)
 
@@ -439,7 +439,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 							Context("when name is NOT of type string", func() {
 								It("should return 400 Bad Request", func() {
-									req, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":{"foo":"bar"},"type":"password"}`))
+									req, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":{"foo":"bar"},"type":"password"}`)) //nolint:errcheck
 									recorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(recorder, req)
 
@@ -450,7 +450,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 							Context("when type is missing in the body", func() {
 								It("should return 400 Bad Request", func() {
-									req, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bond"}`))
+									req, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bond"}`)) //nolint:errcheck
 									recorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(recorder, req)
 
@@ -461,7 +461,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 							Context("when type is NOT of type string", func() {
 								It("should return 400 Bad Request", func() {
-									req, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"moop","type":2}`))
+									req, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"moop","type":2}`)) //nolint:errcheck
 									recorder := httptest.NewRecorder()
 									requestHandler.ServeHTTP(recorder, req)
 
@@ -475,7 +475,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 							Context("when the requested mode is converge", func() {
 								Context("when the configuration has changed", func() {
 									It("should regenerate the values", func() {
-										requestHandler, _ = NewRequestHandler(mockStore, mockValueGeneratorFactory)
+										requestHandler, _ = NewRequestHandler(mockStore, mockValueGeneratorFactory) //nolint:errcheck
 										mockValueGeneratorFactory.GetGeneratorReturns(mockValueGenerator, nil)
 
 										mockStore.GetByNameStub = func(name string) (store.Configurations, error) {
@@ -492,7 +492,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 										mockStore.GetByIDReturns(store.Configuration{ID: "new_id", Name: "bla", ParameterChecksum: "abc", Value: `{"value":"my newly generated value"}`}, nil)
 
-										postReq, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bla", "type":"somtype", "parameters":{}, "mode":"converge"}`))
+										postReq, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bla", "type":"somtype", "parameters":{}, "mode":"converge"}`)) //nolint:errcheck
 
 										recorder := httptest.NewRecorder()
 										requestHandler.ServeHTTP(recorder, postReq)
@@ -508,7 +508,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 								Context("when the configuration did not changed", func() {
 									It("should NOT regenerate the values", func() {
-										requestHandler, _ = NewRequestHandler(mockStore, mockValueGeneratorFactory)
+										requestHandler, _ = NewRequestHandler(mockStore, mockValueGeneratorFactory) //nolint:errcheck
 										mockValueGeneratorFactory.GetGeneratorReturns(mockValueGenerator, nil)
 
 										mockStore.GetByNameStub = func(name string) (store.Configurations, error) {
@@ -523,7 +523,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 											return respValues, nil
 										}
 
-										postReq, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bla", "type":"somtype", "parameters":{}, "mode":"converge"}`))
+										postReq, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bla", "type":"somtype", "parameters":{}, "mode":"converge"}`)) //nolint:errcheck
 
 										recorder := httptest.NewRecorder()
 										requestHandler.ServeHTTP(recorder, postReq)
@@ -541,7 +541,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 							Context("when the requested mode is NOT converge", func() {
 								Context("when the configuration has changed", func() {
 									It("should NOT regenerate the values", func() {
-										requestHandler, _ = NewRequestHandler(mockStore, mockValueGeneratorFactory)
+										requestHandler, _ = NewRequestHandler(mockStore, mockValueGeneratorFactory) //nolint:errcheck
 										mockValueGeneratorFactory.GetGeneratorReturns(mockValueGenerator, nil)
 
 										mockStore.GetByNameStub = func(name string) (store.Configurations, error) {
@@ -558,7 +558,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 										mockStore.GetByIDReturns(store.Configuration{ID: "new_id", Name: "bla", ParameterChecksum: "abc", Value: `{"value":"my newly generated value"}`}, nil)
 
-										postReq, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bla", "type":"somtype", "parameters":{}, "mode":"NOTconverge"}`))
+										postReq, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bla", "type":"somtype", "parameters":{}, "mode":"NOTconverge"}`)) //nolint:errcheck
 
 										recorder := httptest.NewRecorder()
 										requestHandler.ServeHTTP(recorder, postReq)
@@ -574,7 +574,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 								Context("when the configuration did not changed", func() {
 									It("should NOT regenerate the values", func() {
-										requestHandler, _ = NewRequestHandler(mockStore, mockValueGeneratorFactory)
+										requestHandler, _ = NewRequestHandler(mockStore, mockValueGeneratorFactory) //nolint:errcheck
 										mockValueGeneratorFactory.GetGeneratorReturns(mockValueGenerator, nil)
 
 										mockStore.GetByNameStub = func(name string) (store.Configurations, error) {
@@ -589,7 +589,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 											return respValues, nil
 										}
 
-										postReq, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bla", "type":"somtype", "parameters":{}, "mode":"NOTconverge"}`))
+										postReq, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bla", "type":"somtype", "parameters":{}, "mode":"NOTconverge"}`)) //nolint:errcheck
 
 										recorder := httptest.NewRecorder()
 										requestHandler.ServeHTTP(recorder, postReq)
@@ -618,7 +618,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 											return respValues, nil
 										}
 
-										postReq, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bla", "type":"password","parameters":{}}`))
+										postReq, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bla", "type":"password","parameters":{}}`)) //nolint:errcheck
 
 										recorder := httptest.NewRecorder()
 										requestHandler.ServeHTTP(recorder, postReq)
@@ -631,9 +631,9 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 								Context("when value does NOT exist", func() {
 									It("should return generated password", func() {
-										requestHandler, _ = NewRequestHandler(store.NewMemoryStore(), types.NewValueGeneratorConcrete(&FakeCertsLoader{}))
+										requestHandler, _ = NewRequestHandler(store.NewMemoryStore(), types.NewValueGeneratorConcrete(&FakeCertsLoader{})) //nolint:errcheck
 
-										postReq, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bla","type":"password","parameters":{}}`))
+										postReq, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bla","type":"password","parameters":{}}`)) //nolint:errcheck
 
 										recorder := httptest.NewRecorder()
 										requestHandler.ServeHTTP(recorder, postReq)
@@ -663,7 +663,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 											return respValue, nil
 										}
 
-										postReq, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bla","type":"certificate","parameters":{}}`))
+										postReq, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bla","type":"certificate","parameters":{}}`)) //nolint:errcheck
 
 										recorder := httptest.NewRecorder()
 										requestHandler.ServeHTTP(recorder, postReq)
@@ -676,7 +676,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 								Context("when value does NOT exist", func() {
 									It("should return generated certificate, its private key and root certificate used to sign the generated certificate", func() {
-										requestHandler, _ = NewRequestHandler(store.NewMemoryStore(), mockValueGeneratorFactory)
+										requestHandler, _ = NewRequestHandler(store.NewMemoryStore(), mockValueGeneratorFactory) //nolint:errcheck
 										mockValueGeneratorFactory.GetGeneratorReturns(mockValueGenerator, nil)
 
 										mockValueGenerator.GenerateReturns(types.CertResponse{
@@ -685,7 +685,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 											CA:          "fake-ca",
 										}, nil)
 
-										postReq, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bla","type":"certificate","parameters":{"common_name": "asdf", "alternative_names":["nam1", "name2"]}}`))
+										postReq, _ := generateHTTPRequest("POST", "/v1/data", strings.NewReader(`{"name":"bla","type":"certificate","parameters":{"common_name": "asdf", "alternative_names":["nam1", "name2"]}}`)) //nolint:errcheck
 
 										recorder := httptest.NewRecorder()
 										requestHandler.ServeHTTP(recorder, postReq)
@@ -711,9 +711,9 @@ var _ = Describe("RequestHandlerConcrete", func() {
 						It("can handle all types of valid names", func() {
 							mockStore.DeleteReturns(1, nil)
 
-							var counter int = 0
+							var counter = 0
 							for name, extractedName := range validURLPaths {
-								req, _ := generateHTTPRequest("DELETE", name, nil)
+								req, _ := generateHTTPRequest("DELETE", name, nil) //nolint:errcheck
 
 								recorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(recorder, req)
@@ -729,7 +729,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 							})
 
 							It("should delete all entries with given name", func() {
-								req, _ := generateHTTPRequest("DELETE", "/v1/data?name=bla", nil)
+								req, _ := generateHTTPRequest("DELETE", "/v1/data?name=bla", nil) //nolint:errcheck
 
 								putRecorder := httptest.NewRecorder()
 								requestHandler.ServeHTTP(putRecorder, req)
@@ -739,7 +739,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 							})
 
 							It("should return 204 Status No Content", func() {
-								req, _ := generateHTTPRequest("DELETE", "/v1/data?name=bla", nil)
+								req, _ := generateHTTPRequest("DELETE", "/v1/data?name=bla", nil) //nolint:errcheck
 								req.Header.Set("Authorization", "bearer fake-auth-header")
 
 								putRecorder := httptest.NewRecorder()
@@ -751,7 +751,7 @@ var _ = Describe("RequestHandlerConcrete", func() {
 
 						Context("Name does not exist", func() {
 							It("should return 404 Status Not Found", func() {
-								req, _ := generateHTTPRequest("DELETE", "/v1/data?name=bla", nil)
+								req, _ := generateHTTPRequest("DELETE", "/v1/data?name=bla", nil) //nolint:errcheck
 								req.Header.Set("Authorization", "bearer fake-auth-header")
 
 								putRecorder := httptest.NewRecorder()

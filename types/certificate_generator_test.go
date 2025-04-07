@@ -1,15 +1,14 @@
 package types_test
 
 import (
-	. "github.com/cloudfoundry/config-server/types"
-
 	"crypto/x509"
 	"encoding/pem"
+	"strings"
 	"time"
 
-	"github.com/cloudfoundry/config-server/types/typesfakes"
+	. "github.com/cloudfoundry/config-server/types"
 
-	"strings"
+	"github.com/cloudfoundry/config-server/types/typesfakes"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -71,8 +70,8 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 
 		cpb, _ := pem.Decode([]byte(mockCertValue))
 		kpb, _ := pem.Decode([]byte(mockKeyValue))
-		fakeRootCA, _ = x509.ParseCertificate(cpb.Bytes)
-		key, _ := x509.ParsePKCS1PrivateKey(kpb.Bytes)
+		fakeRootCA, _ = x509.ParseCertificate(cpb.Bytes) //nolint:errcheck
+		key, _ := x509.ParsePKCS1PrivateKey(kpb.Bytes)   //nolint:errcheck
 
 		fakeLoader.LoadCertsReturns(fakeRootCA, key, nil)
 	})
@@ -123,7 +122,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 
 					BeforeEach(func() {
 						certResp = getCertResp(generator, params)
-						certificate, _ = parseCertString(certResp.Certificate)
+						certificate, _ = parseCertString(certResp.Certificate) //nolint:errcheck
 					})
 
 					It("set the CA field to itself", func() {
@@ -157,7 +156,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 								"organization": "Hi Five BOSH",
 							}
 							certResp = getCertResp(generator, params)
-							certificate, _ = parseCertString(certResp.Certificate)
+							certificate, _ = parseCertString(certResp.Certificate) //nolint:errcheck
 						})
 
 						It("sets Issuer, Country & default Org", func() {
@@ -175,7 +174,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 						params["ca"] = "smurf-cert"
 
 						certResp = getCertResp(generator, params)
-						certificate, _ = parseCertString(certResp.Certificate)
+						certificate, _ = parseCertString(certResp.Certificate) //nolint:errcheck
 					})
 
 					It("generates an intermediate CA cert", func() {
@@ -255,7 +254,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 						altNames := []interface{}{"cloudfoundry.com", "example.com"}
 						params["alternative_names"] = altNames
 						certResp := getCertResp(generator, params)
-						certificate, _ := parseCertString(certResp.Certificate)
+						certificate, _ := parseCertString(certResp.Certificate) //nolint:errcheck
 
 						Expect(certificate.KeyUsage).To(Equal(x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature))
 					})
@@ -264,7 +263,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 						altNames := []interface{}{"cloudfoundry.com", "example.com"}
 						params["alternative_names"] = altNames
 						certResp := getCertResp(generator, params)
-						certificate, _ := parseCertString(certResp.Certificate)
+						certificate, _ := parseCertString(certResp.Certificate) //nolint:errcheck
 
 						Expect(certificate.Subject.CommonName).Should(Equal("bosh.io"))
 
@@ -277,7 +276,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 						altNames := []interface{}{"bosh.io", "cloudfoundry.com", "example.com"}
 						params["alternative_names"] = altNames
 						certResp := getCertResp(generator, params)
-						certificate, _ := parseCertString(certResp.Certificate)
+						certificate, _ := parseCertString(certResp.Certificate) //nolint:errcheck
 
 						Expect(certificate.Subject.CommonName).Should(Equal("bosh.io"))
 
@@ -288,7 +287,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 
 					It("should set expiry for the cert in 1 year", func() {
 						certResp := getCertResp(generator, params)
-						certificate, _ := parseCertString(certResp.Certificate)
+						certificate, _ := parseCertString(certResp.Certificate) //nolint:errcheck
 
 						oneYearFromToday := time.Now().UTC().Add(365 * 24 * time.Hour)
 
@@ -320,7 +319,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 
 					It("is not a CA", func() {
 						certResp := getCertResp(generator, params)
-						certificate, _ := parseCertString(certResp.Certificate)
+						certificate, _ := parseCertString(certResp.Certificate) //nolint:errcheck
 
 						Expect(certificate.IsCA).To(BeFalse())
 					})
@@ -331,17 +330,17 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 						Expect(certResp.PrivateKey).NotTo(BeEmpty())
 
 						block, _ := pem.Decode([]byte(certResp.PrivateKey))
-						key, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
+						key, _ := x509.ParsePKCS1PrivateKey(block.Bytes) //nolint:errcheck
 
 						Expect(key.PublicKey.N.BitLen()).To(Equal(3072))
 					})
 
 					It("should have the public keys of the private key and certificate match", func() {
 						certResp := getCertResp(generator, params)
-						certificate, _ := parseCertString(certResp.Certificate)
+						certificate, _ := parseCertString(certResp.Certificate) //nolint:errcheck
 
 						block, _ := pem.Decode([]byte(certResp.PrivateKey))
-						key, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
+						key, _ := x509.ParsePKCS1PrivateKey(block.Bytes) //nolint:errcheck
 						Expect(certificate.PublicKey).To(Equal(&key.PublicKey))
 					})
 
@@ -352,7 +351,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 
 					It("set the AKI as the CA's SKI", func() {
 						certResp := getCertResp(generator, params)
-						certificate, _ := parseCertString(certResp.Certificate)
+						certificate, _ := parseCertString(certResp.Certificate) //nolint:errcheck
 						Expect(certificate.SubjectKeyId).ToNot(BeNil())
 						Expect(certificate.AuthorityKeyId).To(Equal(fakeRootCA.SubjectKeyId))
 					})
@@ -364,7 +363,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 								params["alternative_names"] = altNames
 								params["extended_key_usage"] = []string{"client_auth"}
 								certResp := getCertResp(generator, params)
-								certificate, _ := parseCertString(certResp.Certificate)
+								certificate, _ := parseCertString(certResp.Certificate) //nolint:errcheck
 
 								Expect(certificate.ExtKeyUsage).To(Equal([]x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth}))
 							})
@@ -376,7 +375,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 								params["alternative_names"] = altNames
 								params["extended_key_usage"] = []string{"server_auth"}
 								certResp := getCertResp(generator, params)
-								certificate, _ := parseCertString(certResp.Certificate)
+								certificate, _ := parseCertString(certResp.Certificate) //nolint:errcheck
 
 								Expect(certificate.ExtKeyUsage).To(Equal([]x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}))
 							})
@@ -388,7 +387,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 								params["alternative_names"] = altNames
 								params["extended_key_usage"] = []string{"client_auth", "server_auth"}
 								certResp := getCertResp(generator, params)
-								certificate, _ := parseCertString(certResp.Certificate)
+								certificate, _ := parseCertString(certResp.Certificate) //nolint:errcheck
 
 								Expect(certificate.ExtKeyUsage).To(Equal([]x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth}))
 							})
@@ -412,7 +411,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 							altNames := []interface{}{"cloudfoundry.com", "example.com"}
 							params["alternative_names"] = altNames
 							certResp := getCertResp(generator, params)
-							certificate, _ := parseCertString(certResp.Certificate)
+							certificate, _ := parseCertString(certResp.Certificate) //nolint:errcheck
 
 							Expect(certificate.ExtKeyUsage).To(Equal([]x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}))
 						})
@@ -423,7 +422,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 							params["duration"] = 365
 							params["common_name"] = "bosh.io"
 							certResp := getCertResp(generator, params)
-							certificate, _ := parseCertString(certResp.Certificate)
+							certificate, _ := parseCertString(certResp.Certificate) //nolint:errcheck
 
 							tenYearsFromToday := time.Now().UTC().Add(365 * 24 * time.Hour)
 
@@ -434,7 +433,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 							params["duration"] = 7000
 							params["common_name"] = "bosh.io"
 							certResp := getCertResp(generator, params)
-							certificate, _ := parseCertString(certResp.Certificate)
+							certificate, _ := parseCertString(certResp.Certificate) //nolint:errcheck
 
 							longTimeFromToday := time.Now().UTC().Add(7000 * 24 * time.Hour)
 
@@ -445,7 +444,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 							params["duration"] = -100
 							params["common_name"] = "bosh.io"
 							certResp := getCertResp(generator, params)
-							certificate, _ := parseCertString(certResp.Certificate)
+							certificate, _ := parseCertString(certResp.Certificate) //nolint:errcheck
 
 							oneYearFromToday := time.Now().UTC().Add(365 * 24 * time.Hour)
 

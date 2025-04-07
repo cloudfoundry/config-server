@@ -27,7 +27,7 @@ var _ = Describe("AuthenticationHandler", func() {
 	It("should forward request to next handler if token is valid", func() {
 		mockTokenValidator.ValidateReturns(nil)
 
-		req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader("{\"value\":\"blabla\"}"))
+		req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader("{\"value\":\"blabla\"}")) //nolint:errcheck
 		req.Header.Set("Authorization", "bearer fake-auth-header")
 
 		recorder := httptest.NewRecorder()
@@ -41,7 +41,7 @@ var _ = Describe("AuthenticationHandler", func() {
 	})
 
 	It("should return 401 Unauthorized if token is missing from request header", func() {
-		req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader("{\"value\":\"blabla\"}"))
+		req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader("{\"value\":\"blabla\"}")) //nolint:errcheck
 
 		recorder := httptest.NewRecorder()
 		authHandler.ServeHTTP(recorder, req)
@@ -51,7 +51,7 @@ var _ = Describe("AuthenticationHandler", func() {
 	})
 
 	It("should return 401 Unauthorized if token with invalid format is sent", func() {
-		req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader("{\"value\":\"blabla\"}"))
+		req, _ := http.NewRequest("PUT", "/v1/data/bla", strings.NewReader("{\"value\":\"blabla\"}")) //nolint:errcheck
 		req.Header.Set("Authorization", "bearer fake-auth-header extra-text")
 
 		recorder1 := httptest.NewRecorder()
@@ -66,5 +66,4 @@ var _ = Describe("AuthenticationHandler", func() {
 		Expect(recorder2.Code).To(Equal(http.StatusUnauthorized))
 		Expect(strings.TrimSpace(recorder2.Body.String())).To(Equal(`{"error":"Invalid authorization token type: bad-prefix"}`))
 	})
-
 })
