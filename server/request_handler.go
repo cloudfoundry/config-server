@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/cloudfoundry/bosh-utils/errors"
+
 	"github.com/cloudfoundry/config-server/store"
 	"github.com/cloudfoundry/config-server/types"
 )
@@ -72,7 +73,7 @@ func (handler requestHandler) handleGetByID(id string, resWriter http.ResponseWr
 	if value == emptyValue {
 		http.Error(resWriter, NewErrorResponse(errors.Errorf("ID '%s' not found", id)).GenerateErrorMsg(), http.StatusNotFound)
 	} else {
-		result, _ := value.StringifiedJSON()
+		result, _ := value.StringifiedJSON() //nolint:errcheck
 		respond(resWriter, result, http.StatusOK)
 	}
 }
@@ -119,7 +120,7 @@ func (handler requestHandler) handlePut(resWriter http.ResponseWriter, req *http
 		http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusInternalServerError)
 		return
 	}
-	result, _ := configuration.StringifiedJSON()
+	result, _ := configuration.StringifiedJSON() //nolint:errcheck
 	respond(resWriter, result, http.StatusOK)
 }
 
@@ -149,7 +150,7 @@ func (handler requestHandler) handlePost(resWriter http.ResponseWriter, req *htt
 
 	if len(values) != 0 {
 		configuration := values[0]
-		if "converge" != mode || checksum == configuration.ParameterChecksum {
+		if "converge" != mode || checksum == configuration.ParameterChecksum { //nolint:staticcheck
 			result, err := configuration.StringifiedJSON()
 			if err != nil {
 				http.Error(resWriter, NewErrorResponse(err).GenerateErrorMsg(), http.StatusInternalServerError)
@@ -178,7 +179,7 @@ func (handler requestHandler) handlePost(resWriter http.ResponseWriter, req *htt
 		return
 	}
 
-	result, _ := configuration.StringifiedJSON()
+	result, _ := configuration.StringifiedJSON() //nolint:errcheck
 	respond(resWriter, result, http.StatusCreated)
 }
 

@@ -23,7 +23,7 @@ var _ = Describe("ParseConfig", func() {
 		var configFile *os.File
 
 		BeforeEach(func() {
-			configFile, _ = os.CreateTemp(os.TempDir(), "server-config-")
+			configFile, _ = os.CreateTemp(os.TempDir(), "server-config-") //nolint:errcheck
 		})
 
 		AfterEach(func() {

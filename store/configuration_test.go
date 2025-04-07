@@ -18,7 +18,7 @@ var _ = Describe("Configuration", func() {
 					Value: `{"value": "blue"}`,
 				}
 
-				jsonString, _ := configuration.StringifiedJSON()
+				jsonString, _ := configuration.StringifiedJSON() //nolint:errcheck
 
 				Expect(jsonString).To(Equal(`{"id":"123","name":"smurf","value":"blue"}`))
 			})
@@ -32,7 +32,7 @@ var _ = Describe("Configuration", func() {
 					Value: `{"value": 123}`,
 				}
 
-				jsonString, _ := configuration.StringifiedJSON()
+				jsonString, _ := configuration.StringifiedJSON() //nolint:errcheck
 
 				Expect(jsonString).To(Equal(`{"id":"123","name":"smurf","value":123}`))
 			})
@@ -46,11 +46,10 @@ var _ = Describe("Configuration", func() {
 					Value: `{"value": {"smurf":"gargamel"}}`,
 				}
 
-				jsonString, _ := configuration.StringifiedJSON()
+				jsonString, _ := configuration.StringifiedJSON() //nolint:errcheck
 
 				Expect(jsonString).To(Equal(`{"id":"123","name":"smurf","value":{"smurf":"gargamel"}}`))
 			})
 		})
-
 	})
 })

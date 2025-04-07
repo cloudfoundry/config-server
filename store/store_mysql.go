@@ -46,7 +46,7 @@ func (ms mysqlStore) GetByName(name string) (Configurations, error) {
 		return results, err
 	}
 
-	defer rows.Close()
+	defer rows.Close() //nolint:errcheck
 
 	for rows.Next() {
 		var config Configuration
