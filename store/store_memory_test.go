@@ -23,20 +23,20 @@ var _ = Describe("StoreMemory", func() {
 			})
 
 			It("returns the ID of the created configuration", func() {
-				id, _ := store.Put("key", "value", "MyHash")
+				id, _ := store.Put("key", "value", "MyHash") //nolint:errcheck
 				Expect(id).To(Equal("0"))
 			})
 
 			It("generates a unique id for new record", func() {
 				store.Put("key1", "value1", "MyHash") //nolint:errcheck
-				values1, _ := store.GetByName("key1")
+				values1, _ := store.GetByName("key1") //nolint:errcheck
 
 				Expect(values1).ToNot(BeNil())
 				Expect(len(values1)).To(Equal(1))
 				Expect(values1[0]).To(Equal(Configuration{ID: "0", Name: "key1", Value: "value1", ParameterChecksum: "MyHash"}))
 
 				store.Put("key2", "value2", "MyHash2") //nolint:errcheck
-				values2, _ := store.GetByName("key2")
+				values2, _ := store.GetByName("key2")  //nolint:errcheck
 
 				Expect(values2).ToNot(BeNil())
 				Expect(len(values2)).To(Equal(1))

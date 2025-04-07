@@ -14,14 +14,14 @@ type requestBody struct {
 }
 
 func SendGetRequestByName(name string) (*http.Response, error) {
-	req, _ := http.NewRequest(http.MethodGet, ServerURL+"/v1/data?name="+name, nil)
+	req, _ := http.NewRequest(http.MethodGet, ServerURL+"/v1/data?name="+name, nil) //nolint:errcheck
 	req.Header.Add("Authorization", "bearer "+ValidToken())
 
 	return HTTPSClient.Do(req)
 }
 
 func SendGetRequestByID(id string) (*http.Response, error) {
-	req, _ := http.NewRequest(http.MethodGet, ServerURL+"/v1/data/"+id, nil)
+	req, _ := http.NewRequest(http.MethodGet, ServerURL+"/v1/data/"+id, nil) //nolint:errcheck
 	req.Header.Add("Authorization", "bearer "+ValidToken())
 
 	return HTTPSClient.Do(req)
@@ -33,9 +33,9 @@ func SendPutRequest(name string, value interface{}) (*http.Response, error) {
 		Name:  name,
 	}
 
-	requestBytes, _ := json.Marshal(&data)
+	requestBytes, _ := json.Marshal(&data) //nolint:errcheck
 
-	req, _ := http.NewRequest(http.MethodPut, ServerURL+"/v1/data", bytes.NewReader(requestBytes))
+	req, _ := http.NewRequest(http.MethodPut, ServerURL+"/v1/data", bytes.NewReader(requestBytes)) //nolint:errcheck
 	req.Header.Add("Authorization", "bearer "+ValidToken())
 	req.Header.Add("Content-Type", "application/json")
 
@@ -62,7 +62,7 @@ func SendPostRequest(name string, valueType string, extraParamValue string, conv
 		requestBytes = bytes.NewReader([]byte(`{"name":"` + name + `","type":"certificate","parameters":{"is_ca": true, "ca": "my-ca", "common_name": "some-intermediate-certificate-ca-cn1", "alternative_names":["cnj", "deadlift", "` + extraParamValue + `"]},"mode":"` + mode + `"}`))
 	}
 
-	req, _ := http.NewRequest(http.MethodPost, ServerURL+"/v1/data", requestBytes)
+	req, _ := http.NewRequest(http.MethodPost, ServerURL+"/v1/data", requestBytes) //nolint:errcheck
 	req.Header.Add("Authorization", "bearer "+ValidToken())
 	req.Header.Add("Content-Type", "application/json")
 
@@ -70,7 +70,7 @@ func SendPostRequest(name string, valueType string, extraParamValue string, conv
 }
 
 func SendDeleteRequest(name string) (*http.Response, error) {
-	req, _ := http.NewRequest(http.MethodDelete, ServerURL+"/v1/data?name="+name, nil)
+	req, _ := http.NewRequest(http.MethodDelete, ServerURL+"/v1/data?name="+name, nil) //nolint:errcheck
 	req.Header.Add("Authorization", "bearer "+ValidToken())
 
 	return HTTPSClient.Do(req)

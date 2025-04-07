@@ -3,9 +3,10 @@ package store_test
 import (
 	. "github.com/cloudfoundry/config-server/store"
 
-	"github.com/cloudfoundry/config-server/config"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"github.com/cloudfoundry/config-server/config"
 )
 
 var _ = Describe("CreateStore", func() {
@@ -26,7 +27,7 @@ var _ = Describe("CreateStore", func() {
 			})
 
 			It("should return a Postgres Store", func() {
-				store, _ := CreateStore(serverConfig)
+				store, _ := CreateStore(serverConfig) //nolint:errcheck
 				Expect(store).To(BeAssignableToTypeOf(NewPostgresStore(nil)))
 			})
 		})
@@ -37,7 +38,7 @@ var _ = Describe("CreateStore", func() {
 			})
 
 			It("should return a Mysql Store", func() {
-				store, _ := CreateStore(serverConfig)
+				store, _ := CreateStore(serverConfig) //nolint:errcheck
 				Expect(store).To(BeAssignableToTypeOf(NewMysqlStore(nil)))
 			})
 		})

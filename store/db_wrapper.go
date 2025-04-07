@@ -26,7 +26,7 @@ func (w DBWrapper) QueryRow(query string, args ...interface{}) IRow {
 }
 
 func (w DBWrapper) Close() {
-	w.db.Close()
+	w.db.Close() //nolint:errcheck
 }
 
 func (w DBWrapper) SetMaxOpenConns(n int) {
