@@ -109,7 +109,7 @@ var _ = Describe("DbProviderConcrete", func() {
 				Port:     0,
 				Name:     "dbconfig",
 			}
-			provider, _ := NewConcreteDbProvider(fakeSQL, dbConfig)
+			provider, _ := NewConcreteDbProvider(fakeSQL, dbConfig) //nolint:errcheck
 			db, err := provider.Db()
 			Expect(err).To(BeNil())
 			Expect(db).ToNot(BeNil())
