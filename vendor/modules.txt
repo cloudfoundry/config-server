@@ -5,7 +5,7 @@ filippo.io/edwards25519/field
 # github.com/BurntSushi/migration v0.0.0-20140125045755-c45b897f1335
 ## explicit
 github.com/BurntSushi/migration
-# github.com/cloudfoundry/bosh-utils v0.0.542
+# github.com/cloudfoundry/bosh-utils v0.0.543
 ## explicit; go 1.23.0
 github.com/cloudfoundry/bosh-utils/errors
 github.com/cloudfoundry/bosh-utils/logger
