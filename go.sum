@@ -4,8 +4,8 @@ github.com/BurntSushi/migration v0.0.0-20140125045755-c45b897f1335 h1:n8o916boOo
 github.com/BurntSushi/migration v0.0.0-20140125045755-c45b897f1335/go.mod h1:eVEKGm5N/F2XPdHocE3gP//Ab+rb/54WJ7XXtFGxwaQ=
 github.com/Masterminds/semver/v3 v3.4.0 h1:Zog+i5UMtVoCU8oKka5P7i9q9HgrJeGzI9SA1Xbatp0=
 github.com/Masterminds/semver/v3 v3.4.0/go.mod h1:4V+yj/TJE1HU9XfppCwVMZq3I84lprf4nC11bSS5beM=
-github.com/cloudfoundry/bosh-utils v0.0.560 h1:4vsa4dbw0gDe0/5AnFSYPrt2L+lrCxKwbJDs3hhdw6M=
-github.com/cloudfoundry/bosh-utils v0.0.560/go.mod h1:LNoUi8A9pr1KHF4RjwMKx4eBF6d/jhgFxZY32QVPQGY=
+github.com/cloudfoundry/bosh-utils v0.0.563 h1:pecTHSYagTyAFBtce5E/tCArCBANw5/nXljqUXKLGj4=
+github.com/cloudfoundry/bosh-utils v0.0.563/go.mod h1:49FqTDh3FxfN2H03O7AgzF5jx+eMCwsOJRDqxbqgLtM=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=

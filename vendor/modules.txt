@@ -8,7 +8,7 @@ github.com/BurntSushi/migration
 # github.com/Masterminds/semver/v3 v3.4.0
 ## explicit; go 1.21
 github.com/Masterminds/semver/v3
-# github.com/cloudfoundry/bosh-utils v0.0.560
+# github.com/cloudfoundry/bosh-utils v0.0.563
 ## explicit; go 1.23.0
 github.com/cloudfoundry/bosh-utils/errors
 github.com/cloudfoundry/bosh-utils/logger
