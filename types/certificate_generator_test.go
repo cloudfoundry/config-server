@@ -324,7 +324,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 						Expect(certificate.IsCA).To(BeFalse())
 					})
 
-					It("generates a 3072-bit private key", func() {
+					It("generates a 3072-bit private key by default", func() {
 						certResp := getCertResp(generator, params)
 
 						Expect(certResp.PrivateKey).NotTo(BeEmpty())
@@ -333,6 +333,18 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 						key, _ := x509.ParsePKCS1PrivateKey(block.Bytes) //nolint:errcheck
 
 						Expect(key.PublicKey.N.BitLen()).To(Equal(3072))
+					})
+
+					It("generates a private key with custom key_length when specified", func() {
+						params["key_length"] = 2048
+						certResp := getCertResp(generator, params)
+
+						Expect(certResp.PrivateKey).NotTo(BeEmpty())
+
+						block, _ := pem.Decode([]byte(certResp.PrivateKey))
+						key, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
+
+						Expect(key.PublicKey.N.BitLen()).To(Equal(2048))
 					})
 
 					It("should have the public keys of the private key and certificate match", func() {

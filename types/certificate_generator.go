@@ -34,6 +34,7 @@ type certParams struct {
 	CAName           string   `yaml:"ca"`
 	ExtKeyUsage      []string `yaml:"extended_key_usage"`
 	Duration         int64    `yaml:"duration"`
+	KeyLength        int      `yaml:"key_length"`
 }
 
 var supportedCertParameters = []string{
@@ -44,6 +45,7 @@ var supportedCertParameters = []string{
 	"ca",
 	"extended_key_usage",
 	"duration",
+	"key_length",
 }
 
 func NewCertificateGenerator(loader CertsLoader) CertificateGenerator {
@@ -69,7 +71,12 @@ func (cfg CertificateGenerator) bigIntHash(n *big.Int) []byte {
 func (cfg CertificateGenerator) generateCertificate(cParams certParams) (CertResponse, error) {
 	var certResponse CertResponse
 
-	privateKey, err := rsa.GenerateKey(rand.Reader, 3072)
+	keyLength := cParams.KeyLength
+	if keyLength == 0 {
+		keyLength = 3072
+	}
+
+	privateKey, err := rsa.GenerateKey(rand.Reader, keyLength)
 	if err != nil {
 		return certResponse, errors.WrapError(err, "Generating Key")
 	}
