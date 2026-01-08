@@ -342,8 +342,8 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 						Expect(certResp.PrivateKey).NotTo(BeEmpty())
 
 						block, _ := pem.Decode([]byte(certResp.PrivateKey))
-						key, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
-
+						key, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+						Expect(err).To(BeNil())
 						Expect(key.PublicKey.N.BitLen()).To(Equal(2048))
 					})
 
