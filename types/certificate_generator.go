@@ -14,6 +14,7 @@ import (
 
 	"github.com/cloudfoundry/bosh-utils/errors"
 )
+
 const DefaultKeyLength = 3072
 
 var validKeyLengths = []int{2048, 3072, 4096}
@@ -88,7 +89,7 @@ func (cfg CertificateGenerator) generateCertificate(cParams certParams) (CertRes
 		}
 	}
 	if !isValid {
-		return certResponse, errors.Errorf("Invalid key_length: %d.  Must be one of: %v", 
+		return certResponse, errors.Errorf("Invalid key_length: %d.  Must be one of: %v",
 			keyLength, validKeyLengths)
 	}
 
