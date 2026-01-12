@@ -80,7 +80,6 @@ func (cfg CertificateGenerator) generateCertificate(cParams certParams) (CertRes
 	}
 
 	// Validate that key length is one of the standard RSA key sizes
-	validKeyLengths := []int{2048, 3072, 4096}
 	isValid := false
 	for _, length := range validKeyLengths {
 		if keyLength == length {
