@@ -14,6 +14,9 @@ import (
 
 	"github.com/cloudfoundry/bosh-utils/errors"
 )
+const DefaultKeyLength = 3072
+
+var validKeyLengths = []int{2048, 3072, 4096}
 
 type CertificateGenerator struct {
 	loader CertsLoader
@@ -73,7 +76,7 @@ func (cfg CertificateGenerator) generateCertificate(cParams certParams) (CertRes
 
 	keyLength := cParams.KeyLength
 	if keyLength == 0 {
-		keyLength = 3072
+		keyLength = DefaultKeyLength
 	}
 
 	// Validate that key length is one of the standard RSA key sizes
@@ -86,7 +89,8 @@ func (cfg CertificateGenerator) generateCertificate(cParams certParams) (CertRes
 		}
 	}
 	if !isValid {
-		return certResponse, errors.Errorf("Invalid key_length: %d. Must be one of: 2048, 3072, or 4096", keyLength)
+		return certResponse, errors.Errorf("Invalid key_length: %d.  Must be one of: %v", 
+			keyLength, validKeyLengths)
 	}
 
 	privateKey, err := rsa.GenerateKey(rand.Reader, keyLength)
