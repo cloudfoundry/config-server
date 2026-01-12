@@ -76,6 +76,19 @@ func (cfg CertificateGenerator) generateCertificate(cParams certParams) (CertRes
 		keyLength = 3072
 	}
 
+	// Validate that key length is one of the standard RSA key sizes
+	validKeyLengths := []int{2048, 3072, 4096}
+	isValid := false
+	for _, length := range validKeyLengths {
+		if keyLength == length {
+			isValid = true
+			break
+		}
+	}
+	if !isValid {
+		return certResponse, errors.Errorf("Invalid key_length: %d. Must be one of: 2048, 3072, or 4096", keyLength)
+	}
+
 	privateKey, err := rsa.GenerateKey(rand.Reader, keyLength)
 	if err != nil {
 		return certResponse, errors.WrapError(err, "Generating Key")
