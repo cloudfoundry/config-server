@@ -353,7 +353,7 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 
 						Expect(err).ToNot(BeNil())
 						Expect(err.Error()).To(ContainSubstring("Invalid key_length: 1234"))
-						Expect(err.Error()).To(ContainSubstring("Must be one of: 2048, 3072, or 4096"))
+						Expect(err.Error()).To(ContainSubstring("Must be one of: [2048 3072 4096]"))
 					})
 
 					It("should have the public keys of the private key and certificate match", func() {
