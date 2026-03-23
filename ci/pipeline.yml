@@ -168,6 +168,6 @@ resources:
 
 resource_types:
 - name: semver
-  type: docker-image
+  type: registry-image
   source:
     repository: concourse/semver-resource
