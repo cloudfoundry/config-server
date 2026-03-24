@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-fly -t "${CONCOURSE_TARGET:-bosh}" \
-    set-pipeline -p config-server \
-    -c ci/pipeline.yml
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+
+fly -t "${CONCOURSE_TARGET:-bosh}" set-pipeline -p config-server \
+  -c "${REPO_ROOT}/ci/pipeline.yml"

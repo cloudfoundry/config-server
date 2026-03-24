@@ -3,27 +3,34 @@ jobs:
   - name: test-golangci-lint
     public: true
     plan:
-      - get: config-server
-        trigger: true
+      - in_parallel:
+          - get: golang-image
+          - get: config-server
+            trigger: true
       - task: test-golangci-lint
         file: config-server/ci/tasks/test-golangci-lint.yml
+        image: golang-image
 
   - name: test-unit
     public: true
     plan:
-      - get: config-server
-        trigger: true
+      - in_parallel:
+        - get: config-server
+          trigger: true
+        - get: golang-image
       - task: test-unit
         file: config-server/ci/tasks/test-unit.yml
+        image: golang-image
 
   - name: test-integration-in-memory
     public: true
     plan:
-      - get: integration-image
-      - get: config-server
-        trigger: true
+      - in_parallel:
+        - get: bosh-integration-image
+        - get: config-server
+          trigger: true
       - task: test-integration
-        image: integration-image
+        image: bosh-integration-image
         privileged: true
         file: config-server/ci/tasks/test-integration.yml
         params:
@@ -32,11 +39,12 @@ jobs:
   - name: test-integration-mysql
     public: true
     plan:
-      - get: main-mysql-8-0-image
-      - get: config-server
-        trigger: true
+      - in_parallel:
+        - get: bosh-integration-mysql-8-0-image
+        - get: config-server
+          trigger: true
       - task: test-integration
-        image: main-mysql-8-0-image
+        image: bosh-integration-mysql-8-0-image
         privileged: true
         file: config-server/ci/tasks/test-integration.yml
         params:
@@ -45,11 +53,12 @@ jobs:
   - name: test-integration-postgresql
     public: true
     plan:
-      - get: config-server
-        trigger: true
-      - get: main-postgres-15-image
+      - in_parallel:
+        - get: config-server
+          trigger: true
+        - get: bosh-integration-postgres-15-image
       - task: test-integration
-        image: main-postgres-15-image
+        image: bosh-integration-postgres-15-image
         privileged: true
         file: config-server/ci/tasks/test-integration.yml
         params:
@@ -61,31 +70,52 @@ jobs:
     plan:
       - in_parallel:
         - get: config-server
-          passed: [test-golangci-lint, test-unit, test-integration-in-memory, test-integration-mysql, test-integration-postgresql]
+          passed:
+            - test-golangci-lint
+            - test-unit
+            - test-integration-in-memory
+            - test-integration-mysql
+            - test-integration-postgresql
           trigger: true
         - get: version-semver
-          params: {bump: patch}
-      - {put: version-semver, params: {file: version-semver/number}}
+          params:
+            bump: patch
+        - get: golang-image
+      - put: version-semver
+        params:
+          file: version-semver/number
       - in_parallel:
         - task: build-linux
           file: config-server/ci/tasks/build-linux.yml
+          image: golang-image
         - task: build-darwin
           file: config-server/ci/tasks/build-darwin.yml
-      - {put: config-server-promoted, params: {repository: config-server, tag: version-semver/number, tag_prefix: v}}
+          image: golang-image
+      - put: config-server-promoted
+        params:
+          repository: config-server
+          tag: version-semver/number
+          tag_prefix: v
 
   - name: bump-minor
     public: true
     plan:
       - get: version-semver
-        params: {bump: minor}
-      - {put: version-semver, params: {file: version-semver/number}}
+        params:
+          bump: minor
+      - put: version-semver
+        params:
+          file: version-semver/number
 
   - name: bump-major
     public: true
     plan:
       - get: version-semver
-        params: {bump: major}
-      - {put: version-semver, params: {file: version-semver/number}}
+        params:
+          bump: major
+      - put: version-semver
+        params:
+          file: version-semver/number
 
   - name: bump-deps
     plan:
@@ -94,6 +124,7 @@ jobs:
       - get: golang-release
       - get: weekly
         trigger: true
+      - get: golang-image
     - task: bump-deps
       file: golang-release/ci/tasks/shared/bump-deps.yml
       input_mapping:
@@ -104,31 +135,44 @@ jobs:
       file: config-server/ci/tasks/test-unit.yml
       input_mapping:
         config-server: bumped-config-server
+      image: golang-image
     - put: config-server
       params:
         repository: bumped-config-server
         rebase: true
 
 resources:
-  - name: main-postgres-15-image
-    type: docker-image
+  - name: bosh-integration-postgres-15-image
+    type: registry-image
     source:
-      repository: bosh/main-postgres-15
+      repository: ghcr.io/cloudfoundry/bosh/main-postgres-13
       tag: main
+      username: ((github_read_write_packages.username))
+      password: ((github_read_write_packages.password))
 
-  - name: main-mysql-8-0-image
-    type: docker-image
+  - name: bosh-integration-mysql-8-0-image
+    type: registry-image
     source:
-      repository: bosh/main-mysql-8.0
+      repository: ghcr.io/cloudfoundry/bosh/main-mysql-8.0
       tag: main
+      username: ((github_read_write_packages.username))
+      password: ((github_read_write_packages.password))
+
+  - name: bosh-integration-image
+    type: registry-image
+    source:
+      repository: ghcr.io/cloudfoundry/bosh/integration
+      tag: main
+      username: ((github_read_write_packages.username))
+      password: ((github_read_write_packages.password))
+
+  - name: golang-image
+    type: registry-image
+    source:
+      repository: golang
+      tag: latest
       username: ((dockerhub_username))
       password: ((dockerhub_password))
-
-  - name: integration-image
-    type: docker-image
-    source:
-      repository: bosh/integration
-      tag: main
 
   - name: config-server
     type: git
