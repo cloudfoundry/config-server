@@ -145,7 +145,7 @@ resources:
   - name: bosh-integration-postgres-15-image
     type: registry-image
     source:
-      repository: ghcr.io/cloudfoundry/bosh/main-postgres-13
+      repository: ghcr.io/cloudfoundry/bosh/main-postgres-15
       tag: main
       username: ((github_read_write_packages.username))
       password: ((github_read_write_packages.password))
