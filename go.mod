@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/BurntSushi/migration v0.0.0-20140125045755-c45b897f1335
-	github.com/cloudfoundry/bosh-utils v0.0.599
+	github.com/cloudfoundry/bosh-utils v0.0.604
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/lib/pq v1.12.0
