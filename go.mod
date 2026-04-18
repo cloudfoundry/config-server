@@ -4,12 +4,12 @@ go 1.25.0
 
 require (
 	github.com/BurntSushi/migration v0.0.0-20140125045755-c45b897f1335
-	github.com/cloudfoundry/bosh-utils v0.0.605
+	github.com/cloudfoundry/bosh-utils v0.0.607
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/lib/pq v1.12.3
 	github.com/onsi/ginkgo/v2 v2.28.1
-	github.com/onsi/gomega v1.39.0
+	github.com/onsi/gomega v1.39.1
 	golang.org/x/crypto v0.50.0
 	golang.org/x/tools v0.44.0
 	gopkg.in/yaml.v2 v2.4.0
@@ -27,7 +27,7 @@ require (
 	golang.org/x/net v0.53.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.43.0 // indirect
-	golang.org/x/telemetry v0.0.0-20260409153401-be6f6cb8b1fa // indirect
+	golang.org/x/telemetry v0.0.0-20260414141209-fac6e1c83189 // indirect
 	golang.org/x/text v0.36.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
