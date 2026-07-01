@@ -18,9 +18,27 @@ jobs:
         - get: config-server
           trigger: true
         - get: golang-image
+        - get: config-server-release
+        - get: ruby-image
       - task: test-unit
         file: config-server/ci/tasks/test-unit.yml
         image: golang-image
+      - task: test-templates
+        image: ruby-image
+        config:
+          platform: linux
+          inputs:
+          - name: config-server-release
+          run:
+            path: bash
+            args:
+            - -euo
+            - pipefail
+            - -c
+            - |
+              cd config-server-release
+              bundle install
+              bundle exec rspec
 
   - name: test-integration-in-memory
     public: true
@@ -174,11 +192,25 @@ resources:
       username: ((dockerhub_username))
       password: ((dockerhub_password))
 
+  - name: ruby-image
+    type: registry-image
+    source:
+      repository: ruby
+      username: ((dockerhub_username))
+      password: ((dockerhub_password))
+
   - name: config-server
     type: git
     source:
       uri: git@github.com:cloudfoundry/config-server.git
       branch: develop
+      private_key: ((github_deploy_key_config-server.private_key))
+
+  - name: config-server-release
+    type: git
+    source:
+      uri: git@github.com:cloudfoundry/config-server-release.git
+      branch: master
       private_key: ((github_deploy_key_config-server.private_key))
 
   - name: config-server-promoted
