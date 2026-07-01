@@ -3,14 +3,10 @@ set -eu -o pipefail
 
 export PATH=/usr/local/go/bin:${PATH}
 
+binary_name="config-server-${GOOS}-${GOARCH}"
+
 pushd config-server
-  go build .
+  go build -o "${binary_name} ".
+
+  openssl sha256 "${binary_name}"
 popd
-
-semver=$(cat version-semver/number)
-binary_name="config-server-${semver}-${GOOS}-${GOARCH}"
-output_filename="compiled-${GOOS}/${binary_name}"
-
-mv config-server/config-server "${output_filename}"
-
-openssl sha256 "${output_filename}"
