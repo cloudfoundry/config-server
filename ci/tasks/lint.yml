@@ -6,4 +6,4 @@ inputs:
   path: config-server
 
 run:
-  path: config-server/ci/tasks/test-golangci-lint.sh
+  path: config-server/ci/tasks/lint.sh
